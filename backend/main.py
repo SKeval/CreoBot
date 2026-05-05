@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 from groq import Groq
@@ -10,9 +11,14 @@ from dotenv import load_dotenv
 from rag import chunk_text, embed_chunks, store_embeddings, search_embeddings
 
 load_dotenv()
-print("SERVICE KEY:", os.getenv("SUPABASE_SERVICE_KEY")[:40] if os.getenv("SUPABASE_SERVICE_KEY") else "MISSING")
-print("ANON KEY:", os.getenv("SUPABASE_ANON_KEY")[:40] if os.getenv("SUPABASE_ANON_KEY") else "MISSING")
+
+#print("SERVICE KEY:", os.getenv("SUPABASE_SERVICE_KEY")[
+ #     :40] if os.getenv("SUPABASE_SERVICE_KEY") else "MISSING")
+#print("ANON KEY:", os.getenv("SUPABASE_ANON_KEY")[
+#      :40] if os.getenv("SUPABASE_ANON_KEY") else "MISSING")
+
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,13 +34,16 @@ supabase = create_client(
 
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+
 @app.get("/")
 def root():
     return {"status": "CreoBot API running"}
 
+
 @app.get("/health")
 def health():
     return {"status": "ok", "supabase": "connected"}
+
 
 @app.post("/upload")
 async def upload_document(
@@ -45,7 +54,8 @@ async def upload_document(
 
     if file.filename.endswith(".pdf"):
         reader = PdfReader(io.BytesIO(content))
-        text = " ".join(page.extract_text() for page in reader.pages if page.extract_text())
+        text = " ".join(page.extract_text()
+                        for page in reader.pages if page.extract_text())
     else:
         text = content.decode("utf-8")
 
@@ -63,6 +73,7 @@ async def upload_document(
 
     return {"status": "uploaded", "chunks": len(chunks), "document_id": document_id}
 
+
 @app.get("/test-db")
 def test_db():
     try:
@@ -71,11 +82,23 @@ def test_db():
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
+
 @app.post("/chat")
 def chat(payload: dict):
     user_message = payload.get("message")
     user_id = payload.get("user_id")
 
+    # Fetch last 6 conversation turns from Supabase
+    history_result = supabase.table("conversations")\
+        .select("role, message")\
+        .eq("user_id", user_id)\
+        .order("created_at", desc=True)\
+        .limit(6)\
+        .execute()
+
+    history = list(reversed(history_result.data))
+
+    # Search relevant context from uploaded docs
     context_chunks = search_embeddings(supabase, user_id, user_message)
     context = "\n\n".join(context_chunks) if context_chunks else ""
 
@@ -88,12 +111,23 @@ Business Knowledge Base:
 {context}
 """
 
+    # Build message history for Groq
+    messages = [{"role": "system", "content": system_prompt}]
+    for turn in history:
+        messages.append({"role": turn["role"], "content": turn["message"]})
+    messages.append({"role": "user", "content": user_message})
+
     response = groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message}
-        ]
+        messages=messages
     )
 
-    return {"reply": response.choices[0].message.content}
+    reply = response.choices[0].message.content
+
+    # Store both turns in Supabase
+    supabase.table("conversations").insert([
+        {"user_id": user_id, "role": "user", "message": user_message},
+        {"user_id": user_id, "role": "assistant", "message": reply}
+    ]).execute()
+
+    return {"reply": reply}
