@@ -1,0 +1,12 @@
+﻿Business Name: Joe's Coffee Shop
+Location: 123 Main Street, Downtown
+Opening Hours: Monday to Friday 7am - 8pm, Saturday 8am - 6pm, Sunday Closed
+Menu:
+- Espresso: 2.50
+- Cappuccino: 3.50
+- Latte: 4.00
+- Croissant: 2.00
+- Bagel with Cream Cheese: 3.00
+WiFi Password: coffee123
+Reservations: We accept reservations for groups of 5 or more. Call 555-1234.
+Refund Policy: No refunds on food items. Drinks can be remade if unsatisfied.
