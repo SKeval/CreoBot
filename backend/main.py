@@ -191,8 +191,8 @@ async def subscribe(req: Request):
         payment_method_types=["card"],
         mode="subscription",
         line_items=[{"price": price_id, "quantity": 1}],
-        success_url="http://localhost:3000/dashboard?success=true",
-        cancel_url="http://localhost:3000/pricing?cancelled=true",
+        success_url="https://creo-bot-tau.vercel.app/dashboard?success=true",
+        cancel_url="https://creo-bot-tau.vercel.app/pricing?cancelled=true",
         metadata={"user_id": user_id, "plan": plan}
     )
 
