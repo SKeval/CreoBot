@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
 interface Profile {
+  id: string
   business_name: string
   plan: string
   message_count: number
@@ -24,6 +25,7 @@ export default function DashboardPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadMsg, setUploadMsg] = useState('')
   const [loading, setLoading] = useState(true)
+  const [copied, setCopied] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -99,6 +101,22 @@ export default function DashboardPage() {
 
     const data = await res.json()
     if (data.checkout_url) window.location.href = data.checkout_url
+  }
+
+  const getEmbedCode = () => {
+    return `<script>
+  window.creobotConfig = {
+    userId: "${profile?.id}",
+    backendUrl: "https://creobot-production.up.railway.app"
+  };
+</script>
+<script src="https://creobot-production.up.railway.app/static/widget.js"></script>`
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(getEmbedCode())
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   if (loading) return (
@@ -194,13 +212,28 @@ export default function DashboardPage() {
           )}
         </div>
 
+        {/* Embed Code */}
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold mb-1">Your Embed Code</h2>
+          <p className="text-gray-400 text-sm mb-4">Paste this into your website to add the chatbot</p>
+          <pre className="bg-gray-800 rounded-xl p-4 text-sm text-green-400 overflow-x-auto whitespace-pre-wrap">
+            {getEmbedCode()}
+          </pre>
+          <button
+            onClick={handleCopy}
+            className="mt-3 bg-gray-700 hover:bg-gray-600 text-white text-sm px-4 py-2 rounded-lg transition"
+          >
+            {copied ? '✅ Copied!' : 'Copy code'}
+          </button>
+        </div>
+
         {/* Handoffs */}
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
           <h2 className="text-lg font-semibold mb-1">Captured Leads</h2>
           <p className="text-gray-400 text-sm mb-6">Customers who needed human follow-up</p>
 
           {handoffs.length === 0 ? (
-            <p className="text-gray-600 text-sm">No leads yet — they'll appear here when customers ask for help.</p>
+            <p className="text-gray-600 text-sm">No leads yet — they will appear here when customers ask for help.</p>
           ) : (
             <div className="space-y-4">
               {handoffs.map(h => (
@@ -211,7 +244,7 @@ export default function DashboardPage() {
                       {new Date(h.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-gray-400 text-sm">"{h.customer_message}"</p>
+                  <p className="text-gray-400 text-sm">{h.customer_message}</p>
                 </div>
               ))}
             </div>
