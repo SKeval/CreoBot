@@ -1,133 +1,102 @@
-from fastapi import FastAPI, UploadFile, File, Form
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 from supabase import create_client
 from groq import Groq
-import os
-import uuid
-import io
-from PyPDF2 import PdfReader
+import smtplib, os, re
+from email.mime.text import MIMEText
 from dotenv import load_dotenv
-from rag import chunk_text, embed_chunks, store_embeddings, search_embeddings
 
 load_dotenv()
 
-#print("SERVICE KEY:", os.getenv("SUPABASE_SERVICE_KEY")[
- #     :40] if os.getenv("SUPABASE_SERVICE_KEY") else "MISSING")
-#print("ANON KEY:", os.getenv("SUPABASE_ANON_KEY")[
-#      :40] if os.getenv("SUPABASE_ANON_KEY") else "MISSING")
-
 app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.mount("/static", StaticFiles(directory="."), name="static")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-supabase = create_client(
-    os.getenv("SUPABASE_URL"),
-    os.getenv("SUPABASE_ANON_KEY")
-)
-
+supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY"))
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+sessions = {}
 
-@app.get("/")
-def root():
-    return {"status": "CreoBot API running"}
+HIGH_INTENT_KEYWORDS = ["buy", "price", "pricing", "book", "order", "purchase", "call", "contact", "quote"]
 
+class ChatRequest(BaseModel):
+    message: str
+    user_id: str
 
-@app.get("/health")
-def health():
-    return {"status": "ok", "supabase": "connected"}
+def detect_confidence(reply: str) -> float:
+    low_conf_phrases = ["i'm not sure", "i don't know", "i cannot find", "unclear", "not certain", "i don't have that information"]
+    score = 1.0
+    for phrase in low_conf_phrases:
+        if phrase in reply.lower():
+            score -= 0.3
+    return max(score, 0.0)
 
+def is_high_intent(message: str) -> bool:
+    return any(kw in message.lower() for kw in HIGH_INTENT_KEYWORDS)
 
-@app.post("/upload")
-async def upload_document(
-    file: UploadFile = File(...),
-    user_id: str = Form(...)
-):
-    content = await file.read()
+def send_handoff_email(user_contact: str, user_message: str):
+    msg = MIMEText(
+        f"🚨 CreoBot Handoff Alert\n\n"
+        f"A customer needs your attention.\n\n"
+        f"Customer contact: {user_contact}\n"
+        f"Their message: \"{user_message}\"\n\n"
+        f"Reply to them as soon as possible."
+    )
+    msg["Subject"] = "🚨 New Lead — CreoBot Handoff"
+    msg["From"] = os.getenv("GMAIL_USER")
+    msg["To"] = os.getenv("OWNER_EMAIL")
 
-    if file.filename.endswith(".pdf"):
-        reader = PdfReader(io.BytesIO(content))
-        text = " ".join(page.extract_text()
-                        for page in reader.pages if page.extract_text())
-    else:
-        text = content.decode("utf-8")
-
-    document_id = str(uuid.uuid4())
-    supabase.table("documents").insert({
-        "id": document_id,
-        "user_id": user_id,
-        "name": file.filename,
-        "content": text
-    }).execute()
-
-    chunks = chunk_text(text)
-    embeddings = embed_chunks(chunks)
-    store_embeddings(supabase, user_id, document_id, chunks, embeddings)
-
-    return {"status": "uploaded", "chunks": len(chunks), "document_id": document_id}
-
-
-@app.get("/test-db")
-def test_db():
-    try:
-        result = supabase.table("documents").select("*").limit(1).execute()
-        return {"status": "ok", "data": result.data}
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
-
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_APP_PASSWORD"))
+        server.send_message(msg)
 
 @app.post("/chat")
-def chat(payload: dict):
-    user_message = payload.get("message")
-    user_id = payload.get("user_id")
+async def chat(req: ChatRequest):
+    uid = req.user_id
+    msg = req.message.strip()
 
-    # Fetch last 6 conversation turns from Supabase
-    history_result = supabase.table("conversations")\
-        .select("role, message")\
-        .eq("user_id", user_id)\
-        .order("created_at", desc=True)\
-        .limit(6)\
-        .execute()
+    if uid not in sessions:
+        sessions[uid] = {"history": [], "awaiting_contact": False, "last_message": ""}
 
-    history = list(reversed(history_result.data))
+    session = sessions[uid]
 
-    # Search relevant context from uploaded docs
-    context_chunks = search_embeddings(supabase, user_id, user_message)
-    context = "\n\n".join(context_chunks) if context_chunks else ""
+    if session["awaiting_contact"]:
+        send_handoff_email(msg, session["last_message"])
+        session["awaiting_contact"] = False
+        return {
+            "reply": "Thanks! A team member will reach out to you shortly. Anything else I can help with?",
+            "handoff": True
+        }
 
-    system_prompt = f"""You are a helpful business assistant.
+    session["history"].append({"role": "user", "content": msg})
+    session["last_message"] = msg
+
+    system_prompt = """You are a helpful AI assistant for this business.
 Answer ONLY based on the information provided below.
 If the answer is not in the context, say: "I don't have that information — let me connect you with the team."
 Never guess or make up information.
 
-Business Knowledge Base:
-{context}
-"""
-
-    # Build message history for Groq
-    messages = [{"role": "system", "content": system_prompt}]
-    for turn in history:
-        messages.append({"role": turn["role"], "content": turn["message"]})
-    messages.append({"role": "user", "content": user_message})
+Business Knowledge Base: No specific business data loaded yet."""
 
     response = groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        messages=messages
+        messages=[
+            {"role": "system", "content": system_prompt},
+            *session["history"]
+        ]
     )
 
     reply = response.choices[0].message.content
+    session["history"].append({"role": "assistant", "content": reply})
 
-    # Store both turns in Supabase
-    supabase.table("conversations").insert([
-        {"user_id": user_id, "role": "user", "message": user_message},
-        {"user_id": user_id, "role": "assistant", "message": reply}
-    ]).execute()
+    confidence = detect_confidence(reply)
+    intent = is_high_intent(msg)
 
-    return {"reply": reply}
+    if confidence < 0.8 or intent:
+        session["awaiting_contact"] = True
+        reply += "\n\nIt looks like you might need more personalized help. Could you share your email or phone number so our team can follow up directly?"
+        return {"reply": reply, "handoff": True, "confidence": confidence}
+
+    return {"reply": reply, "handoff": False, "confidence": confidence}
