@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head><title>CreoBot Widget Test</title></head>
+<head><title>Test</title></head>
 <body>
-  <h1>Joe's Coffee Shop</h1>
-  <p>Welcome to our website!</p>
-  <script src="http://localhost:8000/static/widget.js"></script>
+  <h1>My Business Website</h1>
+
+  <script>
+    window.creobotConfig = {
+      userId: "your-user-id-here",
+      backendUrl: "https://creobot-production.up.railway.app"
+    };
+  </script>
+  <script src="https://creobot-production.up.railway.app/static/widget.js"></script>
 </body>
 </html>
