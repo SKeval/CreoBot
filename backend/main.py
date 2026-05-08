@@ -1,10 +1,11 @@
-from fastapi import FastAPI, UploadFile, File, Form, Request
+from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from supabase import create_client
 from groq import Groq
 import smtplib, os, uuid, io, stripe
+from datetime import datetime, timezone
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
@@ -25,18 +26,14 @@ BLAZE_PRICE_ID = os.getenv("STRIPE_BLAZE_PRICE_ID")
 WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
 PLAN_LIMITS = {
+    "free":  50,
     "spark": 500,
-    "blaze": 2000,
-    "trial": 100
+    "blaze": None   # unlimited
 }
 
 sessions = {}
 
 HIGH_INTENT_KEYWORDS = ["buy", "price", "pricing", "book", "order", "purchase", "call", "contact", "quote"]
-
-class ChatRequest(BaseModel):
-    message: str
-    user_id: str
 
 
 # ─── UTILS ───────────────────────────────────────────────────────────────────
@@ -69,17 +66,39 @@ def send_handoff_email(user_contact: str, user_message: str):
         server.send_message(msg)
 
 def check_usage(user_id: str) -> bool:
-    result = supabase.table("profiles").select("plan, message_count, trial").eq("id", user_id).execute()
+    result = supabase.table("profiles").select(
+        "plan, message_count, trial_ends_at, subscription_status"
+    ).eq("id", user_id).execute()
+
     if not result.data:
         return True  # new user — allow
+
     profile = result.data[0]
-    plan = profile.get("plan", "trial")
-    count = profile.get("message_count", 0)
-    limit = PLAN_LIMITS.get(plan, 100)
-    return count < limit
+
+    # Trial still active → unlimited access
+    trial_ends = profile.get("trial_ends_at")
+    if trial_ends:
+        trial_dt = datetime.fromisoformat(trial_ends.replace("Z", "+00:00"))
+        if datetime.now(timezone.utc) < trial_dt:
+            return True
+
+    plan = profile.get("plan", "free")
+    limit = PLAN_LIMITS.get(plan)
+
+    if limit is None:
+        return True  # blaze = unlimited
+
+    return profile.get("message_count", 0) < limit
 
 def increment_usage(user_id: str):
     supabase.rpc("increment_message_count", {"uid": user_id}).execute()
+
+def resolve_plan(price_id: str) -> str:
+    if price_id == SPARK_PRICE_ID:
+        return "spark"
+    elif price_id == BLAZE_PRICE_ID:
+        return "blaze"
+    return "free"
 
 
 # ─── UPLOAD ──────────────────────────────────────────────────────────────────
@@ -111,6 +130,10 @@ async def upload_document(file: UploadFile = File(...), user_id: str = Form(...)
 
 # ─── CHAT ────────────────────────────────────────────────────────────────────
 
+class ChatRequest(BaseModel):
+    message: str
+    user_id: str
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
     uid = req.user_id
@@ -121,7 +144,6 @@ async def chat(req: ChatRequest):
 
     session = sessions[uid]
 
-    # Usage limit check
     if not check_usage(uid):
         return {
             "reply": "You've reached your plan limit. Please upgrade to continue.",
@@ -129,7 +151,6 @@ async def chat(req: ChatRequest):
             "limit_reached": True
         }
 
-    # Contact capture flow
     if session["awaiting_contact"]:
         send_handoff_email(msg, session["last_message"])
         session["awaiting_contact"] = False
@@ -141,7 +162,6 @@ async def chat(req: ChatRequest):
     session["history"].append({"role": "user", "content": msg})
     session["last_message"] = msg
 
-    # RAG context
     context_chunks = search_embeddings(supabase, uid, msg)
     context = "\n\n".join(context_chunks) if context_chunks else ""
 
@@ -183,13 +203,19 @@ Business Knowledge Base:
 async def subscribe(req: Request):
     body = await req.json()
     user_id = body.get("user_id")
+    email = body.get("email")
     plan = body.get("plan")
+
+    if not all([user_id, email, plan]):
+        raise HTTPException(status_code=400, detail="Missing fields")
 
     price_id = SPARK_PRICE_ID if plan == "spark" else BLAZE_PRICE_ID
 
     session = stripe.checkout.Session.create(
+        customer_email=email,
         payment_method_types=["card"],
         mode="subscription",
+        subscription_data={"trial_period_days": 14},
         line_items=[{"price": price_id, "quantity": 1}],
         success_url="https://creo-bot-tau.vercel.app/dashboard?success=true",
         cancel_url="https://creo-bot-tau.vercel.app/pricing?cancelled=true",
@@ -207,20 +233,41 @@ async def stripe_webhook(req: Request):
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, WEBHOOK_SECRET)
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=400, detail=str(e))
+
+    obj = event["data"]["object"]
 
     if event["type"] == "checkout.session.completed":
-        session = event["data"]["object"]
-        session_dict = session._to_dict_recursive()
-        metadata = session_dict.get("metadata") or {}
+        metadata = obj.get("metadata", {})
         user_id = metadata.get("user_id")
-        plan = metadata.get("plan")
+        plan = metadata.get("plan", "free")
+        customer_id = obj.get("customer")
 
-        if user_id and plan:
+        if user_id:
             supabase.table("profiles").update({
                 "plan": plan,
-                "trial": False,
+                "stripe_customer_id": customer_id,
+                "subscription_status": "trialing",
                 "message_count": 0
             }).eq("id", user_id).execute()
+
+    elif event["type"] == "customer.subscription.updated":
+        customer_id = obj.get("customer")
+        status = obj.get("status")
+        price_id = obj["items"]["data"][0]["price"]["id"]
+        plan = resolve_plan(price_id)
+
+        supabase.table("profiles").update({
+            "plan": plan,
+            "subscription_status": status
+        }).eq("stripe_customer_id", customer_id).execute()
+
+    elif event["type"] == "customer.subscription.deleted":
+        customer_id = obj.get("customer")
+
+        supabase.table("profiles").update({
+            "plan": "free",
+            "subscription_status": "cancelled"
+        }).eq("stripe_customer_id", customer_id).execute()
 
     return {"status": "ok"}

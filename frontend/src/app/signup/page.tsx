@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
@@ -20,21 +19,13 @@ export default function SignupPage() {
 
     const { data, error } = await supabase.auth.signUp({ email, password })
 
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-      return
-    }
+    if (error) { setError(error.message); setLoading(false); return }
 
+    // Update business name only — trigger handles the rest
     if (data.user) {
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        business_name: businessName,
-        plan: 'trial',
-        trial: true,
-        message_count: 0,
-        trial_start: new Date().toISOString()
-      })
+      await supabase.from('profiles').update({
+        business_name: businessName
+      }).eq('id', data.user.id)
     }
 
     router.push('/dashboard')
@@ -44,7 +35,7 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold text-white mb-2">Get started free</h1>
-        <p className="text-gray-400 mb-8">Create your CreoBot account — 14 days free, no card required</p>
+        <p className="text-gray-400 mb-8">14 days free — no credit card required</p>
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
@@ -63,7 +54,6 @@ export default function SignupPage() {
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
             />
           </div>
-
           <div>
             <label className="text-sm text-gray-400 mb-1 block">Email</label>
             <input
@@ -74,7 +64,6 @@ export default function SignupPage() {
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
             />
           </div>
-
           <div>
             <label className="text-sm text-gray-400 mb-1 block">Password</label>
             <input
@@ -85,7 +74,6 @@ export default function SignupPage() {
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
             />
           </div>
-
           <button
             onClick={handleSignup}
             disabled={loading}
@@ -97,9 +85,7 @@ export default function SignupPage() {
 
         <p className="text-gray-500 text-sm text-center mt-6">
           Already have an account?{' '}
-          <Link href="/login" className="text-blue-400 hover:text-blue-300">
-            Sign in
-          </Link>
+          <Link href="/login" className="text-blue-400 hover:text-blue-300">Sign in</Link>
         </p>
       </div>
     </div>

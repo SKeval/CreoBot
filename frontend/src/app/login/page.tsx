@@ -1,84 +1,80 @@
 'use client'
-
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { createClient } from '@/lib/supabase'
 
-export default function LoginPage() {
+export default function Login() {
+  const router = useRouter()
+  const supabase = createClient()
+  const [tab, setTab] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
 
-  const handleLogin = async () => {
-    setLoading(true)
+  const handle = async () => {
     setError('')
-
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-      return
+    setLoading(true)
+    if (tab === 'login') {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) { setError(error.message); setLoading(false); return }
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password })
+      if (error) { setError(error.message); setLoading(false); return }
     }
-
     router.push('/dashboard')
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
-        <p className="text-gray-400 mb-8">Sign in to your CreoBot account</p>
+    <main className="min-h-screen flex items-center justify-center bg-[#0f0f0f] px-4">
+      <div className="w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8">
+        <h1 className="text-2xl font-bold mb-6 text-center">
+          {tab === 'login' ? 'Welcome back' : 'Create your account'}
+        </h1>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
-            {error}
-          </div>
-        )}
+        <div className="flex bg-white/10 rounded-full p-1 mb-6">
+          {(['login', 'signup'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => { setTab(t); setError('') }}
+              className={`flex-1 py-2 rounded-full text-sm font-medium transition ${tab === t ? 'bg-white text-black' : 'text-gray-400'}`}
+            >
+              {t === 'login' ? 'Log In' : 'Sign Up'}
+            </button>
+          ))}
+        </div>
 
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm text-gray-400 mb-1 block">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="you@company.com"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-400 mb-1 block">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
-            />
-          </div>
-
+        <div className="flex flex-col gap-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/30"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/30"
+          />
+          {error && <p className="text-red-400 text-sm">{error}</p>}
           <button
-            onClick={handleLogin}
+            onClick={handle}
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition"
+            className="bg-white text-black py-3 rounded-xl font-semibold hover:bg-gray-200 transition disabled:opacity-50"
           >
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading ? 'Please wait...' : tab === 'login' ? 'Log In' : 'Create Account'}
           </button>
         </div>
 
-        <p className="text-gray-500 text-sm text-center mt-6">
-          Don't have an account?{' '}
-          <Link href="/signup" className="text-blue-400 hover:text-blue-300">
-            Sign up
-          </Link>
-        </p>
+        {tab === 'signup' && (
+          <p className="text-center text-gray-500 text-xs mt-4">
+            14-day free trial. No credit card required.
+          </p>
+        )}
       </div>
-    </div>
+    </main>
   )
 }
