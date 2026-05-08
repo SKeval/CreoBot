@@ -10,6 +10,8 @@ from email.mime.text import MIMEText
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from rag import chunk_text, embed_chunks, store_embeddings, search_embeddings
+import json
+
 
 load_dotenv()
 
@@ -235,13 +237,15 @@ async def stripe_webhook(req: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    obj = event["data"]["object"]
+    # Parse as plain dict — avoids Stripe object access issues
+    event_dict = json.loads(payload)
+    obj = event_dict["data"]["object"]
 
     if event["type"] == "checkout.session.completed":
-        metadata = dict(obj).get("metadata") or {}
+        metadata = obj.get("metadata") or {}
         user_id = metadata.get("user_id")
         plan = metadata.get("plan", "free")
-        customer_id = dict(obj).get("customer")
+        customer_id = obj.get("customer")
 
         if user_id:
             supabase.table("profiles").update({
@@ -252,9 +256,8 @@ async def stripe_webhook(req: Request):
             }).eq("id", user_id).execute()
 
     elif event["type"] == "customer.subscription.updated":
-        obj_dict = dict(obj)
-        customer_id = obj_dict.get("customer")
-        status = obj_dict.get("status")
+        customer_id = obj.get("customer")
+        status = obj.get("status")
         price_id = obj["items"]["data"][0]["price"]["id"]
         plan = resolve_plan(price_id)
 
@@ -264,7 +267,7 @@ async def stripe_webhook(req: Request):
         }).eq("stripe_customer_id", customer_id).execute()
 
     elif event["type"] == "customer.subscription.deleted":
-        customer_id = dict(obj).get("customer")
+        customer_id = obj.get("customer")
 
         supabase.table("profiles").update({
             "plan": "free",
