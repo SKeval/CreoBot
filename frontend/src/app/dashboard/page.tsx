@@ -149,14 +149,16 @@ export default function DashboardPage() {
                 </span>
               )}
             </div>
-            {(profile?.plan === 'free' || isTrialing) && (
+            {(profile?.plan === 'free' || profile?.plan === 'spark' || isTrialing) && (
               <div className="flex gap-3">
-                <button
-                  onClick={() => handleUpgrade('spark')}
-                  className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
-                >
-                  Upgrade to Spark — $19/mo
-                </button>
+                {profile?.plan !== 'spark' && (
+                  <button
+                    onClick={() => handleUpgrade('spark')}
+                    className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+                  >
+                    Upgrade to Spark — $19/mo
+                  </button>
+                )}
                 <button
                   onClick={() => handleUpgrade('blaze')}
                   className="bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
