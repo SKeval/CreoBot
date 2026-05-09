@@ -31,6 +31,8 @@ export default function SignupPage() {
       trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
       subscription_status: 'trialing'
     })
+    // Wait for upsert to complete before redirecting
+  await new Promise(resolve => setTimeout(resolve, 1000))
   }
 
   router.push('/dashboard')
