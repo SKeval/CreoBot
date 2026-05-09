@@ -14,22 +14,27 @@ export default function SignupPage() {
   const supabase = createClient()
 
   const handleSignup = async () => {
-    setLoading(true)
-    setError('')
+  setLoading(true)
+  setError('')
 
-    const { data, error } = await supabase.auth.signUp({ email, password })
+  const { data, error } = await supabase.auth.signUp({ email, password })
 
-    if (error) { setError(error.message); setLoading(false); return }
+  if (error) { setError(error.message); setLoading(false); return }
 
-    // Update business name only — trigger handles the rest
-    if (data.user) {
-      await supabase.from('profiles').update({
-        business_name: businessName
-      }).eq('id', data.user.id)
-    }
-
-    router.push('/dashboard')
+  if (data.user) {
+    await supabase.from('profiles').upsert({
+      id: data.user.id,
+      business_name: businessName,
+      plan: 'free',
+      message_count: 0,
+      trial: true,
+      trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      subscription_status: 'trialing'
+    })
   }
+
+  router.push('/dashboard')
+}
 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
