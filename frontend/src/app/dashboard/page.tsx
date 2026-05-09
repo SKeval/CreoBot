@@ -149,7 +149,7 @@ export default function DashboardPage() {
                 </span>
               )}
             </div>
-            {(profile?.plan === 'free' || profile?.plan === 'spark' || isTrialing) && (
+            {(profile?.plan === 'free' || profile?.plan === 'spark') && (
               <div className="flex gap-3">
                 {profile?.plan !== 'spark' && (
                   <button
