@@ -1,7 +1,10 @@
 import requests
-import json
+import uuid
 
 BACKEND = "https://creobot-production.up.railway.app"
+TEST_USER = str(uuid.uuid4())
+HANDOFF_USER = str(uuid.uuid4())
+RAG_USER = str(uuid.uuid4())
 
 passed = 0
 failed = 0
@@ -16,11 +19,13 @@ def test(name, condition, detail=""):
         failed += 1
 
 print("\n🤖 CreoBot Test Suite\n")
+print(f"  Test users: {TEST_USER[:8]}... / {HANDOFF_USER[:8]}... / {RAG_USER[:8]}...\n")
 
 # ── 1. Health Check ───────────────────────────────────────────────
 print("📡 Backend Health")
 try:
-    r = requests.get(f"{BACKEND}/")
+    r = requests.get(f"{BACKEND}/", timeout=30)
+    print(f"  Raw: {r.status_code} — {r.text[:200]}")
     test("Backend is live", r.status_code == 200)
 except Exception as e:
     test("Backend is live", False, str(e))
@@ -30,8 +35,9 @@ print("\n💬 Chat Endpoint")
 try:
     r = requests.post(f"{BACKEND}/chat", json={
         "message": "hello",
-        "user_id": "test-user-123"
-    })
+        "user_id": TEST_USER
+    }, timeout=60)
+    print(f"  Raw: {r.status_code} — {r.text[:300]}")
     data = r.json()
     test("Chat returns 200", r.status_code == 200)
     test("Chat has reply field", "reply" in data)
@@ -40,52 +46,54 @@ try:
 except Exception as e:
     test("Chat endpoint", False, str(e))
 
-# ── 3. Confidence + Handoff trigger ──────────────────────────────
+# ── 3. Handoff Trigger ────────────────────────────────────────────
 print("\n🤝 Handoff Trigger")
 try:
     r = requests.post(f"{BACKEND}/chat", json={
         "message": "I want to buy something",
-        "user_id": "test-handoff-user"
-    })
+        "user_id": HANDOFF_USER
+    }, timeout=60)
+    print(f"  Raw: {r.status_code} — {r.text[:300]}")
     data = r.json()
     test("High intent triggers handoff", data.get("handoff") == True)
     test("Reply asks for contact", "email" in data.get("reply", "").lower() or "phone" in data.get("reply", "").lower())
 except Exception as e:
     test("Handoff trigger", False, str(e))
 
-# ── 4. Usage limit check ─────────────────────────────────────────
+# ── 4. Usage Limit ───────────────────────────────────────────────
 print("\n📊 Usage Limit")
 try:
     r = requests.post(f"{BACKEND}/chat", json={
         "message": "test message",
-        "user_id": "00000000-0000-0000-0000-000000000000"
-    })
-    data = r.json()
+        "user_id": str(uuid.uuid4())
+    }, timeout=60)
+    print(f"  Raw: {r.status_code} — {r.text[:200]}")
     test("Unknown user handled gracefully", r.status_code == 200)
 except Exception as e:
     test("Usage limit check", False, str(e))
 
-# ── 5. Upload endpoint ───────────────────────────────────────────
+# ── 5. Upload Endpoint ───────────────────────────────────────────
 print("\n📁 Upload Endpoint")
 try:
     files = {"file": ("test.txt", b"Our shop opens at 9am and closes at 6pm.", "text/plain")}
-    data = {"user_id": "test-user-123"}
-    r = requests.post(f"{BACKEND}/upload", files=files, data=data)
+    r = requests.post(f"{BACKEND}/upload", files=files,
+        data={"user_id": RAG_USER}, timeout=120)
+    print(f"  Raw: {r.status_code} — {r.text[:300]}")
     resp = r.json()
     test("Upload returns 200", r.status_code == 200)
-    test("Upload has status field", "status" in resp)
     test("Upload successful", resp.get("status") == "uploaded")
     test("Chunks created", resp.get("chunks", 0) > 0)
 except Exception as e:
     test("Upload endpoint", False, str(e))
 
-# ── 6. RAG — answer from uploaded doc ────────────────────────────
+# ── 6. RAG Pipeline ──────────────────────────────────────────────
 print("\n🔍 RAG Pipeline")
 try:
     r = requests.post(f"{BACKEND}/chat", json={
         "message": "What time do you open?",
-        "user_id": "test-user-123"
-    })
+        "user_id": RAG_USER
+    }, timeout=60)
+    print(f"  Raw: {r.status_code} — {r.text[:300]}")
     data = r.json()
     reply = data.get("reply", "").lower()
     test("RAG returns answer", r.status_code == 200)
@@ -93,14 +101,15 @@ try:
 except Exception as e:
     test("RAG pipeline", False, str(e))
 
-# ── 7. Subscribe endpoint ────────────────────────────────────────
+# ── 7. Stripe Subscribe ──────────────────────────────────────────
 print("\n💳 Stripe Subscribe")
 try:
     r = requests.post(f"{BACKEND}/subscribe", json={
-        "user_id": "test-user-123",
+        "user_id": TEST_USER,
         "email": "test@example.com",
         "plan": "spark"
-    })
+    }, timeout=60)
+    print(f"  Raw: {r.status_code} — {r.text[:200]}")
     data = r.json()
     test("Subscribe returns 200", r.status_code == 200)
     test("Returns checkout URL", "checkout_url" in data)
@@ -108,10 +117,12 @@ try:
 except Exception as e:
     test("Stripe subscribe", False, str(e))
 
-# ── 8. Webhook endpoint ──────────────────────────────────────────
+# ── 8. Webhook ───────────────────────────────────────────────────
 print("\n🔔 Webhook")
 try:
-    r = requests.post(f"{BACKEND}/webhook", json={}, headers={"stripe-signature": "invalid"})
+    r = requests.post(f"{BACKEND}/webhook", json={},
+        headers={"stripe-signature": "invalid"}, timeout=30)
+    print(f"  Raw: {r.status_code} — {r.text[:200]}")
     test("Webhook rejects invalid signature", r.status_code == 400)
 except Exception as e:
     test("Webhook security", False, str(e))
