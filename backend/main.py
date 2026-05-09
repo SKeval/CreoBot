@@ -57,20 +57,24 @@ def is_high_intent(message: str) -> bool:
     return any(kw in message.lower() for kw in HIGH_INTENT_KEYWORDS)
 
 def send_handoff_email(user_contact: str, user_message: str):
-    msg = MIMEText(
-        f"🚨 CreoBot Handoff Alert\n\n"
-        f"A customer needs your attention.\n\n"
-        f"Customer contact: {user_contact}\n"
-        f"Their message: \"{user_message}\"\n\n"
-        f"Reply to them as soon as possible."
-    )
-    msg["Subject"] = "🚨 New Lead — CreoBot Handoff"
-    msg["From"] = os.getenv("GMAIL_USER")
-    msg["To"] = os.getenv("OWNER_EMAIL")
+    try:
+        msg = MIMEText(
+            f"🚨 CreoBot Handoff Alert\n\n"
+            f"A customer needs your attention.\n\n"
+            f"Customer contact: {user_contact}\n"
+            f"Their message: \"{user_message}\"\n\n"
+            f"Reply to them as soon as possible."
+        )
+        msg["Subject"] = "🚨 New Lead — CreoBot Handoff"
+        msg["From"] = os.getenv("GMAIL_USER")
+        msg["To"] = os.getenv("OWNER_EMAIL")
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_APP_PASSWORD"))
-        server.send_message(msg)
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_APP_PASSWORD"))
+            server.send_message(msg)
+    except Exception as e:
+        print(f"⚠️ Handoff email failed: {e}")
+        # Don't crash — just log and continue
 
 def check_usage(user_id: str) -> bool:
     result = supabase.table("profiles").select(
