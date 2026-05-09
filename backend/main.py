@@ -16,6 +16,11 @@ import json
 load_dotenv()
 
 app = FastAPI()
+
+@app.get("/")
+def root():
+    return {"status": "CreoBot API running"}
+
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.mount("/static", StaticFiles(directory="."), name="static")
 
