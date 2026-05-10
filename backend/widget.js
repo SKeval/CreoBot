@@ -1,6 +1,6 @@
 (function () {
   const BACKEND_URL = window.creobotConfig?.backendUrl || "https://creobot-production.up.railway.app";
-  const USER_ID = "00000000-0000-0000-0000-000000000001";
+  const USER_ID = window.creobotConfig?.userId || "00000000-0000-0000-0000-000000000001";
 
   // Inject styles
   const style = document.createElement("style");
