@@ -32,9 +32,18 @@ type Section = 'overview' | 'knowledge' | 'embed' | 'leads'
 
 const PLAN_LIMITS: Record<string, number | null> = {
   free: 50,
-  spark: 500,
+  spark: 1000,
   blaze: null,
 }
+
+const BOT_TEMPLATES = [
+  { key: 'default',          label: 'General Assistant',    icon: '🤖', desc: 'A helpful assistant for any business type.' },
+  { key: 'restaurant',       label: 'Restaurant / Cafe',    icon: '🍽️', desc: 'Menu questions, reservations, dietary needs.' },
+  { key: 'real_estate',      label: 'Real Estate',          icon: '🏠', desc: 'Property inquiries, viewings, buyer and seller support.' },
+  { key: 'ecommerce',        label: 'E-commerce / Retail',  icon: '🛒', desc: 'Orders, returns, product questions, shipping.' },
+  { key: 'legal',            label: 'Legal / Professional', icon: '⚖️', desc: 'Client intake, consultations, services overview.' },
+  { key: 'customer_service', label: 'Customer Service',     icon: '💬', desc: 'General support, issue resolution, FAQs.' },
+]
 
 function trialDaysLeft(trial_ends_at: string): number {
   const diff = new Date(trial_ends_at).getTime() - Date.now()
@@ -230,6 +239,9 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [active, setActive] = useState<Section>('overview')
+  const [selectedTemplate, setSelectedTemplate] = useState('default')
+  const [templateSaving, setTemplateSaving] = useState(false)
+  const [templateSaved, setTemplateSaved] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -247,10 +259,30 @@ export default function DashboardPage() {
 
       setProfile(profileData)
       setHandoffs(handoffData || [])
+      if (profileData?.bot_template) setSelectedTemplate(profileData.bot_template)
       setLoading(false)
     }
     load()
   }, [])
+
+  const saveTemplate = async (key: string) => {
+    setSelectedTemplate(key)
+    setTemplateSaving(true)
+    setTemplateSaved(false)
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/set-template`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: profile?.id, template: key }),
+      })
+      setTemplateSaved(true)
+      setTimeout(() => setTemplateSaved(false), 2000)
+    } catch (e) {
+      console.error('Failed to save template', e)
+    } finally {
+      setTemplateSaving(false)
+    }
+  }
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -491,7 +523,40 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.3 }}
+                className="space-y-6"
               >
+                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h2 className="text-white font-semibold text-lg">Bot Template</h2>
+                      <p className="text-gray-400 text-sm mt-0.5">Choose the personality that matches your business type.</p>
+                    </div>
+                    {templateSaved && (
+                      <span className="text-green-400 text-sm font-medium">Saved</span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {BOT_TEMPLATES.map((t) => (
+                      <button
+                        key={t.key}
+                        onClick={() => saveTemplate(t.key)}
+                        disabled={templateSaving}
+                        className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all duration-200 ${
+                          selectedTemplate === t.key
+                            ? 'border-blue-500 bg-blue-500/10'
+                            : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
+                        }`}
+                      >
+                        <span className="text-2xl">{t.icon}</span>
+                        <div>
+                          <div className="text-white text-sm font-medium">{t.label}</div>
+                          <div className="text-gray-400 text-xs mt-0.5 leading-relaxed">{t.desc}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <SectionCard
                   title="Business Knowledge Base"
                   desc="Upload PDF or TXT files. Your bot answers only from these docs."

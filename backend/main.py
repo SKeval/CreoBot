@@ -1,3 +1,6 @@
+# SUPABASE MIGRATION REQUIRED - run this in Supabase SQL editor:
+# ALTER TABLE profiles ADD COLUMN IF NOT EXISTS bot_template text DEFAULT 'default';
+
 from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -42,8 +45,17 @@ WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
 PLAN_LIMITS = {
     "free":  50,
-    "spark": 500,
+    "spark": 1000,
     "blaze": None   # unlimited
+}
+
+TEMPLATES = {
+    "default": "You are a helpful and friendly AI assistant for this business. Answer customer questions accurately and professionally.",
+    "restaurant": "You are a warm and welcoming assistant for a restaurant or cafe. Help customers with menu questions, ingredients, allergens, reservations, opening hours, special events, and dietary requirements. Always be friendly and make customers feel welcome.",
+    "real_estate": "You are a professional real estate assistant. Help buyers and sellers with property inquiries, viewing schedules, pricing questions, neighborhood information, and next steps. Be professional, clear, and helpful. Never make up property details - only answer from the knowledge base.",
+    "ecommerce": "You are an efficient e-commerce assistant. Help customers with product questions, order status, returns, shipping times, and account issues. Be solution-focused and friendly. If you cannot resolve an issue, escalate to the human team.",
+    "legal": "You are a professional assistant for a legal or professional services firm. Help potential clients understand services offered, book consultations, and answer general questions about the firm. Never give specific legal advice - always direct complex questions to a qualified professional.",
+    "customer_service": "You are a dedicated customer service assistant. Help customers resolve issues, answer questions, and ensure a positive experience. Always be empathetic, patient, and solution-focused.",
 }
 
 sessions = {}
@@ -120,6 +132,16 @@ def increment_usage(user_id: str):
     supabase.rpc("increment_message_count", {"uid": user_id}).execute()
 
 
+def get_bot_template(user_id: str) -> str:
+    try:
+        result = supabase.table("profiles").select("bot_template").eq("id", user_id).execute()
+        if result.data:
+            return result.data[0].get("bot_template", "default") or "default"
+    except Exception:
+        pass
+    return "default"
+
+
 def resolve_plan(price_id: str) -> str:
     if price_id == SPARK_PRICE_ID:
         return "spark"
@@ -154,6 +176,22 @@ async def upload_document(file: UploadFile = File(...), user_id: str = Form(...)
     store_embeddings(supabase, user_id, document_id, chunks, embeddings)
 
     return {"status": "uploaded", "chunks": len(chunks), "document_id": document_id}
+
+
+# ─── TEMPLATE ────────────────────────────────────────────────────────────────
+
+class TemplateRequest(BaseModel):
+    user_id: str
+    template: str
+
+
+@app.post("/set-template")
+async def set_template(req: TemplateRequest):
+    valid = list(TEMPLATES.keys())
+    if req.template not in valid:
+        raise HTTPException(status_code=400, detail=f"Invalid template. Choose from: {valid}")
+    supabase.table("profiles").update({"bot_template": req.template}).eq("id", req.user_id).execute()
+    return {"status": "ok", "template": req.template}
 
 
 # ─── CHAT ────────────────────────────────────────────────────────────────────
@@ -195,15 +233,15 @@ async def chat(req: ChatRequest):
     context_chunks = search_embeddings(supabase, uid, msg)
     context = "\n\n".join(context_chunks) if context_chunks else ""
 
-    system_prompt = f"""You are a helpful AI assistant for this business.
+    template_key = get_bot_template(uid)
+    persona = TEMPLATES.get(template_key, TEMPLATES["default"])
+
+    system_prompt = f"""{persona}
+
 Answer ONLY based on the information provided below.
 If the answer is not in the context, say: "I don't have that information. Let me connect you with the team."
 Never guess or make up information.
-Format your answers clearly:
-- Use bullet points for lists
-- Use short paragraphs, not walls of text
-- Bold key terms where helpful
-- Keep answers concise and easy to read
+Format your answers clearly. Use bullet points for lists. Use short paragraphs. Bold key terms where helpful. Keep answers concise.
 
 Business Knowledge Base:
 {context if context else "No specific business data loaded yet."}"""
