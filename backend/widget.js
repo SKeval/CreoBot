@@ -98,7 +98,15 @@
     const data = await res.json();
     document.getElementById("creobot-typing").remove();
 
-    messages.innerHTML += `<div class="creobot-msg bot">${data.reply}</div>`;
+    const formatted = data.reply
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/^- (.+)/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/gs, '<ul style="margin:6px 0;padding-left:18px;">$1</ul>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+
+    messages.innerHTML += `<div class="creobot-msg bot">${formatted}</div>`;
     messages.scrollTop = messages.scrollHeight;
   }
 

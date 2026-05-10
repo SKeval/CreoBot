@@ -4,7 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from supabase import create_client
 from groq import Groq
-import smtplib, os, uuid, io, stripe
+import smtplib
+import os
+import uuid
+import io
+import stripe
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
@@ -17,14 +21,18 @@ load_dotenv()
 
 app = FastAPI()
 
+
 @app.get("/")
 def root():
     return {"status": "CreoBot API running"}
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+app.add_middleware(CORSMiddleware, allow_origins=[
+                   "*"], allow_methods=["*"], allow_headers=["*"])
 app.mount("/static", StaticFiles(directory="."), name="static")
 
-supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY"))
+supabase = create_client(os.getenv("SUPABASE_URL"),
+                         os.getenv("SUPABASE_SERVICE_KEY"))
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -40,21 +48,25 @@ PLAN_LIMITS = {
 
 sessions = {}
 
-HIGH_INTENT_KEYWORDS = ["buy", "price", "pricing", "book", "order", "purchase", "call", "contact", "quote"]
+HIGH_INTENT_KEYWORDS = ["buy", "price", "pricing",
+                        "book", "order", "purchase", "call", "contact", "quote"]
 
 
 # ─── UTILS ───────────────────────────────────────────────────────────────────
 
 def detect_confidence(reply: str) -> float:
-    low_conf_phrases = ["i'm not sure", "i don't know", "i cannot find", "unclear", "not certain", "i don't have that information"]
+    low_conf_phrases = ["i'm not sure", "i don't know", "i cannot find",
+                        "unclear", "not certain", "i don't have that information"]
     score = 1.0
     for phrase in low_conf_phrases:
         if phrase in reply.lower():
             score -= 0.3
     return max(score, 0.0)
 
+
 def is_high_intent(message: str) -> bool:
     return any(kw in message.lower() for kw in HIGH_INTENT_KEYWORDS)
+
 
 def send_handoff_email(user_contact: str, user_message: str):
     try:
@@ -70,11 +82,13 @@ def send_handoff_email(user_contact: str, user_message: str):
         msg["To"] = os.getenv("OWNER_EMAIL")
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_APP_PASSWORD"))
+            server.login(os.getenv("GMAIL_USER"),
+                         os.getenv("GMAIL_APP_PASSWORD"))
             server.send_message(msg)
     except Exception as e:
         print(f"⚠️ Handoff email failed: {e}")
         # Don't crash — just log and continue
+
 
 def check_usage(user_id: str) -> bool:
     result = supabase.table("profiles").select(
@@ -101,8 +115,10 @@ def check_usage(user_id: str) -> bool:
 
     return profile.get("message_count", 0) < limit
 
+
 def increment_usage(user_id: str):
     supabase.rpc("increment_message_count", {"uid": user_id}).execute()
+
 
 def resolve_plan(price_id: str) -> str:
     if price_id == SPARK_PRICE_ID:
@@ -120,7 +136,8 @@ async def upload_document(file: UploadFile = File(...), user_id: str = Form(...)
 
     if file.filename.endswith(".pdf"):
         reader = PdfReader(io.BytesIO(content))
-        text = " ".join(page.extract_text() for page in reader.pages if page.extract_text())
+        text = " ".join(page.extract_text()
+                        for page in reader.pages if page.extract_text())
     else:
         text = content.decode("utf-8")
 
@@ -145,13 +162,15 @@ class ChatRequest(BaseModel):
     message: str
     user_id: str
 
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
     uid = req.user_id
     msg = req.message.strip()
 
     if uid not in sessions:
-        sessions[uid] = {"history": [], "awaiting_contact": False, "last_message": ""}
+        sessions[uid] = {"history": [],
+                         "awaiting_contact": False, "last_message": ""}
 
     session = sessions[uid]
 
@@ -178,8 +197,13 @@ async def chat(req: ChatRequest):
 
     system_prompt = f"""You are a helpful AI assistant for this business.
 Answer ONLY based on the information provided below.
-If the answer is not in the context, say: "I don't have that information — let me connect you with the team."
+If the answer is not in the context, say: "I don't have that information. Let me connect you with the team."
 Never guess or make up information.
+Format your answers clearly:
+- Use bullet points for lists
+- Use short paragraphs, not walls of text
+- Bold key terms where helpful
+- Keep answers concise and easy to read
 
 Business Knowledge Base:
 {context if context else "No specific business data loaded yet."}"""
@@ -242,7 +266,8 @@ async def stripe_webhook(req: Request):
     sig_header = req.headers.get("stripe-signature")
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, WEBHOOK_SECRET)
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, WEBHOOK_SECRET)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
