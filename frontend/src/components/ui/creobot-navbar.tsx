@@ -10,7 +10,7 @@ import Link from "next/link";
 const navigationItems = [
   { title: "Features", href: "/#features" },
   { title: "How it works", href: "/#how-it-works" },
-  { title: "Pricing", href: "/#pricing" },
+  { title: "Pricing", href: "/pricing" },
   { title: "Sign in", href: "/login" },
 ]
 
