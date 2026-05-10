@@ -21,7 +21,7 @@ const features = [
   {
     icon: '🛡️',
     title: 'Zero Hallucination',
-    desc: 'CreoBot only answers when your content backs it up. If it doesn\'t know, it says so — no guessing, ever.',
+    desc: 'CreoBot only answers when your content backs it up. If it doesn\'t know, it says so - no guessing, ever.',
   },
   {
     icon: '📧',
@@ -44,11 +44,11 @@ const differentiators = [
   {
     icon: '✅',
     title: 'Knows when to say "I don\'t know"',
-    desc: 'Most AI chatbots guess when they\'re unsure — and get it wrong. CreoBot refuses to answer if your docs don\'t back it up, then emails you to follow up.',
+    desc: 'Most AI chatbots guess when they\'re unsure and get it wrong. CreoBot refuses to answer if your docs don\'t back it up, then emails you to follow up.',
   },
   {
     icon: '📬',
-    title: 'Human handoff built in — no helpdesk required',
+    title: 'Human handoff built in - no helpdesk required',
     desc: 'No Zendesk, no Intercom, no $500/month support tool. When confidence is low or a buyer signal fires, your team gets an email instantly with the full conversation.',
   },
   {
@@ -59,7 +59,7 @@ const differentiators = [
 ]
 
 const steps = [
-  { step: '01', title: 'Upload your docs', desc: 'PDF or TXT: menus, FAQs, pricing, policies — anything your customers ask about.' },
+  { step: '01', title: 'Upload your docs', desc: 'PDF or TXT: menus, FAQs, pricing, policies  anything your customers ask about.' },
   { step: '02', title: 'Embed on your site', desc: 'One script tag. Works on WordPress, Shopify, Wix, Webflow, or any HTML site.' },
   { step: '03', title: 'Get alerts, not headaches', desc: 'CreoBot handles the questions. You get emailed only for the ones that need a human.' },
 ]
@@ -82,60 +82,11 @@ const testimonials = [
   },
 ]
 
-const plans = [
-  {
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    features: [
-      '50 messages / month',
-      '1 document',
-      'Embeddable widget',
-      'CreoBot branding',
-    ],
-    cta: 'Get started free',
-    href: '/signup',
-    highlight: false,
-    note: '',
-  },
-  {
-    name: 'Spark',
-    price: '$19',
-    period: 'per month',
-    features: [
-      '1,000 messages / month',
-      '5 documents',
-      'Human handoff via email',
-      'Remove CreoBot branding',
-      'Email support',
-    ],
-    cta: 'Start 14-day Trial',
-    href: '/signup',
-    highlight: false,
-    note: '',
-  },
-  {
-    name: 'Blaze',
-    price: '$49',
-    period: 'per month',
-    features: [
-      'Unlimited messages',
-      'Unlimited documents',
-      'Human handoff via email',
-      'Analytics dashboard',
-      'Priority support',
-    ],
-    cta: 'Start 14-day Trial',
-    href: '/signup',
-    highlight: true,
-    note: '',
-  },
-]
 
 const faqs = [
   {
     q: 'What happens when the bot can\'t answer a question?',
-    a: 'It tells the customer it doesn\'t have that information — and instantly emails you with the full conversation so you can follow up. No question slips through.',
+    a: 'It tells the customer it doesn\'t have that information and instantly emails you with the full conversation so you can follow up. No question slips through.',
   },
   {
     q: 'Do I need to know how to code?',
@@ -143,7 +94,7 @@ const faqs = [
   },
   {
     q: 'What documents can I upload?',
-    a: 'PDF and TXT files — menus, FAQs, pricing, service descriptions, policies. Anything your customers regularly ask about.',
+    a: 'PDF and TXT files: menus, FAQs, pricing, service descriptions, policies. Anything your customers regularly ask about.',
   },
   {
     q: 'What happens after the 14-day trial?',
@@ -155,7 +106,7 @@ const faqs = [
   },
   {
     q: 'Will it make things up if it doesn\'t know the answer?',
-    a: 'Never. CreoBot only answers from your uploaded content. If the answer isn\'t there, it says so and alerts you — that\'s the guarantee.',
+    a: 'Never. CreoBot only answers from your uploaded content. If the answer isn\'t there, it says so and alerts you - that\'s the guarantee.',
   },
 ]
 
@@ -242,8 +193,9 @@ export default function Landing() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="text-gray-400 text-lg md:text-xl mt-8 max-w-2xl leading-relaxed"
         >
-          Upload your docs. CreoBot answers customer questions 24/7 from your content only —
-          zero hallucination. When it can't answer, it emails you instantly.
+          Upload your docs. CreoBot answers customer questions 24/7 from your content only.
+          zero hallucination. 
+          When it can't answer, it emails you instantly.
         </motion.p>
 
         <motion.div
@@ -257,12 +209,12 @@ export default function Landing() {
               href="/signup"
               className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
             >
-              Start free — no card needed
+              Start free - no card needed
             </Link>
           </motion.div>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Link
-              href="#pricing"
+              href="/pricing"
               className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
             >
               See pricing
@@ -500,16 +452,16 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 8. PRICING */}
+      {/* 8. PRICING TEASER */}
       <section id="pricing" className="scroll-mt-20 px-6 py-24">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-2xl mx-auto text-center">
           <motion.h2
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-3"
+            className="text-3xl md:text-4xl font-bold tracking-tight mb-4"
           >
             Simple, flat pricing
           </motion.h2>
@@ -519,84 +471,44 @@ export default function Landing() {
             whileInView="visible"
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-gray-400 text-center mb-14"
+            className="text-gray-400 text-lg mb-8"
           >
-            No per-message fees. No sales calls. No surprises. Cancel anytime.
+            Free plan available. Paid plans from $19/month. No per-message fees, no surprises.
           </motion.p>
           <motion.div
-            variants={stagger}
+            variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            {plans.map((p) => (
-              <motion.div
-                key={p.name}
-                variants={fadeUp}
-                transition={{ duration: 0.5 }}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className={`relative rounded-2xl border p-8 flex flex-col gap-6 transition-colors duration-200 ${
-                  p.highlight
-                    ? 'border-blue-500 bg-blue-500/5'
-                    : 'border-gray-800 bg-gray-900 hover:border-gray-700'
-                }`}
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                href="/pricing"
+                className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
               >
-                {p.highlight && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-semibold px-4 py-1 rounded-full">
-                    Most Popular
-                  </span>
-                )}
-                <div>
-                  <h3 className="text-xl font-bold">{p.name}</h3>
-                  <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">{p.price}</span>
-                    <span className="text-gray-400 text-sm">/{p.period}</span>
-                  </div>
-                </div>
-                <ul className="flex flex-col gap-3 flex-1">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm text-gray-300">
-                      <span className="text-green-400 text-base leading-none">✓</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex flex-col gap-2">
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Link
-                      href={p.href}
-                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors duration-200 ${
-                        p.highlight
-                          ? 'bg-blue-600 hover:bg-blue-500 text-white'
-                          : 'bg-gray-800 hover:bg-gray-700 text-white'
-                      }`}
-                    >
-                      {p.cta}
-                    </Link>
-                  </motion.div>
-                  {p.note && (
-                    <p className="text-center text-gray-600 text-xs">{p.note}</p>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                See all plans
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                href="/signup"
+                className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
+              >
+                Start for free
+              </Link>
+            </motion.div>
           </motion.div>
-
-          {/* Enterprise note */}
           <motion.p
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-center text-gray-500 text-sm mt-8"
+            className="text-gray-600 text-sm mt-5"
           >
-            Need more?{' '}
-            <a href="mailto:creobot.alerts@gmail.com" className="text-blue-400 hover:text-blue-300 transition-colors">
-              Contact us
-            </a>{' '}
-            for custom plans.
+            Free plan available · 14-day trial on paid plans · Cancel anytime
           </motion.p>
         </div>
       </section>
@@ -675,7 +587,7 @@ export default function Landing() {
           Stop answering the same questions twice.
         </h2>
         <p className="text-gray-400 mb-10 max-w-xl mx-auto">
-          Let CreoBot handle it 24/7 — from your content, with zero hallucination.
+          Let CreoBot handle it 24/7 - from your content, with zero hallucination.
           Your team only gets pinged when a real human is needed.
         </p>
         <motion.div
