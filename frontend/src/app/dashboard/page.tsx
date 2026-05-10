@@ -243,6 +243,7 @@ export default function DashboardPage() {
   const [selectedTemplate, setSelectedTemplate] = useState('default')
   const [templateSaving, setTemplateSaving] = useState(false)
   const [templateSaved, setTemplateSaved] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -250,6 +251,7 @@ export default function DashboardPage() {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
+      setUserId(user.id)
 
       const { data: profileData } = await supabase
         .from('profiles').select('*').eq('id', user.id).single()
@@ -290,11 +292,10 @@ export default function DashboardPage() {
     if (!file) return
     setUploading(true)
     setUploadMsg('')
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!userId) return
     const formData = new FormData()
     formData.append('file', file)
-    formData.append('user_id', user.id)
+    formData.append('user_id', userId)
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
       method: 'POST', body: formData,
     })
@@ -309,22 +310,21 @@ export default function DashboardPage() {
   }
 
   const handleUpgrade = async (plan: string) => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!userId) return
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/subscribe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: user.id, email: user.email, plan }),
+      body: JSON.stringify({ user_id: userId, email: profile?.id ?? '', plan }),
     })
     const data = await res.json()
     if (data.checkout_url) window.location.href = data.checkout_url
   }
 
   const getEmbedCode = () => {
-    if (!profile?.id) return 'Loading...'
+    if (!userId) return 'Loading...'
     return `<script>
   window.creobotConfig = {
-    userId: "${profile.id}",
+    userId: "${userId}",
     backendUrl: "https://creobot-production.up.railway.app"
   };
 </script>
