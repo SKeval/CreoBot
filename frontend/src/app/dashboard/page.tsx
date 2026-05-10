@@ -8,6 +8,7 @@ import {
   Bot, ChevronsRight, LayoutDashboard, Database, Code2,
   Users, LogOut, MessageSquare, Zap, Upload, Copy, Check,
   TrendingUp, Clock, ChevronRight, AlertCircle,
+  Home, ShoppingCart, Scale, UtensilsCrossed, Headphones,
 } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -37,12 +38,12 @@ const PLAN_LIMITS: Record<string, number | null> = {
 }
 
 const BOT_TEMPLATES = [
-  { key: 'default',          label: 'General Assistant',    icon: '🤖', desc: 'A helpful assistant for any business type.' },
-  { key: 'restaurant',       label: 'Restaurant / Cafe',    icon: '🍽️', desc: 'Menu questions, reservations, dietary needs.' },
-  { key: 'real_estate',      label: 'Real Estate',          icon: '🏠', desc: 'Property inquiries, viewings, buyer and seller support.' },
-  { key: 'ecommerce',        label: 'E-commerce / Retail',  icon: '🛒', desc: 'Orders, returns, product questions, shipping.' },
-  { key: 'legal',            label: 'Legal / Professional', icon: '⚖️', desc: 'Client intake, consultations, services overview.' },
-  { key: 'customer_service', label: 'Customer Service',     icon: '💬', desc: 'General support, issue resolution, FAQs.' },
+  { key: 'default',          label: 'General Assistant',    icon: 'Robot',          desc: 'A helpful assistant for any business type.' },
+  { key: 'customer_service', label: 'Customer Service',     icon: 'Headphones',     desc: 'Resolves issues, handles complaints, retains customers.' },
+  { key: 'restaurant',       label: 'Restaurant / Cafe',    icon: 'UtensilsCrossed',desc: 'Menu, reservations, dietary needs, hospitality.' },
+  { key: 'real_estate',      label: 'Real Estate',          icon: 'Home',           desc: 'Property inquiries, viewings, buyer and seller support.' },
+  { key: 'ecommerce',        label: 'E-commerce / Retail',  icon: 'ShoppingCart',   desc: 'Orders, returns, product questions, exchanges.' },
+  { key: 'legal',            label: 'Legal / Professional', icon: 'Scale',          desc: 'Client intake, consultations, services, firm info.' },
 ]
 
 function trialDaysLeft(trial_ends_at: string): number {
@@ -276,7 +277,7 @@ export default function DashboardPage() {
         body: JSON.stringify({ user_id: profile?.id, template: key }),
       })
       setTemplateSaved(true)
-      setTimeout(() => setTemplateSaved(false), 2000)
+      setTimeout(() => setTemplateSaved(false), 2500)
     } catch (e) {
       console.error('Failed to save template', e)
     } finally {
@@ -525,35 +526,35 @@ export default function DashboardPage() {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-white font-semibold text-lg">Bot Template</h2>
-                      <p className="text-gray-400 text-sm mt-0.5">Choose the personality that matches your business type.</p>
-                    </div>
-                    {templateSaved && (
-                      <span className="text-green-400 text-sm font-medium">Saved</span>
-                    )}
+                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
+                  <div className="flex items-center justify-between mb-1">
+                    <h2 className="text-white font-semibold text-lg">Bot Personality</h2>
+                    {templateSaved && <span className="text-green-400 text-sm font-medium">Saved</span>}
                   </div>
+                  <p className="text-gray-400 text-sm mb-5">Choose the personality that matches your business. This shapes how your bot communicates with customers.</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {BOT_TEMPLATES.map((t) => (
-                      <button
-                        key={t.key}
-                        onClick={() => saveTemplate(t.key)}
-                        disabled={templateSaving}
-                        className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all duration-200 ${
-                          selectedTemplate === t.key
-                            ? 'border-blue-500 bg-blue-500/10'
-                            : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
-                        }`}
-                      >
-                        <span className="text-2xl">{t.icon}</span>
-                        <div>
-                          <div className="text-white text-sm font-medium">{t.label}</div>
-                          <div className="text-gray-400 text-xs mt-0.5 leading-relaxed">{t.desc}</div>
-                        </div>
-                      </button>
-                    ))}
+                    {BOT_TEMPLATES.map((t) => {
+                      const icons = { Robot: Bot, Home: Home, ShoppingCart: ShoppingCart, Scale: Scale, UtensilsCrossed: UtensilsCrossed, Headphones: Headphones }
+                      const Icon = icons[t.icon as keyof typeof icons] || Bot
+                      return (
+                        <button
+                          key={t.key}
+                          onClick={() => saveTemplate(t.key)}
+                          disabled={templateSaving}
+                          className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all duration-200 ${
+                            selectedTemplate === t.key
+                              ? 'border-blue-500 bg-blue-500/10'
+                              : 'border-gray-700 bg-gray-800/40 hover:border-gray-600'
+                          }`}
+                        >
+                          <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${selectedTemplate === t.key ? 'text-blue-400' : 'text-gray-400'}`} />
+                          <div>
+                            <div className={`text-sm font-medium ${selectedTemplate === t.key ? 'text-blue-300' : 'text-white'}`}>{t.label}</div>
+                            <div className="text-gray-500 text-xs mt-0.5 leading-relaxed">{t.desc}</div>
+                          </div>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
