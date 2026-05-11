@@ -18,6 +18,7 @@ from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from rag import chunk_text, embed_chunks, store_embeddings, search_embeddings
 import json
+from typing import Optional
 
 
 load_dotenv()
@@ -306,6 +307,8 @@ async def set_template(req: TemplateRequest):
 class ChatRequest(BaseModel):
     message: str
     user_id: str
+    conversation_id: Optional[str] = None
+    language: str = "en"   # ADD THIS
 
 
 @app.post("/chat")
@@ -352,6 +355,21 @@ Format your answers clearly. Use bullet points for lists. Use short paragraphs. 
 
 Business Knowledge Base:
 {context if context else "No specific business data loaded yet."}"""
+
+    LANGUAGE_NAMES = {
+    "es": "Spanish",
+    "pt": "Portuguese",
+    "fr": "French",
+    "de": "German"
+}
+
+    if req.language and req.language != "en":
+        lang_name = LANGUAGE_NAMES.get(req.language, "English")
+        system_prompt += (
+            f"\n\nIMPORTANT: Always respond in {lang_name}. "
+            f"The user communicates in {lang_name}. "
+            f"Never switch to English even if the source documents are in English."
+        )
 
     response = groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",

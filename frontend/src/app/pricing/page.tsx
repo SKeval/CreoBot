@@ -355,7 +355,7 @@ export default function PricingPage() {
             Need more than Blaze? We offer custom plans for agencies and larger businesses.
           </p>
           <a
-            href="mailto:creobot.alerts@gmail.com"
+            href="mailto:creoadsai@gmail.com"
             className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
           >
             Contact us &rarr;
