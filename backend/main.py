@@ -1,5 +1,6 @@
 # SUPABASE MIGRATION REQUIRED - run this in Supabase SQL editor:
 # ALTER TABLE profiles ADD COLUMN IF NOT EXISTS bot_template text DEFAULT 'default';
+# ALTER TABLE profiles ADD COLUMN IF NOT EXISTS zapier_webhook_url text;
 
 from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +19,7 @@ from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from rag import chunk_text, embed_chunks, store_embeddings, search_embeddings
 import json
+import httpx
 from typing import Optional
 
 
@@ -302,6 +304,23 @@ async def set_template(req: TemplateRequest):
     return {"status": "ok", "template": req.template}
 
 
+# ─── PROFILE ─────────────────────────────────────────────────────────────────
+
+class ProfileUpdateRequest(BaseModel):
+    user_id: str
+    zapier_webhook_url: Optional[str] = None
+
+
+@app.patch("/api/profile")
+async def update_profile(req: ProfileUpdateRequest):
+    updates = {}
+    if req.zapier_webhook_url is not None:
+        updates["zapier_webhook_url"] = req.zapier_webhook_url
+    if updates:
+        supabase.table("profiles").update(updates).eq("id", req.user_id).execute()
+    return {"success": True}
+
+
 # ─── CHAT ────────────────────────────────────────────────────────────────────
 
 class ChatRequest(BaseModel):
@@ -318,7 +337,7 @@ async def chat(req: ChatRequest):
 
     if uid not in sessions:
         sessions[uid] = {"history": [],
-                         "awaiting_contact": False, "last_message": ""}
+                         "awaiting_contact": False, "last_message": "", "handoff_reason": ""}
 
     session = sessions[uid]
 
@@ -331,6 +350,30 @@ async def chat(req: ChatRequest):
 
     if session["awaiting_contact"]:
         send_handoff_email(msg, session["last_message"])
+        try:
+            prof_result = supabase.table("profiles").select(
+                "zapier_webhook_url, business_name"
+            ).eq("id", uid).execute()
+            if prof_result.data:
+                prof = prof_result.data[0]
+                webhook_url = prof.get("zapier_webhook_url") or ""
+                if webhook_url:
+                    async with httpx.AsyncClient() as client:
+                        await client.post(
+                            webhook_url,
+                            json={
+                                "event": "handoff_triggered",
+                                "business_name": prof.get("business_name", ""),
+                                "user_id": uid,
+                                "conversation_id": req.conversation_id or "",
+                                "customer_message": session.get("last_message", ""),
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "reason": session.get("handoff_reason", "low_confidence"),
+                            },
+                            timeout=5.0
+                        )
+        except Exception as e:
+            print(f"Zapier webhook failed: {e}")
         session["awaiting_contact"] = False
         return {
             "reply": "Thanks! A team member will reach out to you shortly. Anything else I can help with?",
@@ -389,6 +432,7 @@ Business Knowledge Base:
 
     if confidence < 0.8 or intent:
         session["awaiting_contact"] = True
+        session["handoff_reason"] = "low_confidence" if confidence < 0.8 else "keyword"
         reply += "\n\nIt looks like you might need more personalized help. Could you share your email or phone number so our team can follow up directly?"
         return {"reply": reply, "handoff": True, "confidence": confidence}
 

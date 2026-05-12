@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Bot, ChevronsRight, LayoutDashboard, Database, Code2,
   Users, LogOut, MessageSquare, Zap, Upload, Copy, Check,
-  TrendingUp, Clock, ChevronRight, AlertCircle,
+  TrendingUp, Clock, ChevronRight, AlertCircle, Lock,
   Home, ShoppingCart, Scale, UtensilsCrossed, Headphones,
 } from 'lucide-react'
 
@@ -20,6 +20,7 @@ interface Profile {
   message_count: number
   trial_ends_at: string
   subscription_status: string
+  zapier_webhook_url?: string
 }
 
 interface Handoff {
@@ -29,7 +30,7 @@ interface Handoff {
   created_at: string
 }
 
-type Section = 'overview' | 'knowledge' | 'embed' | 'leads'
+type Section = 'overview' | 'knowledge' | 'embed' | 'leads' | 'integrations'
 
 const PLAN_LIMITS: Record<string, number | null> = {
   free: 50,
@@ -58,6 +59,7 @@ const navItems = [
   { id: 'knowledge' as Section, label: 'Knowledge Base', Icon: Database },
   { id: 'embed' as Section, label: 'Embed Code', Icon: Code2 },
   { id: 'leads' as Section, label: 'Captured Leads', Icon: Users },
+  { id: 'integrations' as Section, label: 'Integrations', Icon: Zap },
 ]
 
 function Sidebar({
@@ -244,6 +246,10 @@ export default function DashboardPage() {
   const [templateSaving, setTemplateSaving] = useState(false)
   const [templateSaved, setTemplateSaved] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const [zapierWebhookUrl, setZapierWebhookUrl] = useState('')
+  const [zapierSaving, setZapierSaving] = useState(false)
+  const [zapierSaved, setZapierSaved] = useState(false)
+  const [zapierError, setZapierError] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
@@ -263,6 +269,7 @@ export default function DashboardPage() {
       setProfile(profileData)
       setHandoffs(handoffData || [])
       if (profileData?.bot_template) setSelectedTemplate(profileData.bot_template)
+      if (profileData?.zapier_webhook_url) setZapierWebhookUrl(profileData.zapier_webhook_url)
       setLoading(false)
     }
     load()
@@ -337,6 +344,26 @@ export default function DashboardPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const saveZapierWebhook = async () => {
+    setZapierSaving(true)
+    setZapierError('')
+    setZapierSaved(false)
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: profile?.id, zapier_webhook_url: zapierWebhookUrl }),
+      })
+      if (!res.ok) throw new Error('Failed to save')
+      setZapierSaved(true)
+      setTimeout(() => setZapierSaved(false), 2500)
+    } catch {
+      setZapierError('Failed to save webhook URL. Please try again.')
+    } finally {
+      setZapierSaving(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
@@ -359,6 +386,7 @@ export default function DashboardPage() {
     knowledge: { title: 'Knowledge Base', crumb: 'Knowledge Base' },
     embed: { title: 'Embed Code', crumb: 'Embed Code' },
     leads: { title: 'Captured Leads', crumb: 'Leads' },
+    integrations: { title: 'Integrations', crumb: 'Integrations' },
   }
 
   return (
@@ -691,6 +719,118 @@ export default function DashboardPage() {
                 </SectionCard>
               </motion.div>
             )}
+            {active === 'integrations' && (
+              <motion.div
+                key="integrations"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.3 }}
+              >
+                <SectionCard
+                  title="Zapier Integration"
+                  desc="Connect CreoBot to 6,000+ apps. When a lead is captured (human handoff triggered), CreoBot will POST lead data to your Zapier webhook automatically."
+                >
+                  {profile?.plan === 'free' ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gray-800 flex items-center justify-center">
+                        <Lock className="w-5 h-5 text-gray-500" />
+                      </div>
+                      <div>
+                        <p className="text-gray-300 text-sm font-medium mb-1">Zapier integration is available on Spark and Blaze plans.</p>
+                        <p className="text-gray-500 text-xs">Upgrade to automatically send lead data to any app in the Zapier ecosystem.</p>
+                      </div>
+                      <a
+                        href="/pricing"
+                        className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
+                      >
+                        Upgrade Plan
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <ol className="space-y-2 text-sm text-gray-400">
+                        <li className="flex gap-3">
+                          <span className="w-5 h-5 rounded-full bg-blue-600/20 text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                          <span>Go to <span className="text-white">zapier.com</span> and create a new Zap</span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="w-5 h-5 rounded-full bg-blue-600/20 text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                          <span>Choose trigger - <span className="text-white">Webhooks by Zapier</span> then <span className="text-white">Catch Hook</span></span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="w-5 h-5 rounded-full bg-blue-600/20 text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                          <span>Copy your webhook URL from Zapier and paste it below</span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="w-5 h-5 rounded-full bg-blue-600/20 text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
+                          <span>Test it by triggering a handoff in your widget</span>
+                        </li>
+                      </ol>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Zapier Webhook URL</label>
+                        <input
+                          type="url"
+                          value={zapierWebhookUrl}
+                          onChange={(e) => setZapierWebhookUrl(e.target.value)}
+                          placeholder="https://hooks.zapier.com/hooks/catch/..."
+                          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={saveZapierWebhook}
+                          disabled={zapierSaving}
+                          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
+                        >
+                          {zapierSaving ? 'Saving...' : 'Save Webhook'}
+                        </button>
+                        <AnimatePresence>
+                          {zapierSaved && (
+                            <motion.span
+                              initial={{ opacity: 0, x: -4 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0 }}
+                              className="flex items-center gap-1.5 text-green-400 text-sm"
+                            >
+                              <Check className="w-4 h-4" />
+                              Webhook saved
+                            </motion.span>
+                          )}
+                          {zapierError && (
+                            <motion.span
+                              initial={{ opacity: 0, x: -4 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0 }}
+                              className="flex items-center gap-1.5 text-red-400 text-sm"
+                            >
+                              <AlertCircle className="w-4 h-4" />
+                              {zapierError}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">Payload preview</p>
+                        <pre className="bg-gray-800/60 border border-gray-700 rounded-xl p-5 text-sm text-green-400 overflow-x-auto whitespace-pre font-mono leading-relaxed">{`{
+  "event": "handoff_triggered",
+  "business_name": "Your business name",
+  "user_id": "uuid",
+  "conversation_id": "uuid",
+  "customer_message": "The message that triggered handoff",
+  "timestamp": "2026-05-12T10:00:00Z",
+  "reason": "low_confidence"
+}`}</pre>
+                      </div>
+                    </div>
+                  )}
+                </SectionCard>
+              </motion.div>
+            )}
+
           </AnimatePresence>
 
         </div>
