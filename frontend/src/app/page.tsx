@@ -606,7 +606,12 @@ export default function Landing() {
             <span className="text-gray-700 mx-2">·</span>
             <span className="text-gray-600">Founder</span>
           </p>
-          <p className="text-gray-600 text-sm">{t('homepage.footer_copyright')}</p>
+          <div className="flex items-center gap-4">
+            <Link href="/trust" className="text-gray-500 text-xs hover:text-gray-300 transition-colors duration-200">
+              Trust &amp; Privacy
+            </Link>
+            <p className="text-gray-600 text-sm">{t('homepage.footer_copyright')}</p>
+          </div>
         </div>
       </footer>
 
