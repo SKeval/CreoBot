@@ -5,110 +5,8 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bot, ChevronDown } from 'lucide-react'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const heroWords = ['Answers', 'questions.']
-const heroWordsBlue = ['Emails', 'you', "when it can't."]
-
-const stats = [
-  { value: '24/7', label: 'Always On' },
-  { value: '14-Day', label: 'Free Trial' },
-  { value: 'Zero', label: 'Hallucination' },
-]
-
-const features = [
-  {
-    icon: '🛡️',
-    title: 'Zero Hallucination',
-    desc: 'CreoBot only answers when your content backs it up. If it doesn\'t know, it says so - no guessing, ever.',
-  },
-  {
-    icon: '📧',
-    title: 'Human Handoff',
-    desc: 'When a customer needs a real person, your team gets an instant email with the full conversation attached.',
-  },
-  {
-    icon: '💬',
-    title: 'Conversation Memory',
-    desc: 'Remembers context across the full session. No more "as I mentioned" from frustrated customers.',
-  },
-  {
-    icon: '🔌',
-    title: 'One-Line Embed',
-    desc: 'Paste one script tag. Live on any website in under 2 minutes. No developer needed.',
-  },
-]
-
-const differentiators = [
-  {
-    icon: '✅',
-    title: 'Knows when to say "I don\'t know"',
-    desc: 'Most AI chatbots guess when they\'re unsure and get it wrong. CreoBot refuses to answer if your docs don\'t back it up, then emails you to follow up.',
-  },
-  {
-    icon: '📬',
-    title: 'Human handoff built in - no helpdesk required',
-    desc: 'No Zendesk, no Intercom, no $500/month support tool. When confidence is low or a buyer signal fires, your team gets an email instantly with the full conversation.',
-  },
-  {
-    icon: '💸',
-    title: 'SMB-priced. Not enterprise-locked.',
-    desc: 'Enterprise AI chatbots start at $12,000/year and require a sales call. CreoBot starts at $19/month, self-serve, live in 10 minutes.',
-  },
-]
-
-const steps = [
-  { step: '01', title: 'Upload your docs', desc: 'PDF or TXT: menus, FAQs, pricing, policies  anything your customers ask about.' },
-  { step: '02', title: 'Embed on your site', desc: 'One script tag. Works on WordPress, Shopify, Wix, Webflow, or any HTML site.' },
-  { step: '03', title: 'Get alerts, not headaches', desc: 'CreoBot handles the questions. You get emailed only for the ones that need a human.' },
-]
-
-const testimonials = [
-  {
-    quote: 'CreoBot answered 90% of our customer questions automatically. Game changer.',
-    name: 'Sarah M.',
-    role: 'Coffee Shop Owner',
-  },
-  {
-    quote: 'Setup took 5 minutes. Now our bot handles enquiries 24/7 while we sleep.',
-    name: 'James K.',
-    role: 'Restaurant Owner',
-  },
-  {
-    quote: 'The human handoff feature is brilliant. We never miss a hot lead.',
-    name: 'Priya R.',
-    role: 'Boutique Owner',
-  },
-]
-
-
-const faqs = [
-  {
-    q: 'What happens when the bot can\'t answer a question?',
-    a: 'It tells the customer it doesn\'t have that information and instantly emails you with the full conversation so you can follow up. No question slips through.',
-  },
-  {
-    q: 'Do I need to know how to code?',
-    a: 'No. Upload your docs, copy one script tag into your website, and you\'re live. No developer needed.',
-  },
-  {
-    q: 'What documents can I upload?',
-    a: 'PDF and TXT files: menus, FAQs, pricing, service descriptions, policies. Anything your customers regularly ask about.',
-  },
-  {
-    q: 'What happens after the 14-day trial?',
-    a: 'You move to the Free plan automatically. No charge, no card required to start your trial.',
-  },
-  {
-    q: 'Does it work on any website?',
-    a: 'Yes. One script tag works on WordPress, Shopify, Wix, Webflow, Squarespace, or any custom HTML site.',
-  },
-  {
-    q: 'Will it make things up if it doesn\'t know the answer?',
-    a: 'Never. CreoBot only answers from your uploaded content. If the answer isn\'t there, it says so and alerts you - that\'s the guarantee.',
-  },
-]
+import { useLanguage } from '@/lib/LanguageContext'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 
@@ -131,12 +29,96 @@ const wordVariant = {
 
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const { t } = useLanguage()
+
+  const stats = [
+    { value: '24/7', label: t('homepage.stats_always_on') },
+    { value: '14-Day', label: t('homepage.stats_trial') },
+    { value: 'Zero', label: t('homepage.stats_hallucination') },
+  ]
+
+  const features = [
+    {
+      icon: '🛡️',
+      title: t('homepage.feature_1_title'),
+      desc: t('homepage.feature_1_desc'),
+    },
+    {
+      icon: '📧',
+      title: t('homepage.feature_2_title'),
+      desc: t('homepage.feature_2_desc'),
+    },
+    {
+      icon: '💬',
+      title: t('homepage.feature_3_title'),
+      desc: t('homepage.feature_3_desc'),
+    },
+    {
+      icon: '🔌',
+      title: t('homepage.feature_4_title'),
+      desc: t('homepage.feature_4_desc'),
+    },
+  ]
+
+  const differentiators = [
+    {
+      icon: '✅',
+      title: t('homepage.diff_1_title'),
+      desc: t('homepage.diff_1_desc'),
+    },
+    {
+      icon: '📬',
+      title: t('homepage.diff_2_title'),
+      desc: t('homepage.diff_2_desc'),
+    },
+    {
+      icon: '💸',
+      title: t('homepage.diff_3_title'),
+      desc: t('homepage.diff_3_desc'),
+    },
+  ]
+
+  const steps = [
+    { step: '01', title: t('homepage.step_1_title'), desc: t('homepage.step_1_desc') },
+    { step: '02', title: t('homepage.step_2_title'), desc: t('homepage.step_2_desc') },
+    { step: '03', title: t('homepage.step_3_title'), desc: t('homepage.step_3_desc') },
+  ]
+
+  const testimonials = [
+    {
+      quote: 'CreoBot answered 90% of our customer questions automatically. Game changer.',
+      name: 'Sarah M.',
+      role: 'Coffee Shop Owner',
+    },
+    {
+      quote: 'Setup took 5 minutes. Now our bot handles enquiries 24/7 while we sleep.',
+      name: 'James K.',
+      role: 'Restaurant Owner',
+    },
+    {
+      quote: 'The human handoff feature is brilliant. We never miss a hot lead.',
+      name: 'Priya R.',
+      role: 'Boutique Owner',
+    },
+  ]
+
+  const faqs = [
+    { q: t('homepage.faq_1_q'), a: t('homepage.faq_1_a') },
+    { q: t('homepage.faq_2_q'), a: t('homepage.faq_2_a') },
+    { q: t('homepage.faq_3_q'), a: t('homepage.faq_3_a') },
+    { q: t('homepage.faq_4_q'), a: t('homepage.faq_4_a') },
+    { q: t('homepage.faq_5_q'), a: t('homepage.faq_5_a') },
+    { q: t('homepage.faq_6_q'), a: t('homepage.faq_6_a') },
+  ]
+
+  const heroWords = t('homepage.hero_title_white').split(' ')
+  const heroWordsBlue = t('homepage.hero_title_blue').split(' ')
 
   return (
     <main className="min-h-screen bg-gray-950 text-white flex flex-col">
 
       {/* 1. NAVBAR */}
-      <CreoBotNavbar />
+      <CreoBotNavbar langSwitcher={<LanguageSwitcher />} />
 
       {/* 2. HERO */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-28 pb-24">
@@ -146,7 +128,7 @@ export default function Landing() {
           transition={{ duration: 0.5 }}
           className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-8 uppercase tracking-widest"
         >
-          AI Chatbot Built for Small Business
+          {t('homepage.hero_badge')}
         </motion.span>
 
         <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight max-w-4xl">
@@ -158,7 +140,7 @@ export default function Landing() {
           >
             {heroWords.map((word, i) => (
               <motion.span
-                key={word}
+                key={i}
                 variants={wordVariant}
                 transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
                 className="inline-block mr-4"
@@ -176,7 +158,7 @@ export default function Landing() {
           >
             {heroWordsBlue.map((word, i) => (
               <motion.span
-                key={word}
+                key={i}
                 variants={wordVariant}
                 transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
                 className="inline-block mr-3"
@@ -193,9 +175,7 @@ export default function Landing() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="text-gray-400 text-lg md:text-xl mt-8 max-w-2xl leading-relaxed"
         >
-          Upload your docs. CreoBot answers customer questions 24/7 from your content only.
-          zero hallucination. 
-          When it can't answer, it emails you instantly.
+          {t('homepage.hero_subtitle')}
         </motion.p>
 
         <motion.div
@@ -209,7 +189,7 @@ export default function Landing() {
               href="/signup"
               className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
             >
-              Start free - no card needed
+              {t('homepage.hero_cta_primary')}
             </Link>
           </motion.div>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -217,7 +197,7 @@ export default function Landing() {
               href="/pricing"
               className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
             >
-              See pricing
+              {t('homepage.hero_cta_secondary')}
             </Link>
           </motion.div>
         </motion.div>
@@ -228,7 +208,7 @@ export default function Landing() {
           transition={{ duration: 0.6, delay: 0.85 }}
           className="text-gray-600 text-sm mt-4"
         >
-          14-day free trial · No credit card · Live in 10 minutes
+          {t('homepage.hero_note')}
         </motion.p>
       </section>
 
@@ -268,7 +248,7 @@ export default function Landing() {
           transition={{ duration: 0.5 }}
           className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
         >
-          Everything your business needs
+          {t('homepage.features_title')}
         </motion.h2>
         <motion.p
           variants={fadeUp}
@@ -278,7 +258,7 @@ export default function Landing() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-gray-400 text-center mb-14 max-w-xl mx-auto"
         >
-          Built for small businesses that want enterprise-grade AI without the enterprise price tag.
+          {t('homepage.features_subtitle')}
         </motion.p>
         <motion.div
           variants={stagger}
@@ -303,7 +283,7 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* 5. WHY CREOBOT (NEW) */}
+      {/* 5. WHY CREOBOT */}
       <section className="bg-gray-900/40 border-t border-gray-800 px-6 py-24">
         <div className="max-w-5xl mx-auto">
           <motion.h2
@@ -314,7 +294,7 @@ export default function Landing() {
             transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
           >
-            Not just another AI chatbot
+            {t('homepage.differentiator_title')}
           </motion.h2>
           <motion.p
             variants={fadeUp}
@@ -324,8 +304,7 @@ export default function Landing() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-gray-400 text-center mb-14 max-w-2xl mx-auto"
           >
-            Generic chatbots hallucinate. Enterprise tools cost $12,000/year and need a sales call.
-            CreoBot is built specifically for small businesses.
+            {t('homepage.differentiator_subtitle')}
           </motion.p>
           <motion.div
             variants={stagger}
@@ -361,7 +340,7 @@ export default function Landing() {
             transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
           >
-            Live in 3 steps
+            {t('homepage.how_title')}
           </motion.h2>
           <motion.p
             variants={fadeUp}
@@ -371,7 +350,7 @@ export default function Landing() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-gray-400 text-center mb-16"
           >
-            From sign-up to live chatbot in under 10 minutes.
+            {t('homepage.how_subtitle')}
           </motion.p>
           <motion.div
             variants={stagger}
@@ -409,7 +388,7 @@ export default function Landing() {
             transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
           >
-            Trusted by small businesses
+            {t('homepage.testimonials_title')}
           </motion.h2>
           <motion.p
             variants={fadeUp}
@@ -419,7 +398,7 @@ export default function Landing() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-gray-400 text-center mb-14"
           >
-            Real results from real business owners.
+            {t('homepage.testimonials_subtitle')}
           </motion.p>
           <motion.div
             variants={stagger}
@@ -428,9 +407,9 @@ export default function Landing() {
             viewport={{ once: true }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
-            {testimonials.map((t) => (
+            {testimonials.map((testimonial) => (
               <motion.div
-                key={t.name}
+                key={testimonial.name}
                 variants={fadeUp}
                 transition={{ duration: 0.5 }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
@@ -441,10 +420,10 @@ export default function Landing() {
                     <span key={i} className="text-yellow-400 text-sm">★</span>
                   ))}
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed flex-1">"{t.quote}"</p>
+                <p className="text-gray-300 text-sm leading-relaxed flex-1">"{testimonial.quote}"</p>
                 <div>
-                  <div className="text-white font-semibold text-sm">{t.name}</div>
-                  <div className="text-gray-500 text-xs mt-0.5">{t.role}</div>
+                  <div className="text-white font-semibold text-sm">{testimonial.name}</div>
+                  <div className="text-gray-500 text-xs mt-0.5">{testimonial.role}</div>
                 </div>
               </motion.div>
             ))}
@@ -463,7 +442,7 @@ export default function Landing() {
             transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight mb-4"
           >
-            Simple, flat pricing
+            {t('homepage.pricing_cta_title')}
           </motion.h2>
           <motion.p
             variants={fadeUp}
@@ -473,7 +452,7 @@ export default function Landing() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-gray-400 text-lg mb-8"
           >
-            Free plan available. Paid plans from $19/month. No per-message fees, no surprises.
+            {t('homepage.pricing_cta')}
           </motion.p>
           <motion.div
             variants={fadeUp}
@@ -488,7 +467,7 @@ export default function Landing() {
                 href="/pricing"
                 className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
               >
-                See all plans
+                {t('homepage.pricing_see_plans')}
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -496,7 +475,7 @@ export default function Landing() {
                 href="/signup"
                 className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
               >
-                Start for free
+                {t('homepage.pricing_start_free')}
               </Link>
             </motion.div>
           </motion.div>
@@ -508,7 +487,7 @@ export default function Landing() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-gray-600 text-sm mt-5"
           >
-            Free plan available · 14-day trial on paid plans · Cancel anytime
+            {t('homepage.pricing_note')}
           </motion.p>
         </div>
       </section>
@@ -524,7 +503,7 @@ export default function Landing() {
             transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-14"
           >
-            Frequently asked questions
+            {t('homepage.faq_title')}
           </motion.h2>
           <motion.div
             variants={stagger}
@@ -584,11 +563,10 @@ export default function Landing() {
         className="mx-4 md:mx-8 mb-16 rounded-2xl bg-gradient-to-br from-blue-600/20 via-gray-900 to-gray-900 border border-blue-500/20 px-8 py-20 text-center"
       >
         <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 max-w-2xl mx-auto">
-          Stop answering the same questions twice.
+          {t('homepage.cta_title')}
         </h2>
         <p className="text-gray-400 mb-10 max-w-xl mx-auto">
-          Let CreoBot handle it 24/7 - from your content, with zero hallucination.
-          Your team only gets pinged when a real human is needed.
+          {t('homepage.cta_subtitle')}
         </p>
         <motion.div
           whileHover={{ scale: 1.02 }}
@@ -599,10 +577,10 @@ export default function Landing() {
             href="/signup"
             className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-lg font-semibold text-base transition-colors duration-200"
           >
-            Start your free trial
+            {t('homepage.cta_button')}
           </Link>
         </motion.div>
-        <p className="text-gray-600 text-sm mt-4">14 days free · No credit card · Live in 10 minutes</p>
+        <p className="text-gray-600 text-sm mt-4">{t('homepage.cta_note')}</p>
       </motion.section>
 
       {/* 11. FOOTER */}
@@ -613,7 +591,7 @@ export default function Landing() {
               <Bot className="h-5 w-5 text-blue-500" />
               <span className="font-bold text-white">CreoBot</span>
             </div>
-            <p className="text-gray-500 text-xs">AI chatbot for small businesses.</p>
+            <p className="text-gray-500 text-xs">{t('homepage.footer_tagline')}</p>
           </div>
           <p className="text-xs text-gray-600">
             Built by{' '}
@@ -628,7 +606,7 @@ export default function Landing() {
             <span className="text-gray-700 mx-2">·</span>
             <span className="text-gray-600">Founder</span>
           </p>
-          <p className="text-gray-600 text-sm">© 2026 CreoBot</p>
+          <p className="text-gray-600 text-sm">{t('homepage.footer_copyright')}</p>
         </div>
       </footer>
 

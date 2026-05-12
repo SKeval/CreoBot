@@ -5,106 +5,8 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bot, ChevronDown } from 'lucide-react'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const plans = [
-  {
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    features: [
-      '50 messages / month',
-      '1 document',
-      'Embeddable widget',
-      'CreoBot branding',
-    ],
-    cta: 'Get started free',
-    href: '/signup',
-    highlight: false,
-    note: '',
-  },
-  {
-    name: 'Spark',
-    price: '$19',
-    period: 'per month',
-    features: [
-      '1,000 messages / month',
-      '5 documents',
-      'Human handoff via email',
-      'Remove CreoBot branding',
-      'Email support',
-      '14-day free trial',
-    ],
-    cta: 'Start free trial',
-    href: '/signup',
-    highlight: false,
-    note: 'No credit card required',
-  },
-  {
-    name: 'Blaze',
-    price: '$49',
-    period: 'per month',
-    features: [
-      'Unlimited messages',
-      'Unlimited documents',
-      'Human handoff via email',
-      'Analytics dashboard',
-      'Priority support',
-      '14-day free trial',
-    ],
-    cta: 'Start free trial',
-    href: '/signup',
-    highlight: true,
-    note: 'No credit card required',
-  },
-]
-
-type TableRow = {
-  feature: string
-  free: string | boolean
-  spark: string | boolean
-  blaze: string | boolean
-  type: 'text' | 'bool'
-}
-
-const tableRows: TableRow[] = [
-  { feature: 'Messages per month',     free: '50',       spark: '1,000',    blaze: 'Unlimited', type: 'text' },
-  { feature: 'Documents',              free: '1',        spark: '5',        blaze: 'Unlimited', type: 'text' },
-  { feature: 'Embeddable widget',      free: true,       spark: true,       blaze: true,        type: 'bool' },
-  { feature: 'Human handoff via email',free: false,      spark: true,       blaze: true,        type: 'bool' },
-  { feature: 'Remove CreoBot branding',free: false,      spark: true,       blaze: true,        type: 'bool' },
-  { feature: 'Analytics dashboard',    free: false,      spark: false,      blaze: true,        type: 'bool' },
-  { feature: 'Priority support',       free: false,      spark: false,      blaze: true,        type: 'bool' },
-  { feature: '14-day free trial',      free: false,      spark: true,       blaze: true,        type: 'bool' },
-]
-
-const faqs = [
-  {
-    q: 'Is there a free trial?',
-    a: 'Yes. Spark and Blaze both come with a 14-day free trial. No credit card required to start.',
-  },
-  {
-    q: 'What counts as a message?',
-    a: "Every time a customer sends a message to your bot, that's one message. Bot replies don't count.",
-  },
-  {
-    q: 'What happens if I go over my message limit?',
-    a: "On the Free and Spark plans, the bot will stop responding until the next billing cycle. We'll email you before you hit the limit.",
-  },
-  {
-    q: 'Can I cancel anytime?',
-    a: 'Yes. Cancel from your dashboard at any time. No questions asked, no cancellation fees.',
-  },
-  {
-    q: 'Do you charge per question like other AI tools?',
-    a: "No. CreoBot uses flat monthly pricing. You always know what you'll pay. No per-message fees, no overage surprises.",
-  },
-  {
-    q: 'Can I switch plans?',
-    a: 'Yes. Upgrade or downgrade anytime from your dashboard. Changes apply immediately.',
-  },
-]
+import { useLanguage } from '@/lib/LanguageContext'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 
@@ -143,12 +45,93 @@ function Cell({ value, type }: { value: string | boolean; type: 'text' | 'bool' 
 
 export default function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const { t } = useLanguage()
+
+  type TableRow = {
+    feature: string
+    free: string | boolean
+    spark: string | boolean
+    blaze: string | boolean
+    type: 'text' | 'bool'
+  }
+
+  const plans = [
+    {
+      name: t('pricing.plan_free'),
+      price: '$0',
+      period: t('pricing.billing_forever'),
+      features: [
+        '50 ' + t('pricing.feature_messages').toLowerCase(),
+        '1 ' + t('pricing.feature_docs').toLowerCase(),
+        t('pricing.feature_widget'),
+        'CreoBot branding',
+      ],
+      cta: t('pricing.cta_start_free'),
+      href: '/signup',
+      highlight: false,
+      note: '',
+    },
+    {
+      name: t('pricing.plan_spark'),
+      price: '$19',
+      period: t('pricing.billing_monthly'),
+      features: [
+        '1,000 ' + t('pricing.feature_messages').toLowerCase(),
+        '5 ' + t('pricing.feature_docs').toLowerCase(),
+        t('pricing.feature_handoff'),
+        t('pricing.feature_branding'),
+        'Email support',
+        '14-day free trial',
+      ],
+      cta: t('pricing.cta_start_spark'),
+      href: '/signup',
+      highlight: false,
+      note: t('pricing.no_card'),
+    },
+    {
+      name: t('pricing.plan_blaze'),
+      price: '$49',
+      period: t('pricing.billing_monthly'),
+      features: [
+        'Unlimited ' + t('pricing.feature_messages').toLowerCase(),
+        'Unlimited ' + t('pricing.feature_docs').toLowerCase(),
+        t('pricing.feature_handoff'),
+        t('pricing.feature_analytics'),
+        'Priority support',
+        '14-day free trial',
+      ],
+      cta: t('pricing.cta_start_blaze'),
+      href: '/signup',
+      highlight: true,
+      note: t('pricing.no_card'),
+    },
+  ]
+
+  const tableRows: TableRow[] = [
+    { feature: t('pricing.feature_messages'),  free: '50',       spark: '1,000',    blaze: 'Unlimited', type: 'text' },
+    { feature: t('pricing.feature_docs'),       free: '1',        spark: '5',        blaze: 'Unlimited', type: 'text' },
+    { feature: t('pricing.feature_widget'),     free: true,       spark: true,       blaze: true,        type: 'bool' },
+    { feature: t('pricing.feature_handoff'),    free: false,      spark: true,       blaze: true,        type: 'bool' },
+    { feature: t('pricing.feature_branding'),   free: false,      spark: true,       blaze: true,        type: 'bool' },
+    { feature: t('pricing.feature_analytics'),  free: false,      spark: false,      blaze: true,        type: 'bool' },
+    { feature: t('pricing.feature_priority'),   free: false,      spark: false,      blaze: true,        type: 'bool' },
+    { feature: t('pricing.feature_trial'),      free: false,      spark: true,       blaze: true,        type: 'bool' },
+  ]
+
+  const faqs = [
+    { q: t('pricing.faq_1_q'), a: t('pricing.faq_1_a') },
+    { q: t('pricing.faq_2_q'), a: t('pricing.faq_2_a') },
+    { q: t('pricing.faq_3_q'), a: t('pricing.faq_3_a') },
+    { q: t('pricing.faq_4_q'), a: t('pricing.faq_4_a') },
+    { q: t('pricing.faq_5_q'), a: t('pricing.faq_5_a') },
+    { q: t('pricing.faq_6_q'), a: t('pricing.faq_6_a') },
+  ]
 
   return (
     <main className="min-h-screen bg-gray-950 text-white flex flex-col">
 
       {/* 1. NAVBAR */}
-      <CreoBotNavbar />
+      <CreoBotNavbar langSwitcher={<LanguageSwitcher />} />
 
       {/* 2. HERO */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-24 pb-16">
@@ -158,7 +141,7 @@ export default function PricingPage() {
           transition={{ duration: 0.5 }}
           className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-8 uppercase tracking-widest"
         >
-          Pricing
+          {t('pricing.page_badge')}
         </motion.span>
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -166,7 +149,7 @@ export default function PricingPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-4xl md:text-5xl font-bold tracking-tight mb-6"
         >
-          Simple, flat pricing
+          {t('pricing.page_title')}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -174,7 +157,7 @@ export default function PricingPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-gray-400 text-lg max-w-xl"
         >
-          No per-message fees. No sales calls. No surprises. Start free and upgrade when you're ready.
+          {t('pricing.page_subtitle')}
         </motion.p>
       </section>
 
@@ -200,7 +183,7 @@ export default function PricingPage() {
             >
               {p.highlight && (
                 <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-semibold px-4 py-1 rounded-full">
-                  Most Popular
+                  {t('pricing.most_popular')}
                 </span>
               )}
               <div>
@@ -251,7 +234,7 @@ export default function PricingPage() {
             transition={{ duration: 0.5 }}
             className="text-2xl font-bold text-center mb-8"
           >
-            Compare plans
+            {t('pricing.compare_title')}
           </motion.h2>
           <motion.div
             variants={fadeUp}
@@ -264,10 +247,10 @@ export default function PricingPage() {
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-800/50">
-                  <th className="px-6 py-4 text-left text-sm text-gray-400 font-medium">Feature</th>
-                  <th className="px-6 py-4 text-center text-sm text-gray-400 font-medium">Free</th>
-                  <th className="px-6 py-4 text-center text-sm text-gray-400 font-medium">Spark</th>
-                  <th className="px-6 py-4 text-center text-sm text-gray-400 font-medium">Blaze</th>
+                  <th className="px-6 py-4 text-left text-sm text-gray-400 font-medium">{t('pricing.table_feature')}</th>
+                  <th className="px-6 py-4 text-center text-sm text-gray-400 font-medium">{t('pricing.plan_free')}</th>
+                  <th className="px-6 py-4 text-center text-sm text-gray-400 font-medium">{t('pricing.plan_spark')}</th>
+                  <th className="px-6 py-4 text-center text-sm text-gray-400 font-medium">{t('pricing.plan_blaze')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -296,7 +279,7 @@ export default function PricingPage() {
             transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-14"
           >
-            Frequently asked questions
+            {t('pricing.faq_title')}
           </motion.h2>
           <motion.div
             variants={stagger}
@@ -352,13 +335,13 @@ export default function PricingPage() {
           transition={{ duration: 0.5 }}
         >
           <p className="text-gray-400 mb-3">
-            Need more than Blaze? We offer custom plans for agencies and larger businesses.
+            {t('pricing.enterprise_note')}
           </p>
           <a
             href="mailto:creoadsai@gmail.com"
             className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
           >
-            Contact us &rarr;
+            {t('pricing.enterprise_contact')} &rarr;
           </a>
         </motion.div>
       </section>
@@ -371,7 +354,7 @@ export default function PricingPage() {
               <Bot className="h-5 w-5 text-blue-500" />
               <span className="font-bold text-white">CreoBot</span>
             </div>
-            <p className="text-gray-500 text-xs">AI chatbot for small businesses.</p>
+            <p className="text-gray-500 text-xs">{t('pricing.footer_tagline')}</p>
           </div>
           <p className="text-xs text-gray-600">
             Built by{' '}
@@ -386,7 +369,7 @@ export default function PricingPage() {
             <span className="text-gray-700 mx-2">·</span>
             <span className="text-gray-600">Founder</span>
           </p>
-          <p className="text-gray-600 text-sm">&#169; 2026 CreoBot</p>
+          <p className="text-gray-600 text-sm">{t('pricing.footer_copyright')}</p>
         </div>
       </footer>
 

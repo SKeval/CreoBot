@@ -14,7 +14,7 @@ const navigationItems = [
   { title: "Sign in", href: "/login" },
 ]
 
-export function CreoBotNavbar() {
+export function CreoBotNavbar({ langSwitcher }: { langSwitcher?: React.ReactNode }) {
   return (
     <motion.header
       initial={{ opacity: 0, y: -20 }}
@@ -41,6 +41,7 @@ export function CreoBotNavbar() {
               {item.title}
             </Link>
           ))}
+          {langSwitcher}
           <Link href="/signup">
             <Button className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg">
               Get started free <ArrowRight className="ml-1 w-4 h-4" />
@@ -67,6 +68,7 @@ export function CreoBotNavbar() {
                   </Link>
                 </SheetClose>
               ))}
+              {langSwitcher && <div>{langSwitcher}</div>}
               <SheetClose>
                 <Link href="/signup">
                   <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg">
