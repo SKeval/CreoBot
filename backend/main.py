@@ -190,7 +190,7 @@ def is_high_intent(message: str) -> bool:
     return any(kw in message.lower() for kw in HIGH_INTENT_KEYWORDS)
 
 
-def send_handoff_email(user_contact: str, user_message: str):
+def send_handoff_email(user_contact: str, user_message: str, user_id: str = None, conversation_id: str = None, reason: str = "keyword"):
     try:
         msg = MIMEText(
             f"🚨 CreoBot Handoff Alert\n\n"
@@ -199,17 +199,34 @@ def send_handoff_email(user_contact: str, user_message: str):
             f"Their message: \"{user_message}\"\n\n"
             f"Reply to them as soon as possible."
         )
-        msg["Subject"] = "🚨 New Lead — CreoBot Handoff"
+        msg["Subject"] = "New Lead - CreoBot Handoff"
         msg["From"] = os.getenv("GMAIL_USER")
         msg["To"] = os.getenv("OWNER_EMAIL")
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(os.getenv("GMAIL_USER"),
-                         os.getenv("GMAIL_APP_PASSWORD"))
+            server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_APP_PASSWORD"))
             server.send_message(msg)
     except Exception as e:
-        print(f"⚠️ Handoff email failed: {e}")
-        # Don't crash — just log and continue
+        print(f"Handoff email failed: {e}")
+
+    # Zapier webhook - runs regardless of Gmail result
+    if user_id:
+        try:
+            profile_res = supabase.table("profiles").select("zapier_webhook_url, business_name").eq("id", user_id).single().execute()
+            webhook_url = profile_res.data.get("zapier_webhook_url") if profile_res.data else None
+            if webhook_url:
+                import requests as req_lib
+                req_lib.post(webhook_url, json={
+                    "event": "handoff_triggered",
+                    "business_name": profile_res.data.get("business_name", ""),
+                    "user_id": user_id,
+                    "conversation_id": conversation_id or "",
+                    "customer_message": user_message,
+                    "timestamp": datetime.utcnow().isoformat() + "Z",
+                    "reason": reason
+                }, timeout=5)
+        except Exception as e:
+            print(f"Zapier webhook failed: {e}")
 
 
 def check_usage(user_id: str) -> bool:
