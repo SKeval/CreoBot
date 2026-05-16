@@ -192,6 +192,7 @@ def detect_confidence(reply: str) -> float:
 def is_high_intent(message: str) -> bool:
     return any(kw in message.lower() for kw in HIGH_INTENT_KEYWORDS)
 
+import resend
 
 def send_handoff_email(user_contact: str, user_message: str, user_id: str = None, conversation_id: str = None, reason: str = "keyword"):
     try:
@@ -206,10 +207,14 @@ def send_handoff_email(user_contact: str, user_message: str, user_id: str = None
         msg["From"] = os.getenv("GMAIL_USER")
         msg["To"] = os.getenv("OWNER_EMAIL")
 
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_APP_PASSWORD"))
-            server.send_message(msg)
+        resend.api_key = os.getenv("RESEND_API_KEY")
+        resend.Emails.send({
+            "from": "CreoBot <onboarding@resend.dev>",
+            "to": os.getenv("OWNER_EMAIL"),
+            "subject": "New Lead - CreoBot Handoff",
+            "text": f"CreoBot Handoff Alert\n\nA customer needs your attention.\n\nCustomer contact: {user_contact}\nTheir message: \"{user_message}\"\n\nReply to them as soon as possible."
+        })
+
     except Exception as e:
         print(f"Handoff email failed: {e}")
 
