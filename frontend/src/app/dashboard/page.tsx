@@ -250,6 +250,7 @@ export default function DashboardPage() {
   const [zapierSaving, setZapierSaving] = useState(false)
   const [zapierSaved, setZapierSaved] = useState(false)
   const [zapierError, setZapierError] = useState('')
+  const [userEmail, setUserEmail] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
@@ -258,6 +259,7 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
       setUserId(user.id)
+      setUserEmail(user.email ?? '')
 
       const { data: profileData } = await supabase
         .from('profiles').select('*').eq('id', user.id).single()
@@ -321,7 +323,7 @@ export default function DashboardPage() {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/subscribe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, email: profile?.id ?? '', plan }),
+      body: JSON.stringify({ user_id: userId, email: userEmail, plan }),
     })
     const data = await res.json()
     if (data.checkout_url) window.location.href = data.checkout_url
