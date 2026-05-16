@@ -206,7 +206,8 @@ def send_handoff_email(user_contact: str, user_message: str, user_id: str = None
         msg["From"] = os.getenv("GMAIL_USER")
         msg["To"] = os.getenv("OWNER_EMAIL")
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 587) as server:
+            server.starttls()
             server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_APP_PASSWORD"))
             server.send_message(msg)
     except Exception as e:
