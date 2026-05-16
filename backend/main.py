@@ -170,8 +170,11 @@ If you do not have the answer in your knowledge base, or if someone needs legal 
 
 sessions = {}
 
-HIGH_INTENT_KEYWORDS = ["buy", "price", "pricing",
-                        "book", "order", "purchase", "call", "contact", "quote"]
+HIGH_INTENT_KEYWORDS = [
+    "buy", "price", "pricing", "book", "order", "purchase",
+    "call", "contact", "quote", "human", "agent", "person",
+    "speak to", "talk to", "representative", "support", "help me"
+]
 
 
 # ─── UTILS ───────────────────────────────────────────────────────────────────
@@ -449,7 +452,9 @@ Business Knowledge Base:
 
     if confidence < 0.8 or intent:
         session["awaiting_contact"] = True
-        session["handoff_reason"] = "low_confidence" if confidence < 0.8 else "keyword"
+        reason = "low_confidence" if confidence < 0.8 else "keyword"
+        session["handoff_reason"] = reason
+        send_handoff_email("unknown", msg, user_id=uid, conversation_id=req.conversation_id, reason=reason)
         reply += "\n\nIt looks like you might need more personalized help. Could you share your email or phone number so our team can follow up directly?"
         return {"reply": reply, "handoff": True, "confidence": confidence}
 
