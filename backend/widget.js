@@ -79,6 +79,17 @@
       border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       z-index: 9999; display: flex; align-items: center; justify-content: center;
     }
+    creobot-lang-option {
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #1e293b;
+      background: white;
+    }
+    .creobot-lang-option:hover {
+      background: #1a56db;
+      color: white;
+    }
     #creobot-window {
       position: fixed; bottom: 90px; right: 24px;
       width: 360px; height: 500px; background: white;
@@ -153,11 +164,11 @@
             min-width: 60px;
             overflow: hidden;
           ">
-            <div class="creobot-lang-option" data-lang="en" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">EN</div>
-            <div class="creobot-lang-option" data-lang="es" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">ES</div>
-            <div class="creobot-lang-option" data-lang="pt" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">PT</div>
-            <div class="creobot-lang-option" data-lang="fr" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">FR</div>
-            <div class="creobot-lang-option" data-lang="de" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">DE</div>
+            <div class="creobot-lang-option" data-lang="en">EN</div>
+            <div class="creobot-lang-option" data-lang="es">ES</div>
+            <div class="creobot-lang-option" data-lang="pt">PT</div>
+            <div class="creobot-lang-option" data-lang="fr">FR</div>
+            <div class="creobot-lang-option" data-lang="de">DE</div>  
           </div>
         </div>
       </div>
