@@ -47,13 +47,17 @@ function Cell({ value, type }: { value: string | boolean; type: 'text' | 'bool' 
 export default function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const { t } = useLanguage()
 
   useEffect(() => {
     const checkAuth = async () => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) setUserId(user.id)
+      if (user) {
+        setUserId(user.id)
+        setIsLoggedIn(true)
+      }
     }
     checkAuth()
   }, [])
@@ -163,7 +167,7 @@ export default function PricingPage() {
     <main className="min-h-screen bg-gray-950 text-white flex flex-col">
 
       {/* 1. NAVBAR */}
-      <CreoBotNavbar langSwitcher={<LanguageSwitcher />} />
+      <CreoBotNavbar langSwitcher={<LanguageSwitcher />} isLoggedIn={isLoggedIn} />
 
       {/* 2. HERO */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-24 pb-16">
@@ -244,7 +248,7 @@ export default function PricingPage() {
                           : 'bg-gray-800 hover:bg-gray-700 text-white'
                       }`}
                     >
-                      {p.cta}
+                      {isLoggedIn ? 'Upgrade now' : p.cta}
                     </button>
                   ) : (
                     <Link

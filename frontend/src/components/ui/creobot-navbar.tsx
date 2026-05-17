@@ -7,14 +7,23 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-const navigationItems = [
+const baseNavItems = [
   { title: "Features", href: "/#features" },
   { title: "How it works", href: "/#how-it-works" },
   { title: "Pricing", href: "/pricing" },
-  { title: "Sign in", href: "/login" },
 ]
 
-export function CreoBotNavbar({ langSwitcher }: { langSwitcher?: React.ReactNode }) {
+export function CreoBotNavbar({
+  langSwitcher,
+  isLoggedIn = false,
+}: {
+  langSwitcher?: React.ReactNode
+  isLoggedIn?: boolean
+}) {
+  const navItems = isLoggedIn
+    ? [...baseNavItems, { title: "Dashboard", href: "/dashboard" }]
+    : [...baseNavItems, { title: "Sign in", href: "/login" }]
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -20 }}
@@ -32,7 +41,7 @@ export function CreoBotNavbar({ langSwitcher }: { langSwitcher?: React.ReactNode
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
-          {navigationItems.map((item) => (
+          {navItems.map((item) => (
             <Link
               key={item.title}
               href={item.href}
@@ -42,11 +51,13 @@ export function CreoBotNavbar({ langSwitcher }: { langSwitcher?: React.ReactNode
             </Link>
           ))}
           {langSwitcher}
-          <Link href="/signup">
-            <Button className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg">
-              Get started free <ArrowRight className="ml-1 w-4 h-4" />
-            </Button>
-          </Link>
+          {!isLoggedIn && (
+            <Link href="/signup">
+              <Button className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg">
+                Get started free <ArrowRight className="ml-1 w-4 h-4" />
+              </Button>
+            </Link>
+          )}
         </nav>
 
         {/* Mobile Nav */}
@@ -58,7 +69,7 @@ export function CreoBotNavbar({ langSwitcher }: { langSwitcher?: React.ReactNode
           </SheetTrigger>
           <SheetContent className="bg-gray-950 border-gray-800">
             <nav className="flex flex-col gap-6 mt-8">
-              {navigationItems.map((item) => (
+              {navItems.map((item) => (
                 <SheetClose key={item.title}>
                   <Link
                     href={item.href}
@@ -69,13 +80,15 @@ export function CreoBotNavbar({ langSwitcher }: { langSwitcher?: React.ReactNode
                 </SheetClose>
               ))}
               {langSwitcher && <div>{langSwitcher}</div>}
-              <SheetClose>
-                <Link href="/signup">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg">
-                    Get started free <ArrowRight className="ml-1 w-4 h-4" />
-                  </Button>
-                </Link>
-              </SheetClose>
+              {!isLoggedIn && (
+                <SheetClose>
+                  <Link href="/signup">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg">
+                      Get started free <ArrowRight className="ml-1 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </SheetClose>
+              )}
             </nav>
           </SheetContent>
         </Sheet>
