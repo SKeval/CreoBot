@@ -32,9 +32,9 @@ export default function Landing() {
   const { t } = useLanguage()
 
   const stats = [
-    { value: '24/7', label: t('homepage.stats_always_on') },
-    { value: '14-Day', label: t('homepage.stats_trial') },
-    { value: 'Zero', label: t('homepage.stats_hallucination') },
+    { value: '24/7', label: 'Answers While You Sleep' },
+    { value: '0', label: 'Made-Up Answers' },
+    { value: '< 10 min', label: 'Setup Time' },
   ]
 
   const features = [
@@ -111,8 +111,8 @@ export default function Landing() {
     { q: t('homepage.faq_6_q'), a: t('homepage.faq_6_a') },
   ]
 
-  const heroWords = t('homepage.hero_title_white').split(' ')
-  const heroWordsBlue = t('homepage.hero_title_blue').split(' ')
+  const heroLine1 = "Stop answering the same questions."
+  const heroLine2 = "Stop losing customers at 2am."
 
   return (
     <main className="min-h-screen bg-gray-950 text-white flex flex-col">
@@ -131,14 +131,14 @@ export default function Landing() {
           {t('homepage.hero_badge')}
         </motion.span>
 
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight max-w-4xl">
+        <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight max-w-4xl text-balance">
           <motion.span
             variants={stagger}
             initial="hidden"
             animate="visible"
             className="inline"
           >
-            {heroWords.map((word, i) => (
+            {heroLine1.split(' ').map((word, i) => (
               <motion.span
                 key={i}
                 variants={wordVariant}
@@ -156,7 +156,7 @@ export default function Landing() {
             animate="visible"
             className="inline text-blue-400"
           >
-            {heroWordsBlue.map((word, i) => (
+            {heroLine2.split(' ').map((word, i) => (
               <motion.span
                 key={i}
                 variants={wordVariant}
@@ -175,7 +175,7 @@ export default function Landing() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="text-gray-400 text-lg md:text-xl mt-8 max-w-2xl leading-relaxed"
         >
-          {t('homepage.hero_subtitle')}
+          {"CreoBot answers from your docs only - never makes things up. Emails you the moment a real human needs to step in."}
         </motion.p>
 
         <motion.div
