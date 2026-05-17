@@ -194,19 +194,28 @@
   };
 
   // Handle option click
-  document.querySelectorAll(".creobot-lang-option").forEach(function(opt) {
-    opt.onclick = function() {
-      currentLang = this.getAttribute("data-lang");
-      localStorage.setItem("creobot_lang_" + USER_ID, currentLang);
-      document.getElementById("creobot-lang-btn").textContent = currentLang.toUpperCase();
-      document.getElementById("creobot-lang-menu").style.display = "none";
-      document.getElementById("creobot-input").placeholder = WIDGET_STRINGS[currentLang].placeholder;
-      document.getElementById("creobot-powered-by").textContent = WIDGET_STRINGS[currentLang].poweredBy;
-      document.getElementById("creobot-send").textContent = WIDGET_STRINGS[currentLang].send;
-      document.getElementById("creobot-messages").innerHTML =
-        "<div class='creobot-msg bot'>" + WIDGET_STRINGS[currentLang].greeting + "</div>";
-    };
-  });
+ document.querySelectorAll(".creobot-lang-option").forEach(function(opt) {
+  opt.style.cssText = "padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;background:white;display:block;font-family:sans-serif;";
+  opt.onmouseover = function() {
+    this.style.background = "#1a56db";
+    this.style.color = "white";
+  };
+  opt.onmouseout = function() {
+    this.style.background = "white";
+    this.style.color = "#1e293b";
+  };
+  opt.onclick = function() {
+    currentLang = this.getAttribute("data-lang");
+    localStorage.setItem("creobot_lang_" + USER_ID, currentLang);
+    document.getElementById("creobot-lang-btn").textContent = currentLang.toUpperCase();
+    document.getElementById("creobot-lang-menu").style.display = "none";
+    document.getElementById("creobot-input").placeholder = WIDGET_STRINGS[currentLang].placeholder;
+    document.getElementById("creobot-powered-by").textContent = WIDGET_STRINGS[currentLang].poweredBy;
+    document.getElementById("creobot-send").textContent = WIDGET_STRINGS[currentLang].send;
+    document.getElementById("creobot-messages").innerHTML =
+      "<div class='creobot-msg bot'>" + WIDGET_STRINGS[currentLang].greeting + "</div>";
+  };
+});
 
   // Close menu when clicking outside
   document.addEventListener("click", function() {
