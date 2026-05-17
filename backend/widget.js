@@ -10,7 +10,9 @@
       thinking: "Thinking...",
       error: "Something went wrong. Please try again.",
       handoff: "A human will follow up with you shortly via email.",
-      langLabel: "Language"
+      langLabel: "Language",
+      greeting: "Hi! How can I help you today?", 
+      send: "Send"
     },
     es: {
       placeholder: "Escribe un mensaje...",
@@ -18,7 +20,9 @@
       thinking: "Pensando...",
       error: "Algo salio mal. Por favor, intentalo de nuevo.",
       handoff: "Un humano te contactara pronto por correo electronico.",
-      langLabel: "Idioma"
+      langLabel: "Idioma",
+      greeting: "Hola! Como puedo ayudarte hoy?", 
+      send: "Enviar" 
     },
     pt: {
       placeholder: "Digite uma mensagem...",
@@ -26,7 +30,9 @@
       thinking: "Pensando...",
       error: "Algo deu errado. Por favor, tente novamente.",
       handoff: "Um humano entrara em contato em breve por e-mail.",
-      langLabel: "Idioma"
+      langLabel: "Idioma",
+      greeting: "Ola! Como posso ajudar voce hoje?", 
+      send: "Enviar" 
     },
     fr: {
       placeholder: "Tapez un message...",
@@ -34,7 +40,9 @@
       thinking: "Reflexion en cours...",
       error: "Une erreur est survenue. Veuillez reessayer.",
       handoff: "Un humain vous contactera bientot par e-mail.",
-      langLabel: "Langue"
+      langLabel: "Langue",
+      greeting: "Bonjour! Comment puis-je vous aider?", 
+      send: "Envoyer" 
     },
     de: {
       placeholder: "Nachricht eingeben...",
@@ -42,7 +50,9 @@
       thinking: "Denke nach...",
       error: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
       handoff: "Ein Mitarbeiter meldet sich bald per E-Mail bei Ihnen.",
-      langLabel: "Sprache"
+      langLabel: "Sprache",
+      greeting: "Hallo! Wie kann ich Ihnen helfen?", 
+      send: "Senden" 
     }
   };
 
@@ -111,7 +121,7 @@
       font-size: 11px; color: #94a3b8;
     }
     #creobot-lang {
-      background: transparent; color: white; border: none;
+      background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 4px;
       font-size: 11px; cursor: pointer; outline: none; padding: 2px 4px;
     }
   `;
@@ -132,11 +142,11 @@
         </select>
       </div>
       <div id="creobot-messages">
-        <div class="creobot-msg bot">Hi! How can I help you today?</div>
+            <div class="creobot-msg bot">${WIDGET_STRINGS[currentLang].greeting}</div>
       </div>
       <div id="creobot-input-row">
         <input id="creobot-input" type="text" placeholder="${WIDGET_STRINGS[currentLang].placeholder}" />
-        <button id="creobot-send">Send</button>
+        <button id="creobot-send">${WIDGET_STRINGS[currentLang].send}</button>
       </div>
       <div id="creobot-powered-by">${WIDGET_STRINGS[currentLang].poweredBy}</div>
     </div>
@@ -151,6 +161,9 @@
     localStorage.setItem('creobot_lang_' + USER_ID, currentLang);
     document.getElementById("creobot-input").placeholder = WIDGET_STRINGS[currentLang].placeholder;
     document.getElementById("creobot-powered-by").textContent = WIDGET_STRINGS[currentLang].poweredBy;
+    // Clear chat on language switch
+    document.getElementById("creobot-messages").innerHTML = `<div class="creobot-msg bot">${WIDGET_STRINGS[currentLang].greeting || "Hi! How can I help you today?"}</div>`;
+    document.getElementById("creobot-send").textContent = WIDGET_STRINGS[currentLang].send;
   };
 
   // Toggle open/close
