@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bot, ChevronDown } from 'lucide-react'
-import { createClient } from '@/lib/supabase'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
 import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { useAuth } from '@/hooks/useAuth'
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 
@@ -46,40 +46,8 @@ function Cell({ value, type }: { value: string | boolean; type: 'text' | 'bool' 
 
 export default function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [userId, setUserId] = useState<string | null>(null)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const { t } = useLanguage()
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUserId(user.id)
-        setIsLoggedIn(true)
-      }
-    }
-    checkAuth()
-  }, [])
-
-  const handleUpgrade = async (plan: string) => {
-  if (!userId) {
-    window.location.href = '/signup'
-    return
-  }
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const res = await fetch(
-    process.env.NEXT_PUBLIC_BACKEND_URL + '/subscribe',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, email: user?.email ?? '', plan }),
-    }
-  )
-  const data = await res.json()
-  if (data.checkout_url) window.location.href = data.checkout_url
-}
+  const { isLoggedIn } = useAuth()
 
   type TableRow = {
     feature: string
@@ -240,26 +208,26 @@ export default function PricingPage() {
               <div className="flex flex-col gap-2">
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   {p.upgradePlan ? (
-                    <button
-                      onClick={() => handleUpgrade(p.upgradePlan!)}
-                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors duration-200 cursor-pointer ${
-                        p.highlight
-                          ? 'bg-blue-600 hover:bg-blue-500 text-white'
-                          : 'bg-gray-800 hover:bg-gray-700 text-white'
-                      }`}
-                    >
-                      {isLoggedIn ? 'Upgrade now' : p.cta}
-                    </button>
-                  ) : (
                     <Link
-                      href={p.href}
+                      href={isLoggedIn ? '/dashboard/billing' : '/signup'}
                       className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors duration-200 ${
                         p.highlight
                           ? 'bg-blue-600 hover:bg-blue-500 text-white'
                           : 'bg-gray-800 hover:bg-gray-700 text-white'
                       }`}
                     >
-                      {p.cta}
+                      {isLoggedIn ? 'Upgrade now' : 'Start free - 14 day trial'}
+                    </Link>
+                  ) : (
+                    <Link
+                      href={isLoggedIn ? '/dashboard' : '/signup'}
+                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors duration-200 ${
+                        p.highlight
+                          ? 'bg-blue-600 hover:bg-blue-500 text-white'
+                          : 'bg-gray-800 hover:bg-gray-700 text-white'
+                      }`}
+                    >
+                      {isLoggedIn ? 'Dashboard' : 'Start free'}
                     </Link>
                   )}
                 </motion.div>

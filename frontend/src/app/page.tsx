@@ -7,6 +7,7 @@ import { Bot, ChevronDown } from 'lucide-react'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
 import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { useAuth } from '@/hooks/useAuth'
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 
@@ -30,6 +31,7 @@ const wordVariant = {
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const { t } = useLanguage()
+  const { isLoggedIn } = useAuth()
 
   const stats = [
     { value: '24/7', label: 'Answers While You Sleep' },
@@ -111,14 +113,14 @@ export default function Landing() {
     { q: t('homepage.faq_6_q'), a: t('homepage.faq_6_a') },
   ]
 
-  const heroLine1 = "Stop answering the same questions."
-  const heroLine2 = "Stop losing customers at 2am."
+  const heroLine1 = t('homepage.hero_line1')
+  const heroLine2 = t('homepage.hero_line2')
 
   return (
     <main className="min-h-screen bg-gray-950 text-white flex flex-col">
 
       {/* 1. NAVBAR */}
-      <CreoBotNavbar langSwitcher={<LanguageSwitcher />} />
+      <CreoBotNavbar langSwitcher={<LanguageSwitcher />} isLoggedIn={isLoggedIn} />
 
       {/* 2. HERO */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-28 pb-24">
@@ -175,7 +177,7 @@ export default function Landing() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="text-gray-400 text-lg md:text-xl mt-8 max-w-2xl leading-relaxed"
         >
-          {"CreoBot answers from your docs only - never makes things up. Emails you the moment a real human needs to step in."}
+          {t('homepage.hero_subtitle')}
         </motion.p>
 
         <motion.div
@@ -186,10 +188,10 @@ export default function Landing() {
         >
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Link
-              href="/signup"
+              href={isLoggedIn ? '/dashboard' : '/signup'}
               className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
             >
-              {t('homepage.hero_cta_primary')}
+              {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('homepage.hero_cta_primary')}
             </Link>
           </motion.div>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -208,7 +210,7 @@ export default function Landing() {
           transition={{ duration: 0.6, delay: 0.85 }}
           className="text-gray-600 text-sm mt-4"
         >
-          {t('homepage.hero_note')}
+          {t('homepage.hero_tagline')}
         </motion.p>
       </section>
 
@@ -470,14 +472,16 @@ export default function Landing() {
                 {t('homepage.pricing_see_plans')}
               </Link>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Link
-                href="/signup"
-                className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
-              >
-                {t('homepage.pricing_start_free')}
-              </Link>
-            </motion.div>
+            {!isLoggedIn && (
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  href="/signup"
+                  className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
+                >
+                  {t('homepage.pricing_start_free')}
+                </Link>
+              </motion.div>
+            )}
           </motion.div>
           <motion.p
             variants={fadeUp}
@@ -574,10 +578,10 @@ export default function Landing() {
           className="inline-block"
         >
           <Link
-            href="/signup"
+            href={isLoggedIn ? '/dashboard' : '/signup'}
             className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-lg font-semibold text-base transition-colors duration-200"
           >
-            {t('homepage.cta_button')}
+            {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('homepage.cta_button')}
           </Link>
         </motion.div>
         <p className="text-gray-600 text-sm mt-4">{t('homepage.cta_note')}</p>
