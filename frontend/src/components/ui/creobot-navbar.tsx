@@ -11,6 +11,7 @@ const baseNavItems = [
   { title: "Features", href: "/#features" },
   { title: "How it works", href: "/#how-it-works" },
   { title: "Pricing", href: "/pricing" },
+  { title: "Blog", href: "/blog" },
 ]
 
 export function CreoBotNavbar({
