@@ -59,21 +59,23 @@ export default function PricingPage() {
   }, [])
 
   const handleUpgrade = async (plan: string) => {
-    if (!userId) {
-      window.location.href = '/signup'
-      return
-    }
-    const res = await fetch(
-      process.env.NEXT_PUBLIC_BACKEND_URL + '/subscribe',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, email: '', plan }),
-      }
-    )
-    const data = await res.json()
-    if (data.checkout_url) window.location.href = data.checkout_url
+  if (!userId) {
+    window.location.href = '/signup'
+    return
   }
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const res = await fetch(
+    process.env.NEXT_PUBLIC_BACKEND_URL + '/subscribe',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, email: user?.email ?? '', plan }),
+    }
+  )
+  const data = await res.json()
+  if (data.checkout_url) window.location.href = data.checkout_url
+}
 
   type TableRow = {
     feature: string
