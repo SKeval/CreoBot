@@ -21,6 +21,7 @@ interface Profile {
   trial_ends_at: string
   subscription_status: string
   zapier_webhook_url?: string
+  onboarding_complete?: boolean
 }
 
 interface Handoff {
@@ -448,6 +449,26 @@ export default function DashboardPage() {
                   </h1>
                   <p className="text-gray-400 text-sm mt-1">Here is what is happening with your bot today.</p>
                 </div>
+
+                {!profile?.onboarding_complete && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-5 flex items-center justify-between gap-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                      <p className="text-sm text-gray-300">Complete your setup to get the most out of CreoBot.</p>
+                    </div>
+                    <a
+                      href="/onboarding"
+                      className="flex-shrink-0 bg-yellow-500 hover:bg-yellow-400 text-gray-900 text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                    >
+                      Finish setup
+                    </a>
+                  </motion.div>
+                )}
 
                 {/* Stats grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

@@ -118,7 +118,7 @@ export default function SignupPage() {
       await new Promise(resolve => setTimeout(resolve, 1000))
     }
 
-    router.push('/dashboard')
+    router.push('/onboarding')
   }
 
   return (
