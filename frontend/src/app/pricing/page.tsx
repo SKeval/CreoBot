@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bot, ChevronDown } from 'lucide-react'
+import { createClient } from '@/lib/supabase'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
 import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
@@ -45,7 +46,34 @@ function Cell({ value, type }: { value: string | boolean; type: 'text' | 'bool' 
 
 export default function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const { t } = useLanguage()
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) setUserId(user.id)
+    }
+    checkAuth()
+  }, [])
+
+  const handleUpgrade = async (plan: string) => {
+    if (!userId) {
+      window.location.href = '/signup'
+      return
+    }
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_BACKEND_URL + '/subscribe',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, email: '', plan }),
+      }
+    )
+    const data = await res.json()
+    if (data.checkout_url) window.location.href = data.checkout_url
+  }
 
   type TableRow = {
     feature: string
@@ -87,6 +115,7 @@ export default function PricingPage() {
       href: '/signup',
       highlight: false,
       note: t('pricing.no_card'),
+      upgradePlan: 'spark',
     },
     {
       name: t('pricing.plan_blaze'),
@@ -104,6 +133,7 @@ export default function PricingPage() {
       href: '/signup',
       highlight: true,
       note: t('pricing.no_card'),
+      upgradePlan: 'blaze',
     },
   ]
 
@@ -203,16 +233,29 @@ export default function PricingPage() {
               </ul>
               <div className="flex flex-col gap-2">
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Link
-                    href={p.href}
-                    className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors duration-200 ${
-                      p.highlight
-                        ? 'bg-blue-600 hover:bg-blue-500 text-white'
-                        : 'bg-gray-800 hover:bg-gray-700 text-white'
-                    }`}
-                  >
-                    {p.cta}
-                  </Link>
+                  {p.upgradePlan ? (
+                    <button
+                      onClick={() => handleUpgrade(p.upgradePlan!)}
+                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors duration-200 cursor-pointer ${
+                        p.highlight
+                          ? 'bg-blue-600 hover:bg-blue-500 text-white'
+                          : 'bg-gray-800 hover:bg-gray-700 text-white'
+                      }`}
+                    >
+                      {p.cta}
+                    </button>
+                  ) : (
+                    <Link
+                      href={p.href}
+                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors duration-200 ${
+                        p.highlight
+                          ? 'bg-blue-600 hover:bg-blue-500 text-white'
+                          : 'bg-gray-800 hover:bg-gray-700 text-white'
+                      }`}
+                    >
+                      {p.cta}
+                    </Link>
+                  )}
                 </motion.div>
                 {p.note && (
                   <p className="text-center text-gray-600 text-xs">{p.note}</p>
