@@ -80,19 +80,21 @@ function Sidebar({
 
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-gray-800">
-        <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
-          <Bot className="w-5 h-5 text-white" />
-        </div>
-        {open && (
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
-            className="font-bold text-white text-lg"
-          >
-            CreoBot
-          </motion.span>
-        )}
+        <a href="/" className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+            <Bot className="w-5 h-5 text-white" />
+          </div>
+          {open && (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+              className="font-bold text-white text-lg"
+            >
+              CreoBot
+            </motion.span>
+          )}
+        </a>
       </div>
 
       {/* Nav items */}

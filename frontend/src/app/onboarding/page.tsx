@@ -173,12 +173,12 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
       <div className="border-b border-gray-800 bg-gray-900 px-8 py-4 flex items-center gap-6">
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <a href="/" className="flex items-center gap-2 flex-shrink-0">
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
             <Bot className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-white text-lg">CreoBot</span>
-        </div>
+        </a>
         <div className="flex-1 flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-400">{stepLabels[step - 1]}</span>
