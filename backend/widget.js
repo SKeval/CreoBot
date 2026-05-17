@@ -11,7 +11,7 @@
       error: "Something went wrong. Please try again.",
       handoff: "A human will follow up with you shortly via email.",
       langLabel: "Language",
-      greeting: "Hi! How can I help you today?", 
+      greeting: "Hi! How can I help you today?",
       send: "Send"
     },
     es: {
@@ -21,8 +21,8 @@
       error: "Algo salio mal. Por favor, intentalo de nuevo.",
       handoff: "Un humano te contactara pronto por correo electronico.",
       langLabel: "Idioma",
-      greeting: "Hola! Como puedo ayudarte hoy?", 
-      send: "Enviar" 
+      greeting: "Hola! Como puedo ayudarte hoy?",
+      send: "Enviar"
     },
     pt: {
       placeholder: "Digite uma mensagem...",
@@ -31,8 +31,8 @@
       error: "Algo deu errado. Por favor, tente novamente.",
       handoff: "Um humano entrara em contato em breve por e-mail.",
       langLabel: "Idioma",
-      greeting: "Ola! Como posso ajudar voce hoje?", 
-      send: "Enviar" 
+      greeting: "Ola! Como posso ajudar voce hoje?",
+      send: "Enviar"
     },
     fr: {
       placeholder: "Tapez un message...",
@@ -41,8 +41,8 @@
       error: "Une erreur est survenue. Veuillez reessayer.",
       handoff: "Un humain vous contactera bientot par e-mail.",
       langLabel: "Langue",
-      greeting: "Bonjour! Comment puis-je vous aider?", 
-      send: "Envoyer" 
+      greeting: "Bonjour! Comment puis-je vous aider?",
+      send: "Envoyer"
     },
     de: {
       placeholder: "Nachricht eingeben...",
@@ -51,8 +51,8 @@
       error: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
       handoff: "Ein Mitarbeiter meldet sich bald per E-Mail bei Ihnen.",
       langLabel: "Sprache",
-      greeting: "Hallo! Wie kann ich Ihnen helfen?", 
-      send: "Senden" 
+      greeting: "Hallo! Wie kann ich Ihnen helfen?",
+      send: "Senden"
     }
   };
 
@@ -120,10 +120,6 @@
       text-align: center; padding: 4px 0 8px;
       font-size: 11px; color: #94a3b8;
     }
-    #creobot-lang {
-      background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 4px;
-      font-size: 11px; cursor: pointer; outline: none; padding: 2px 4px;
-    }
   `;
   document.head.appendChild(style);
 
@@ -133,13 +129,37 @@
     <div id="creobot-window">
       <div id="creobot-header">
         <span>💬 CreoBot - Ask us anything</span>
-        <select id="creobot-lang">
-          <option value="en">EN</option>
-          <option value="es">ES</option>
-          <option value="pt">PT</option>
-          <option value="fr">FR</option>
-          <option value="de">DE</option>
-        </select>
+        <div id="creobot-lang-wrapper" style="position:relative;">
+          <button id="creobot-lang-btn" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 2px 8px;
+            font-family: sans-serif;
+          ">EN</button>
+          <div id="creobot-lang-menu" style="
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 99999;
+            min-width: 60px;
+            overflow: hidden;
+          ">
+            <div class="creobot-lang-option" data-lang="en" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">EN</div>
+            <div class="creobot-lang-option" data-lang="es" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">ES</div>
+            <div class="creobot-lang-option" data-lang="pt" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">PT</div>
+            <div class="creobot-lang-option" data-lang="fr" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">FR</div>
+            <div class="creobot-lang-option" data-lang="de" style="padding:6px 12px;font-size:12px;cursor:pointer;color:#1e293b;">DE</div>
+          </div>
+        </div>
       </div>
       <div id="creobot-messages">
             <div class="creobot-msg bot">${WIDGET_STRINGS[currentLang].greeting}</div>
@@ -152,19 +172,36 @@
     </div>
   `;
 
-  // Set initial language selection in dropdown
-  document.getElementById("creobot-lang").value = currentLang;
+  // Set initial button text
+  document.getElementById("creobot-lang-btn").textContent = currentLang.toUpperCase();
 
-  // Language change handler
-  document.getElementById("creobot-lang").onchange = function () {
-    currentLang = this.value;
-    localStorage.setItem('creobot_lang_' + USER_ID, currentLang);
-    document.getElementById("creobot-input").placeholder = WIDGET_STRINGS[currentLang].placeholder;
-    document.getElementById("creobot-powered-by").textContent = WIDGET_STRINGS[currentLang].poweredBy;
-    // Clear chat on language switch
-    document.getElementById("creobot-messages").innerHTML = `<div class="creobot-msg bot">${WIDGET_STRINGS[currentLang].greeting || "Hi! How can I help you today?"}</div>`;
-    document.getElementById("creobot-send").textContent = WIDGET_STRINGS[currentLang].send;
+  // Toggle menu on button click
+  document.getElementById("creobot-lang-btn").onclick = function(e) {
+    e.stopPropagation();
+    const menu = document.getElementById("creobot-lang-menu");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
   };
+
+  // Handle option click
+  document.querySelectorAll(".creobot-lang-option").forEach(function(opt) {
+    opt.onclick = function() {
+      currentLang = this.getAttribute("data-lang");
+      localStorage.setItem("creobot_lang_" + USER_ID, currentLang);
+      document.getElementById("creobot-lang-btn").textContent = currentLang.toUpperCase();
+      document.getElementById("creobot-lang-menu").style.display = "none";
+      document.getElementById("creobot-input").placeholder = WIDGET_STRINGS[currentLang].placeholder;
+      document.getElementById("creobot-powered-by").textContent = WIDGET_STRINGS[currentLang].poweredBy;
+      document.getElementById("creobot-send").textContent = WIDGET_STRINGS[currentLang].send;
+      document.getElementById("creobot-messages").innerHTML =
+        "<div class='creobot-msg bot'>" + WIDGET_STRINGS[currentLang].greeting + "</div>";
+    };
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener("click", function() {
+    const menu = document.getElementById("creobot-lang-menu");
+    if (menu) menu.style.display = "none";
+  });
 
   // Toggle open/close
   document.getElementById("creobot-launcher").onclick = function () {
