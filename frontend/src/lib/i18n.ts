@@ -139,6 +139,16 @@ export const TRANSLATIONS = {
       cta_subtext: 'Set up CreoBot in 10 minutes. Answer every customer question automatically.',
       cta_button: 'Start free today',
     },
+    blog: {
+      blog_badge: 'Blog',
+      blog_title: 'Insights for small business owners',
+      blog_subtitle: 'Practical guides on AI, customer support, and growing your business.',
+      blog_read_more: 'Read more',
+      blog_back: 'Back to blog',
+      blog_cta_title: 'Want a chatbot that never makes things up?',
+      blog_cta_subtitle: 'CreoBot answers from your docs only. Free 14-day trial.',
+      blog_cta_button: 'Start free - no card needed',
+    },
   },
   es: {
     homepage: {
@@ -279,6 +289,16 @@ export const TRANSLATIONS = {
       cta_headline: 'Deja de perder trabajos mientras estas en uno.',
       cta_subtext: 'Configura CreoBot en 10 minutos. Responde cada pregunta de cliente automaticamente.',
       cta_button: 'Empieza gratis hoy',
+    },
+    blog: {
+      blog_badge: 'Blog',
+      blog_title: 'Guias para pequeños empresarios',
+      blog_subtitle: 'Guias practicas sobre IA, atencion al cliente y como hacer crecer tu negocio.',
+      blog_read_more: 'Leer mas',
+      blog_back: 'Volver al blog',
+      blog_cta_title: 'Quieres un chatbot que nunca invente respuestas?',
+      blog_cta_subtitle: 'CreoBot responde solo desde tus documentos. Prueba gratuita de 14 dias.',
+      blog_cta_button: 'Empieza gratis - sin tarjeta',
     },
   },
   pt: {
@@ -421,6 +441,16 @@ export const TRANSLATIONS = {
       cta_subtext: 'Configure o CreoBot em 10 minutos. Responda cada pergunta de cliente automaticamente.',
       cta_button: 'Comece gratis hoje',
     },
+    blog: {
+      blog_badge: 'Blog',
+      blog_title: 'Guias para pequenas empresas',
+      blog_subtitle: 'Guias praticos sobre IA, suporte ao cliente e como fazer o seu negocio crescer.',
+      blog_read_more: 'Ler mais',
+      blog_back: 'Voltar ao blog',
+      blog_cta_title: 'Quer um chatbot que nunca inventa respostas?',
+      blog_cta_subtitle: 'CreoBot responde apenas com base nos seus documentos. Teste gratuito de 14 dias.',
+      blog_cta_button: 'Comece gratis - sem cartao',
+    },
   },
   fr: {
     homepage: {
@@ -562,6 +592,16 @@ export const TRANSLATIONS = {
       cta_subtext: 'Configurez CreoBot en 10 minutes. Repondez a chaque question client automatiquement.',
       cta_button: 'Commencer gratuitement aujourd\'hui',
     },
+    blog: {
+      blog_badge: 'Blog',
+      blog_title: 'Guides pour les petites entreprises',
+      blog_subtitle: 'Guides pratiques sur l IA, le support client et la croissance de votre entreprise.',
+      blog_read_more: 'Lire la suite',
+      blog_back: 'Retour au blog',
+      blog_cta_title: 'Vous voulez un chatbot qui n invente jamais de reponses?',
+      blog_cta_subtitle: 'CreoBot repond uniquement depuis vos documents. Essai gratuit de 14 jours.',
+      blog_cta_button: 'Commencer gratuitement - sans carte',
+    },
   },
   de: {
     homepage: {
@@ -702,6 +742,16 @@ export const TRANSLATIONS = {
       cta_headline: 'Horen Sie auf, Auftrage zu verlieren, wahrend Sie einen erledigen.',
       cta_subtext: 'Richten Sie CreoBot in 10 Minuten ein. Beantworten Sie jede Kundenfrage automatisch.',
       cta_button: 'Heute kostenlos starten',
+    },
+    blog: {
+      blog_badge: 'Blog',
+      blog_title: 'Ratgeber fur kleine Unternehmen',
+      blog_subtitle: 'Praktische Anleitungen zu KI, Kundensupport und Unternehmenswachstum.',
+      blog_read_more: 'Mehr lesen',
+      blog_back: 'Zuruck zum Blog',
+      blog_cta_title: 'Wollen Sie einen Chatbot der nie Antworten erfindet?',
+      blog_cta_subtitle: 'CreoBot antwortet nur aus Ihren Dokumenten. 14 Tage kostenlos testen.',
+      blog_cta_button: 'Kostenlos starten - ohne Karte',
     },
   },
 } as const

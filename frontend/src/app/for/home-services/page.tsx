@@ -95,7 +95,7 @@ export default function HomeServicesPage() {
           {t('home_services.badge')}
         </motion.span>
 
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight max-w-4xl text-balance">
+        <h1 className="text-[clamp(1.8rem,4vw,3.5rem)] font-bold tracking-tight leading-tight max-w-4xl text-balance">
           <motion.span
             variants={stagger}
             initial="hidden"
