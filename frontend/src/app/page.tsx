@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bot, ChevronDown } from 'lucide-react'
+import { Bot, ChevronDown, TrendingUp } from 'lucide-react'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
 import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
@@ -214,7 +214,32 @@ export default function Landing() {
         </motion.p>
       </section>
 
-      {/* 3. STATS BAR */}
+      {/* 3. SOCIAL PROOF BAR */}
+      <motion.section
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="w-full bg-gray-900 border-y border-gray-800 py-4"
+      >
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+          <TrendingUp size={16} style={{ color: '#1a56db' }} className="flex-shrink-0" />
+          <span>
+            {(() => {
+              const text = t('homepage.social_proof')
+              const parts = text.split('58%')
+              return (
+                <>
+                  {parts[0]}<span style={{ color: '#1a56db' }} className="font-bold">58%</span>{parts[1]}
+                </>
+              )
+            })()}
+          </span>
+        </div>
+      </motion.section>
+
+      {/* 4. STATS BAR */}
       <motion.section
         variants={fadeUp}
         initial="hidden"
