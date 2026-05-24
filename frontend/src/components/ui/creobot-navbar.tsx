@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useState, useEffect } from "react";
 import { Menu, ArrowRight, Bot } from "lucide-react";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { motion } from "framer-motion";
@@ -14,6 +15,8 @@ const baseNavItems = [
   { title: "Blog", href: "/blog" },
 ]
 
+const spring = { type: "spring" as const, stiffness: 300, damping: 30 }
+
 export function CreoBotNavbar({
   langSwitcher,
   isLoggedIn = false,
@@ -21,16 +24,26 @@ export function CreoBotNavbar({
   langSwitcher?: React.ReactNode
   isLoggedIn?: boolean
 }) {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
   const navItems = isLoggedIn
     ? [...baseNavItems, { title: "Dashboard", href: "/dashboard" }]
     : [...baseNavItems, { title: "Sign in", href: "/login" }]
 
   return (
     <motion.header
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="sticky top-0 z-50 w-full border-b border-gray-800 bg-gray-950/80 backdrop-blur-md"
+      transition={spring}
+      className={`sticky top-0 z-50 w-full bg-gray-950/80 backdrop-blur-md border-b transition-[border-color] duration-300 ease-out ${
+        scrolled ? "border-gray-800/50" : "border-transparent"
+      }`}
     >
       <div className="max-w-6xl mx-auto px-6 flex h-16 items-center justify-between">
 
@@ -53,11 +66,13 @@ export function CreoBotNavbar({
           ))}
           {langSwitcher}
           {!isLoggedIn && (
-            <Link href="/signup">
-              <Button className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg">
-                Get started free <ArrowRight className="ml-1 w-4 h-4" />
-              </Button>
-            </Link>
+            <motion.div whileTap={{ scale: 0.97, transition: spring }}>
+              <Link href="/signup">
+                <Button className="bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white font-semibold px-4 py-2 rounded-lg transition-shadow duration-200">
+                  Get started free <ArrowRight className="ml-1 w-4 h-4" />
+                </Button>
+              </Link>
+            </motion.div>
           )}
         </nav>
 
@@ -84,7 +99,7 @@ export function CreoBotNavbar({
               {!isLoggedIn && (
                 <SheetClose>
                   <Link href="/signup">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg">
+                    <Button className="w-full bg-gradient-to-r from-[#1a56db] to-[#1e40af] text-white font-semibold rounded-lg">
                       Get started free <ArrowRight className="ml-1 w-4 h-4" />
                     </Button>
                   </Link>

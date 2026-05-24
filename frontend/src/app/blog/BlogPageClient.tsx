@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Bot } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
 import { useLanguage } from '@/lib/LanguageContext'
 
@@ -20,6 +21,22 @@ function formatDate(dateStr: string) {
   })
 }
 
+const spring = { type: 'spring' as const, stiffness: 300, damping: 30 }
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: spring,
+  },
+}
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+}
+
 export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
   const { t } = useLanguage()
 
@@ -29,28 +46,50 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
 
       {/* Hero */}
       <section className="flex flex-col items-center text-center px-6 pt-24 pb-16">
-        <span className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest">
+        <motion.span
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={spring}
+          className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest"
+        >
           {t('blog.blog_badge')}
-        </span>
-        <h1 className="text-[clamp(1.8rem,4vw,3.5rem)] font-bold tracking-tight leading-tight text-balance max-w-3xl mx-auto mb-4">
+        </motion.span>
+        <motion.h1
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...spring, delay: 0.08 }}
+          className="text-[clamp(1.8rem,4vw,3.5rem)] font-bold tracking-tight leading-tight text-balance max-w-3xl mx-auto mb-4"
+        >
           {t('blog.blog_title')}
-        </h1>
-        <p className="text-gray-400 text-[clamp(0.95rem,2vw,1.2rem)] max-w-xl leading-relaxed">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...spring, delay: 0.16 }}
+          className="text-gray-400 text-[clamp(0.95rem,2vw,1.2rem)] max-w-xl leading-relaxed"
+        >
           {t('blog.blog_subtitle')}
-        </p>
+        </motion.p>
       </section>
 
       {/* Post grid */}
       <section className="px-6 pb-24 max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           {posts.map(post => (
-            <article
+            <motion.article
               key={post.slug}
-              className="bg-gray-900 border border-gray-800 rounded-2xl p-7 flex flex-col gap-4 hover:border-gray-700 transition-colors duration-200"
+              variants={fadeUp}
+              whileHover={{ scale: 1.02, y: -4, transition: spring }}
+              className="bg-gray-900 hover:bg-gray-800/80 border border-gray-800 hover:border-gray-600 rounded-2xl p-7 flex flex-col gap-4 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out"
             >
               <div>
                 <p className="text-gray-500 text-xs mb-3">{formatDate(post.date)}</p>
-                <h2 className="text-white font-semibold text-xl leading-snug mb-2">
+                <h2 className="text-white font-semibold text-xl leading-snug mb-2 tracking-tight">
                   {post.title}
                 </h2>
                 <p className="text-gray-400 text-sm leading-relaxed">{post.description}</p>
@@ -61,9 +100,9 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
               >
                 {t('blog.blog_read_more')} &rarr;
               </Link>
-            </article>
+            </motion.article>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       {/* Footer */}

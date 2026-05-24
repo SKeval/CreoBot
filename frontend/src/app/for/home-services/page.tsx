@@ -7,19 +7,22 @@ import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
 import { useLanguage } from '@/lib/LanguageContext'
 import { useAuth } from '@/hooks/useAuth'
 
+// --- Animation Variants ---
+
+const spring = { type: 'spring' as const, stiffness: 300, damping: 30 }
+
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: spring,
+  },
 }
 
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-}
-
-const wordVariant = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
+  visible: { transition: { staggerChildren: 0.08 } },
 }
 
 const industries = [
@@ -87,79 +90,71 @@ export default function HomeServicesPage() {
       {/* 2. HERO */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-28 pb-24">
         <motion.span
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={spring}
           className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-8 uppercase tracking-widest"
         >
           {t('home_services.badge')}
         </motion.span>
 
         <h1 className="text-[clamp(1.8rem,4vw,3.5rem)] font-bold tracking-tight leading-tight max-w-4xl text-balance">
-          <motion.span
-            variants={stagger}
-            initial="hidden"
-            animate="visible"
-            className="inline"
-          >
+          <span className="inline">
             {heroLine1.split(' ').map((word, i) => (
               <motion.span
                 key={i}
-                variants={wordVariant}
-                transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...spring, delay: 0.1 + i * 0.08 }}
                 className="inline-block mr-4"
               >
                 {word}
               </motion.span>
             ))}
-          </motion.span>
+          </span>
           <br />
-          <motion.span
-            variants={stagger}
-            initial="hidden"
-            animate="visible"
-            className="inline text-blue-400"
-          >
+          <span className="inline">
             {heroLine2.split(' ').map((word, i) => (
               <motion.span
                 key={i}
-                variants={wordVariant}
-                transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
-                className="inline-block mr-3"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...spring, delay: 0.3 + i * 0.08 }}
+                className="inline-block mr-3 bg-gradient-to-r from-[#1a56db] to-[#3b82f6] bg-clip-text text-transparent"
               >
                 {word}
               </motion.span>
             ))}
-          </motion.span>
+          </span>
         </h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={{ ...spring, delay: 0.55 }}
           className="text-gray-400 text-lg md:text-xl mt-8 max-w-2xl leading-relaxed"
         >
           {t('home_services.subtitle')}
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
+          transition={{ ...spring, delay: 0.65 }}
           className="flex flex-col sm:flex-row gap-4 mt-10"
         >
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileTap={{ scale: 0.97, transition: spring }}>
             <Link
               href={isLoggedIn ? '/dashboard' : '/signup'}
-              className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
+              className="inline-block bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white px-8 py-3.5 rounded-lg font-semibold transition-shadow duration-200"
             >
               {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('homepage.hero_cta_primary')}
             </Link>
           </motion.div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileHover={{ scale: 1.02, transition: spring }} whileTap={{ scale: 0.97, transition: spring }}>
             <Link
               href="/pricing"
-              className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
+              className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-[border-color,color] duration-200"
             >
               {t('homepage.hero_cta_secondary')}
             </Link>
@@ -169,7 +164,7 @@ export default function HomeServicesPage() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.85 }}
+          transition={{ ...spring, delay: 0.8 }}
           className="text-gray-600 text-sm mt-4"
         >
           {t('homepage.hero_tagline')}
@@ -184,7 +179,6 @@ export default function HomeServicesPage() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-14"
           >
             Sound familiar?
@@ -200,12 +194,11 @@ export default function HomeServicesPage() {
               <motion.div
                 key={card.title}
                 variants={fadeUp}
-                transition={{ duration: 0.5 }}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="bg-gray-900 border border-gray-800 rounded-xl p-7 hover:border-gray-700 transition-colors duration-200"
+                whileHover={{ scale: 1.02, y: -4, transition: spring }}
+                className="bg-gray-900 hover:bg-gray-800/80 border border-gray-800 hover:border-gray-600 rounded-2xl p-7 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out"
               >
                 <div className="text-3xl mb-4">{card.icon}</div>
-                <h3 className="font-semibold text-white text-lg mb-3">{card.title}</h3>
+                <h3 className="font-semibold text-white text-lg mb-3 tracking-tight">{card.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">{card.body}</p>
               </motion.div>
             ))}
@@ -221,7 +214,6 @@ export default function HomeServicesPage() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-16"
           >
             {t('home_services.how_title')}
@@ -237,13 +229,12 @@ export default function HomeServicesPage() {
               <motion.div
                 key={s.num}
                 variants={fadeUp}
-                transition={{ duration: 0.5 }}
                 className="text-center"
               >
                 <div className="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-5">
                   <span className="text-blue-400 font-bold text-lg">{s.num}</span>
                 </div>
-                <h3 className="font-semibold text-white text-lg mb-2">{s.title}</h3>
+                <h3 className="font-semibold text-white text-lg mb-2 tracking-tight">{s.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
               </motion.div>
             ))}
@@ -259,7 +250,6 @@ export default function HomeServicesPage() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight mb-12"
           >
             {t('home_services.industries_title')}
@@ -275,8 +265,8 @@ export default function HomeServicesPage() {
               <motion.span
                 key={tag}
                 variants={fadeUp}
-                transition={{ duration: 0.4 }}
-                className="bg-gray-900 border border-gray-800 text-gray-300 text-sm font-medium px-4 py-2 rounded-full"
+                whileHover={{ scale: 1.05, transition: spring }}
+                className="bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-gray-600 text-gray-300 text-sm font-medium px-4 py-2 rounded-full transition-[border-color,background-color] duration-200 ease-out cursor-default"
               >
                 {tag}
               </motion.span>
@@ -291,19 +281,17 @@ export default function HomeServicesPage() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        transition={{ duration: 0.55 }}
         className="mx-4 md:mx-8 my-16 rounded-2xl px-8 py-20 text-center"
         style={{ backgroundColor: '#1a56db' }}
       >
         <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 max-w-2xl mx-auto">
           {t('home_services.cta_headline')}
         </h2>
-        <p className="text-blue-100 mb-10 max-w-xl mx-auto">
+        <p className="text-blue-100 mb-10 max-w-xl mx-auto leading-relaxed">
           {t('home_services.cta_subtext')}
         </p>
         <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileTap={{ scale: 0.97, transition: spring }}
           className="inline-block"
         >
           <Link

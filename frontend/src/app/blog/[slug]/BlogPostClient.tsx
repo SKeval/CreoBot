@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Bot } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
 import { useLanguage } from '@/lib/LanguageContext'
 import { MarkdownRenderer } from './markdown-renderer'
@@ -21,6 +22,17 @@ function formatDate(dateStr: string) {
   })
 }
 
+const spring = { type: 'spring' as const, stiffness: 300, damping: 30 }
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: spring,
+  },
+}
+
 export default function BlogPostClient({ post }: { post: { data: PostMeta; content: string } }) {
   const { t } = useLanguage()
 
@@ -30,41 +42,79 @@ export default function BlogPostClient({ post }: { post: { data: PostMeta; conte
 
       <div className="flex-1 max-w-2xl mx-auto px-6 py-16 w-full">
         {/* Back link */}
-        <Link
-          href="/blog"
-          className="text-gray-400 hover:text-white text-sm transition-colors duration-200 inline-block mb-10"
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
         >
-          &larr; {t('blog.blog_back')}
-        </Link>
+          <Link
+            href="/blog"
+            className="text-gray-400 hover:text-white text-sm transition-colors duration-200 inline-block mb-10"
+          >
+            &larr; {t('blog.blog_back')}
+          </Link>
+        </motion.div>
 
         {/* Post header */}
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white mt-2 mb-3">
+        <motion.h1
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...spring, delay: 0.08 }}
+          className="text-3xl md:text-4xl font-bold tracking-tight text-white mt-2 mb-3"
+        >
           {post.data.title}
-        </h1>
-        <p className="text-gray-500 text-sm mb-6">{formatDate(post.data.date)}</p>
-        <hr className="border-gray-800 mb-10" />
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ ...spring, delay: 0.16 }}
+          className="text-gray-500 text-sm mb-6"
+        >
+          {formatDate(post.data.date)}
+        </motion.p>
+        <motion.hr
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+          className="border-gray-800 mb-10"
+        />
 
         {/* Post body */}
-        <MarkdownRenderer content={post.content} />
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...spring, delay: 0.24 }}
+        >
+          <MarkdownRenderer content={post.content} />
+        </motion.div>
 
         {/* CTA box */}
-        <div
-          className="mt-16 rounded-2xl p-8 text-center"
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...spring, delay: 0.32 }}
+          whileHover={{ scale: 1.01, transition: spring }}
+          className="mt-16 rounded-2xl p-8 text-center border border-transparent hover:border-blue-400/20 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,box-shadow] duration-200 ease-out"
           style={{ backgroundColor: '#1a56db' }}
         >
-          <h3 className="text-white font-bold text-xl mb-2">
+          <h3 className="text-white font-bold text-xl mb-2 tracking-tight">
             {t('blog.blog_cta_title')}
           </h3>
-          <p className="text-blue-100 text-sm mb-6">
+          <p className="text-blue-100 text-sm mb-6 leading-relaxed">
             {t('blog.blog_cta_subtitle')}
           </p>
-          <Link
-            href="/signup"
-            className="inline-block bg-white text-blue-700 font-semibold px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          <motion.div
+            whileTap={{ scale: 0.97, transition: spring }}
+            className="inline-block"
           >
-            {t('blog.blog_cta_button')}
-          </Link>
-        </div>
+            <Link
+              href="/signup"
+              className="inline-block bg-white text-blue-700 font-semibold px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+            >
+              {t('blog.blog_cta_button')}
+            </Link>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Footer */}

@@ -9,24 +9,25 @@ import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useAuth } from '@/hooks/useAuth'
 
-// ─── Animation Variants ───────────────────────────────────────────────────────
+// --- Animation Variants ---
+
+const spring = { type: 'spring' as const, stiffness: 300, damping: 30 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: spring,
+  },
 }
 
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.08 } },
 }
 
-const wordVariant = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// --- Page ---
 
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(0)
@@ -125,79 +126,71 @@ export default function Landing() {
       {/* 2. HERO */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-28 pb-24">
         <motion.span
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={spring}
           className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-8 uppercase tracking-widest"
         >
           {t('homepage.hero_badge')}
         </motion.span>
 
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight max-w-4xl text-balance">
-          <motion.span
-            variants={stagger}
-            initial="hidden"
-            animate="visible"
-            className="inline"
-          >
+          <span className="inline">
             {heroLine1.split(' ').map((word, i) => (
               <motion.span
                 key={i}
-                variants={wordVariant}
-                transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...spring, delay: 0.1 + i * 0.08 }}
                 className="inline-block mr-4"
               >
                 {word}
               </motion.span>
             ))}
-          </motion.span>
+          </span>
           <br />
-          <motion.span
-            variants={stagger}
-            initial="hidden"
-            animate="visible"
-            className="inline text-blue-400"
-          >
+          <span className="inline">
             {heroLine2.split(' ').map((word, i) => (
               <motion.span
                 key={i}
-                variants={wordVariant}
-                transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
-                className="inline-block mr-3"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...spring, delay: 0.3 + i * 0.08 }}
+                className="inline-block mr-3 bg-gradient-to-r from-[#1a56db] to-[#3b82f6] bg-clip-text text-transparent"
               >
                 {word}
               </motion.span>
             ))}
-          </motion.span>
+          </span>
         </h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={{ ...spring, delay: 0.55 }}
           className="text-gray-400 text-lg md:text-xl mt-8 max-w-2xl leading-relaxed"
         >
           {t('homepage.hero_subtitle')}
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
+          transition={{ ...spring, delay: 0.65 }}
           className="flex flex-col sm:flex-row gap-4 mt-10"
         >
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileTap={{ scale: 0.97, transition: spring }}>
             <Link
               href={isLoggedIn ? '/dashboard' : '/signup'}
-              className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
+              className="inline-block bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white px-8 py-3.5 rounded-lg font-semibold transition-shadow duration-200"
             >
               {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('homepage.hero_cta_primary')}
             </Link>
           </motion.div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileHover={{ scale: 1.02, transition: spring }} whileTap={{ scale: 0.97, transition: spring }}>
             <Link
               href="/pricing"
-              className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
+              className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-[border-color,color] duration-200"
             >
               {t('homepage.hero_cta_secondary')}
             </Link>
@@ -207,7 +200,7 @@ export default function Landing() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.85 }}
+          transition={{ ...spring, delay: 0.8 }}
           className="text-gray-600 text-sm mt-4"
         >
           {t('homepage.hero_tagline')}
@@ -220,8 +213,7 @@ export default function Landing() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="w-full bg-gray-900 border-y border-gray-800 py-4"
+        className="w-full bg-gray-900/60 backdrop-blur-sm border-y border-gray-800 py-4"
       >
         <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
           <TrendingUp size={16} style={{ color: '#1a56db' }} className="flex-shrink-0" />
@@ -231,7 +223,22 @@ export default function Landing() {
               const parts = text.split('58%')
               return (
                 <>
-                  {parts[0]}<span style={{ color: '#1a56db' }} className="font-bold">58%</span>{parts[1]}
+                  {parts[0]}
+                  <motion.span
+                    style={{ color: '#1a56db' }}
+                    className="font-bold"
+                    animate={{
+                      textShadow: [
+                        '0 0 0px rgba(26,86,219,0)',
+                        '0 0 10px rgba(59,130,246,0.5)',
+                        '0 0 0px rgba(26,86,219,0)',
+                      ],
+                    }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
+                  >
+                    58%
+                  </motion.span>
+                  {parts[1]}
                 </>
               )
             })()}
@@ -245,34 +252,31 @@ export default function Landing() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
         className="border-t border-b border-gray-800 bg-gray-900/40"
       >
-        <div className="max-w-4xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-            >
-              <div className="text-3xl font-bold text-white">{stat.value}</div>
-              <div className="text-gray-400 text-sm mt-1">{stat.label}</div>
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="max-w-4xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
+        >
+          {stats.map((stat) => (
+            <motion.div key={stat.label} variants={fadeUp}>
+              <div className="text-3xl font-bold text-white tracking-tight">{stat.value}</div>
+              <div className="text-gray-400 text-sm mt-1 leading-relaxed">{stat.label}</div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </motion.section>
 
-      {/* 4. FEATURES */}
+      {/* 5. FEATURES */}
       <section id="features" className="scroll-mt-20 px-6 py-24 max-w-6xl mx-auto w-full">
         <motion.h2
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
           className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
         >
           {t('homepage.features_title')}
@@ -282,8 +286,8 @@ export default function Landing() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-gray-400 text-center mb-14 max-w-xl mx-auto"
+          transition={{ delay: 0.08 }}
+          className="text-gray-400 text-center mb-14 max-w-xl mx-auto leading-relaxed"
         >
           {t('homepage.features_subtitle')}
         </motion.p>
@@ -298,19 +302,18 @@ export default function Landing() {
             <motion.div
               key={f.title}
               variants={fadeUp}
-              transition={{ duration: 0.5 }}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-gray-900 border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition-colors duration-200"
+              whileHover={{ scale: 1.02, y: -4, transition: spring }}
+              className="bg-gray-900 hover:bg-gray-800/80 border border-gray-800 hover:border-gray-600 rounded-2xl p-6 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out"
             >
               <div className="text-3xl mb-4">{f.icon}</div>
-              <h3 className="font-semibold text-white mb-2">{f.title}</h3>
+              <h3 className="font-semibold text-white mb-2 tracking-tight">{f.title}</h3>
               <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
-      {/* 5. WHY CREOBOT */}
+      {/* 6. WHY CREOBOT */}
       <section className="bg-gray-900/40 border-t border-gray-800 px-6 py-24">
         <div className="max-w-5xl mx-auto">
           <motion.h2
@@ -318,7 +321,6 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
           >
             {t('homepage.differentiator_title')}
@@ -328,8 +330,8 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-gray-400 text-center mb-14 max-w-2xl mx-auto"
+            transition={{ delay: 0.08 }}
+            className="text-gray-400 text-center mb-14 max-w-2xl mx-auto leading-relaxed"
           >
             {t('homepage.differentiator_subtitle')}
           </motion.p>
@@ -344,11 +346,10 @@ export default function Landing() {
               <motion.div
                 key={d.title}
                 variants={fadeUp}
-                transition={{ duration: 0.5 }}
                 className="flex flex-col gap-4"
               >
                 <span className="text-2xl">{d.icon}</span>
-                <h3 className="text-white font-semibold text-lg leading-snug">{d.title}</h3>
+                <h3 className="text-white font-semibold text-lg leading-snug tracking-tight">{d.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">{d.desc}</p>
               </motion.div>
             ))}
@@ -356,7 +357,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 6. HOW IT WORKS */}
+      {/* 7. HOW IT WORKS */}
       <section id="how-it-works" className="scroll-mt-20 px-6 py-24">
         <div className="max-w-4xl mx-auto">
           <motion.h2
@@ -364,7 +365,6 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
           >
             {t('homepage.how_title')}
@@ -374,8 +374,8 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-gray-400 text-center mb-16"
+            transition={{ delay: 0.08 }}
+            className="text-gray-400 text-center mb-16 leading-relaxed"
           >
             {t('homepage.how_subtitle')}
           </motion.p>
@@ -390,13 +390,12 @@ export default function Landing() {
               <motion.div
                 key={s.step}
                 variants={fadeUp}
-                transition={{ duration: 0.5 }}
                 className="text-center"
               >
                 <div className="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-5">
                   <span className="text-blue-400 font-bold text-lg">{parseInt(s.step)}</span>
                 </div>
-                <h3 className="font-semibold text-white text-lg mb-2">{s.title}</h3>
+                <h3 className="font-semibold text-white text-lg mb-2 tracking-tight">{s.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
               </motion.div>
             ))}
@@ -404,7 +403,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 7. TESTIMONIALS */}
+      {/* 8. TESTIMONIALS */}
       <section className="bg-gray-900/40 border-t border-gray-800 px-6 py-24">
         <div className="max-w-6xl mx-auto">
           <motion.h2
@@ -412,7 +411,6 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
           >
             {t('homepage.testimonials_title')}
@@ -422,8 +420,8 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-gray-400 text-center mb-14"
+            transition={{ delay: 0.08 }}
+            className="text-gray-400 text-center mb-14 leading-relaxed"
           >
             {t('homepage.testimonials_subtitle')}
           </motion.p>
@@ -438,9 +436,8 @@ export default function Landing() {
               <motion.div
                 key={testimonial.name}
                 variants={fadeUp}
-                transition={{ duration: 0.5 }}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="bg-gray-900 border border-gray-800 rounded-2xl p-7 flex flex-col gap-6 hover:border-gray-700 transition-colors duration-200"
+                whileHover={{ scale: 1.02, y: -4, transition: spring }}
+                className="bg-gray-900 hover:bg-gray-800/80 border border-gray-800 hover:border-gray-600 rounded-2xl p-7 flex flex-col gap-6 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out"
               >
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, i) => (
@@ -458,7 +455,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 8. PRICING TEASER */}
+      {/* 9. PRICING TEASER */}
       <section id="pricing" className="scroll-mt-20 px-6 py-24">
         <div className="max-w-2xl mx-auto text-center">
           <motion.h2
@@ -466,7 +463,6 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight mb-4"
           >
             {t('homepage.pricing_cta_title')}
@@ -476,8 +472,8 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-gray-400 text-lg mb-8"
+            transition={{ delay: 0.08 }}
+            className="text-gray-400 text-lg mb-8 leading-relaxed"
           >
             {t('homepage.pricing_cta')}
           </motion.p>
@@ -486,22 +482,22 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ delay: 0.16 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div whileTap={{ scale: 0.97, transition: spring }}>
               <Link
                 href="/pricing"
-                className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
+                className="inline-block bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white px-8 py-3.5 rounded-lg font-semibold transition-shadow duration-200"
               >
                 {t('homepage.pricing_see_plans')}
               </Link>
             </motion.div>
             {!isLoggedIn && (
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <motion.div whileHover={{ scale: 1.02, transition: spring }} whileTap={{ scale: 0.97, transition: spring }}>
                 <Link
                   href="/signup"
-                  className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-colors duration-200"
+                  className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-[border-color,color] duration-200"
                 >
                   {t('homepage.pricing_start_free')}
                 </Link>
@@ -513,7 +509,7 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ delay: 0.24 }}
             className="text-gray-600 text-sm mt-5"
           >
             {t('homepage.pricing_note')}
@@ -521,7 +517,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 9. FAQ */}
+      {/* 10. FAQ */}
       <section id="faq" className="scroll-mt-20 bg-gray-900/40 border-t border-gray-800 px-6 py-24">
         <div className="max-w-3xl mx-auto w-full">
           <motion.h2
@@ -529,7 +525,6 @@ export default function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-14"
           >
             {t('homepage.faq_title')}
@@ -545,7 +540,6 @@ export default function Landing() {
               <motion.div
                 key={i}
                 variants={fadeUp}
-                transition={{ duration: 0.5 }}
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -556,7 +550,7 @@ export default function Landing() {
                   </span>
                   <motion.span
                     animate={{ rotate: openFaq === i ? 180 : 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={spring}
                     className="text-gray-400 flex-shrink-0"
                   >
                     <ChevronDown className="w-5 h-5" />
@@ -569,7 +563,7 @@ export default function Landing() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.35, ease: 'easeInOut' }}
+                      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
                       className="overflow-hidden"
                     >
                       <p className="text-gray-400 text-sm leading-relaxed pb-5 pr-8">{faq.a}</p>
@@ -582,29 +576,27 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* 10. CTA BANNER */}
+      {/* 11. CTA BANNER */}
       <motion.section
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        transition={{ duration: 0.55 }}
         className="mx-4 md:mx-8 mb-16 rounded-2xl bg-gradient-to-br from-blue-600/20 via-gray-900 to-gray-900 border border-blue-500/20 px-8 py-20 text-center"
       >
         <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 max-w-2xl mx-auto">
           {t('homepage.cta_title')}
         </h2>
-        <p className="text-gray-400 mb-10 max-w-xl mx-auto">
+        <p className="text-gray-400 mb-10 max-w-xl mx-auto leading-relaxed">
           {t('homepage.cta_subtitle')}
         </p>
         <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileTap={{ scale: 0.97, transition: spring }}
           className="inline-block"
         >
           <Link
             href={isLoggedIn ? '/dashboard' : '/signup'}
-            className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-lg font-semibold text-base transition-colors duration-200"
+            className="inline-block bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white px-10 py-4 rounded-lg font-semibold text-base transition-shadow duration-200"
           >
             {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('homepage.cta_button')}
           </Link>
@@ -612,7 +604,7 @@ export default function Landing() {
         <p className="text-gray-600 text-sm mt-4">{t('homepage.cta_note')}</p>
       </motion.section>
 
-      {/* 11. FOOTER */}
+      {/* 12. FOOTER */}
       <footer className="border-t border-gray-800 px-6 pt-8 pb-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex flex-col items-center sm:items-start gap-1">

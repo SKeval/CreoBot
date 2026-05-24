@@ -9,19 +9,25 @@ import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useAuth } from '@/hooks/useAuth'
 
-// ─── Animation Variants ───────────────────────────────────────────────────────
+// --- Animation Variants ---
+
+const spring = { type: 'spring' as const, stiffness: 300, damping: 30 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: spring,
+  },
 }
 
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.08 } },
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// --- Helpers ---
 
 function Cell({ value, type }: { value: string | boolean; type: 'text' | 'bool' }) {
   if (type === 'text') {
@@ -42,7 +48,7 @@ function Cell({ value, type }: { value: string | boolean; type: 'text' | 'bool' 
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// --- Page ---
 
 export default function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
@@ -140,26 +146,26 @@ export default function PricingPage() {
       {/* 2. HERO */}
       <section className="flex flex-col items-center justify-center text-center px-6 pt-24 pb-16">
         <motion.span
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={spring}
           className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-8 uppercase tracking-widest"
         >
           {t('pricing.page_badge')}
         </motion.span>
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ ...spring, delay: 0.08 }}
           className="text-4xl md:text-5xl font-bold tracking-tight mb-6"
         >
           {t('pricing.page_title')}
         </motion.h1>
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-gray-400 text-lg max-w-xl"
+          transition={{ ...spring, delay: 0.16 }}
+          className="text-gray-400 text-lg max-w-xl leading-relaxed"
         >
           {t('pricing.page_subtitle')}
         </motion.p>
@@ -177,43 +183,46 @@ export default function PricingPage() {
             <motion.div
               key={p.name}
               variants={fadeUp}
-              transition={{ duration: 0.5 }}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className={`relative rounded-2xl border p-8 flex flex-col gap-6 transition-colors duration-200 ${
+              whileHover={{
+                scale: 1.02,
+                y: -4,
+                transition: spring,
+              }}
+              className={`relative rounded-2xl border p-8 flex flex-col gap-6 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out ${
                 p.highlight
-                  ? 'border-blue-500 bg-blue-500/5'
-                  : 'border-gray-800 bg-gray-900 hover:border-gray-700'
+                  ? 'border-blue-500 bg-blue-500/5 hover:border-blue-400 hover:bg-blue-500/10'
+                  : 'border-gray-800 bg-gray-900 hover:border-gray-600 hover:bg-gray-800/80'
               }`}
             >
               {p.highlight && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-semibold px-4 py-1 rounded-full">
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#1a56db] to-[#1e40af] text-white text-xs font-semibold px-4 py-1 rounded-full">
                   {t('pricing.most_popular')}
                 </span>
               )}
               <div>
-                <h3 className="text-xl font-bold">{p.name}</h3>
+                <h3 className="text-xl font-bold tracking-tight">{p.name}</h3>
                 <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">{p.price}</span>
+                  <span className="text-4xl font-bold tracking-tight">{p.price}</span>
                   <span className="text-gray-400 text-sm">/{p.period}</span>
                 </div>
               </div>
               <ul className="flex flex-col gap-3 flex-1">
                 {p.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm text-gray-300">
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-gray-300 leading-relaxed">
                     <span className="text-green-400 text-base leading-none">&#10003;</span>
                     {f}
                   </li>
                 ))}
               </ul>
               <div className="flex flex-col gap-2">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <motion.div whileTap={{ scale: 0.97, transition: spring }}>
                   {p.upgradePlan ? (
                     <Link
                       href={isLoggedIn ? '/dashboard/billing' : '/signup'}
-                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors duration-200 ${
+                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-shadow duration-200 ${
                         p.highlight
-                          ? 'bg-blue-600 hover:bg-blue-500 text-white'
-                          : 'bg-gray-800 hover:bg-gray-700 text-white'
+                          ? 'bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white'
+                          : 'bg-gray-800 hover:bg-gray-700 text-white transition-colors'
                       }`}
                     >
                       {isLoggedIn ? 'Upgrade now' : 'Start free - 14 day trial'}
@@ -221,10 +230,10 @@ export default function PricingPage() {
                   ) : (
                     <Link
                       href={isLoggedIn ? '/dashboard' : '/signup'}
-                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors duration-200 ${
+                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-shadow duration-200 ${
                         p.highlight
-                          ? 'bg-blue-600 hover:bg-blue-500 text-white'
-                          : 'bg-gray-800 hover:bg-gray-700 text-white'
+                          ? 'bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white'
+                          : 'bg-gray-800 hover:bg-gray-700 text-white transition-colors'
                       }`}
                     >
                       {isLoggedIn ? 'Dashboard' : 'Start free'}
@@ -248,8 +257,7 @@ export default function PricingPage() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-2xl font-bold text-center mb-8"
+            className="text-2xl font-bold tracking-tight text-center mb-8"
           >
             {t('pricing.compare_title')}
           </motion.h2>
@@ -258,7 +266,7 @@ export default function PricingPage() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ delay: 0.08 }}
             className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden"
           >
             <table className="w-full">
@@ -293,7 +301,6 @@ export default function PricingPage() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
             className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-14"
           >
             {t('pricing.faq_title')}
@@ -306,7 +313,7 @@ export default function PricingPage() {
             className="flex flex-col divide-y divide-gray-800"
           >
             {faqs.map((faq, i) => (
-              <motion.div key={i} variants={fadeUp} transition={{ duration: 0.5 }}>
+              <motion.div key={i} variants={fadeUp}>
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between py-5 text-left group"
@@ -316,7 +323,7 @@ export default function PricingPage() {
                   </span>
                   <motion.span
                     animate={{ rotate: openFaq === i ? 180 : 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={spring}
                     className="text-gray-400 flex-shrink-0"
                   >
                     <ChevronDown className="w-5 h-5" />
@@ -329,7 +336,7 @@ export default function PricingPage() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.35, ease: 'easeInOut' }}
+                      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
                       className="overflow-hidden"
                     >
                       <p className="text-gray-400 text-sm leading-relaxed pb-5 pr-8">{faq.a}</p>
@@ -349,9 +356,8 @@ export default function PricingPage() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
         >
-          <p className="text-gray-400 mb-3">
+          <p className="text-gray-400 mb-3 leading-relaxed">
             {t('pricing.enterprise_note')}
           </p>
           <a
