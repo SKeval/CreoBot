@@ -25,3 +25,14 @@ body {
     text-wrap: balance;
   }
 }
+
+.framer-hidden {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .framer-hidden {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

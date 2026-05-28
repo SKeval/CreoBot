@@ -260,7 +260,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      if (!user) return
       setUserId(user.id)
       setUserEmail(user.email ?? '')
 

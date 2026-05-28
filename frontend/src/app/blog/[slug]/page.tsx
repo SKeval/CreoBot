@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
@@ -23,6 +24,15 @@ export async function generateStaticParams() {
   const dir = path.join(process.cwd(), 'content/blog')
   const files = fs.readdirSync(dir)
   return files.map(file => ({ slug: file.replace('.mdx', '') }))
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = getPost(params.slug)
+  if (!post) return { title: 'Post not found - CreoBot Blog' }
+  return {
+    title: `${post.data.title} - CreoBot Blog`,
+    description: post.data.description,
+  }
 }
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {

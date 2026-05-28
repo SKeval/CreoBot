@@ -5,6 +5,7 @@ import { Bot } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
 import { useLanguage } from '@/lib/LanguageContext'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { MarkdownRenderer } from './markdown-renderer'
 
 interface PostMeta {
@@ -38,7 +39,7 @@ export default function BlogPostClient({ post }: { post: { data: PostMeta; conte
 
   return (
     <main className="min-h-screen bg-gray-950 text-white flex flex-col">
-      <CreoBotNavbar />
+      <CreoBotNavbar langSwitcher={<LanguageSwitcher />} />
 
       <div className="flex-1 max-w-2xl mx-auto px-6 py-16 w-full">
         {/* Back link */}
@@ -57,7 +58,7 @@ export default function BlogPostClient({ post }: { post: { data: PostMeta; conte
 
         {/* Post header */}
         <motion.h1
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.08 }}
           className="text-3xl md:text-4xl font-bold tracking-tight text-white mt-2 mb-3"
@@ -81,7 +82,7 @@ export default function BlogPostClient({ post }: { post: { data: PostMeta; conte
 
         {/* Post body */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.24 }}
         >
@@ -90,7 +91,7 @@ export default function BlogPostClient({ post }: { post: { data: PostMeta; conte
 
         {/* CTA box */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.32 }}
           whileHover={{ scale: 1.01, transition: spring }}

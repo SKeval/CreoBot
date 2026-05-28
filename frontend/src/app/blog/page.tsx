@@ -1,7 +1,15 @@
+import type { Metadata } from 'next'
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import BlogPageClient from './BlogPageClient'
+
+export const dynamic = 'force-static'
+
+export const metadata: Metadata = {
+  title: 'Blog - CreoBot AI Chatbot for Small Businesses',
+  description: 'Practical guides on AI, customer support, and growing your small business. Insights from the CreoBot team.',
+}
 
 interface PostMeta {
   title: string

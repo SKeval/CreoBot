@@ -5,6 +5,7 @@ import { Bot } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
 import { useLanguage } from '@/lib/LanguageContext'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 interface PostMeta {
   title: string
@@ -24,7 +25,7 @@ function formatDate(dateStr: string) {
 const spring = { type: 'spring' as const, stiffness: 300, damping: 30 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 8 },
   visible: {
     opacity: 1,
     y: 0,
@@ -38,16 +39,16 @@ const stagger = {
 }
 
 export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
-  const { t } = useLanguage()
+  const { t, currentLang } = useLanguage()
 
   return (
     <main className="min-h-screen bg-gray-950 text-white flex flex-col">
-      <CreoBotNavbar />
+      <CreoBotNavbar langSwitcher={<LanguageSwitcher />} />
 
       {/* Hero */}
       <section className="flex flex-col items-center text-center px-6 pt-24 pb-16">
         <motion.span
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={spring}
           className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest"
@@ -55,7 +56,7 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
           {t('blog.blog_badge')}
         </motion.span>
         <motion.h1
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.08 }}
           className="text-[clamp(1.8rem,4vw,3.5rem)] font-bold tracking-tight leading-tight text-balance max-w-3xl mx-auto mb-4"
@@ -63,13 +64,23 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
           {t('blog.blog_title')}
         </motion.h1>
         <motion.p
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.16 }}
           className="text-gray-400 text-[clamp(0.95rem,2vw,1.2rem)] max-w-xl leading-relaxed"
         >
           {t('blog.blog_subtitle')}
         </motion.p>
+        {currentLang !== 'en' && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ ...spring, delay: 0.26 }}
+            className="text-gray-500 text-sm italic mt-3"
+          >
+            {t('blog.blog_language_note')}
+          </motion.p>
+        )}
       </section>
 
       {/* Post grid */}
