@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bot, ChevronDown } from 'lucide-react'
@@ -58,6 +58,65 @@ export default function PricingClient() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const { t } = useLanguage()
   const { isLoggedIn } = useAuth()
+
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    script.async = true
+    document.body.appendChild(script)
+    return () => { document.body.removeChild(script) }
+  }, [])
+
+  const handleUpgrade = async (plan: string) => {
+    if (!isLoggedIn) {
+      window.location.href = '/signup'
+      return
+    }
+
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    const { data: { session } } = await supabase.auth.getSession()
+
+    if (!session) {
+      window.location.href = '/signup'
+      return
+    }
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: session.user.id,
+        email: session.user.email,
+        plan
+      })
+    })
+
+    const data = await res.json()
+
+    const options = {
+      key: data.razorpay_key,
+      subscription_id: data.subscription_id,
+      name: 'CreoBot',
+      description: plan === 'spark' ? 'Spark Plan - $19/mo' : 'Blaze Plan - $49/mo',
+      handler: function () {
+        window.location.href = '/dashboard?success=true'
+      },
+      prefill: {
+        email: session.user.email
+      },
+      theme: {
+        color: '#1a56db'
+      }
+    }
+
+    // @ts-ignore
+    const rzp = new window.Razorpay(options)
+    rzp.open()
+  }
 
   type TableRow = {
     feature: string
@@ -228,8 +287,8 @@ export default function PricingClient() {
               <div className="flex flex-col gap-2">
                 <motion.div whileTap={{ scale: 0.97, transition: spring }}>
                   {p.upgradePlan ? (
-                    <Link
-                      href={isLoggedIn ? '/dashboard/billing' : '/signup'}
+                    <button
+                      onClick={() => handleUpgrade(p.upgradePlan!)}
                       className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-shadow duration-200 ${
                         p.highlight
                           ? 'bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white'
@@ -237,7 +296,7 @@ export default function PricingClient() {
                       }`}
                     >
                       {isLoggedIn ? t('pricing.pricing_cta_upgrade') : t('pricing.pricing_cta_trial')}
-                    </Link>
+                    </button>
                   ) : (
                     <Link
                       href={isLoggedIn ? '/dashboard' : '/signup'}

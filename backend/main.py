@@ -12,7 +12,6 @@ import smtplib
 import os
 import uuid
 import io
-import stripe
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
@@ -41,10 +40,17 @@ supabase = create_client(os.getenv("SUPABASE_URL"),
                          os.getenv("SUPABASE_SERVICE_KEY"))
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-SPARK_PRICE_ID = os.getenv("STRIPE_SPARK_PRICE_ID")
-BLAZE_PRICE_ID = os.getenv("STRIPE_BLAZE_PRICE_ID")
-WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+import razorpay
+import hmac
+import hashlib
+
+razorpay_client = razorpay.Client(
+    auth=(os.getenv("RAZORPAY_KEY_ID"), os.getenv("RAZORPAY_KEY_SECRET"))
+)
+SPARK_PLAN_ID = os.getenv("RAZORPAY_SPARK_PLAN_ID")
+BLAZE_PLAN_ID = os.getenv("RAZORPAY_BLAZE_PLAN_ID")
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 
 PLAN_LIMITS = {
     "free":  50,
@@ -196,16 +202,6 @@ import resend
 
 def send_handoff_email(user_contact: str, user_message: str, user_id: str = None, conversation_id: str = None, reason: str = "keyword"):
     try:
-        msg = MIMEText(
-            f"🚨 CreoBot Handoff Alert\n\n"
-            f"A customer needs your attention.\n\n"
-            f"Customer contact: {user_contact}\n"
-            f"Their message: \"{user_message}\"\n\n"
-            f"Reply to them as soon as possible."
-        )
-        msg["Subject"] = "New Lead - CreoBot Handoff"
-        msg["From"] = os.getenv("GMAIL_USER")
-        msg["To"] = os.getenv("OWNER_EMAIL")
 
         resend.api_key = os.getenv("RESEND_API_KEY")
         resend.Emails.send({
@@ -278,10 +274,10 @@ def get_bot_template(user_id: str) -> str:
     return "default"
 
 
-def resolve_plan(price_id: str) -> str:
-    if price_id == SPARK_PRICE_ID:
+def resolve_plan(plan_id: str) -> str:
+    if plan_id == SPARK_PLAN_ID:
         return "spark"
-    elif price_id == BLAZE_PRICE_ID:
+    elif plan_id == BLAZE_PLAN_ID:
         return "blaze"
     return "free"
 
@@ -479,68 +475,77 @@ async def subscribe(req: Request):
     if not all([user_id, email, plan]):
         raise HTTPException(status_code=400, detail="Missing fields")
 
-    price_id = SPARK_PRICE_ID if plan == "spark" else BLAZE_PRICE_ID
+    plan_id = SPARK_PLAN_ID if plan == "spark" else BLAZE_PLAN_ID
 
-    session = stripe.checkout.Session.create(
-        customer_email=email,
-        payment_method_types=["card"],
-        mode="subscription",
-        subscription_data={"trial_period_days": 14},
-        line_items=[{"price": price_id, "quantity": 1}],
-        success_url="https://creo-bot-tau.vercel.app/dashboard?success=true",
-        cancel_url="https://creo-bot-tau.vercel.app/pricing?cancelled=true",
-        metadata={"user_id": user_id, "plan": plan}
-    )
+    subscription = razorpay_client.subscription.create({
+        "plan_id": plan_id,
+        "customer_notify": 1,
+        "quantity": 1,
+        "total_count": 12,
+        "notes": {
+            "user_id": user_id,
+            "plan": plan,
+            "email": email
+        }
+    })
 
-    return {"checkout_url": session.url}
+    return {
+        "subscription_id": subscription["id"],
+        "razorpay_key": RAZORPAY_KEY_ID
+    }
 
 
 @app.post("/webhook")
-async def stripe_webhook(req: Request):
+async def razorpay_webhook(req: Request):
     payload = await req.body()
-    sig_header = req.headers.get("stripe-signature")
+    sig_header = req.headers.get("x-razorpay-signature")
 
-    try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, WEBHOOK_SECRET)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    # Verify webhook signature
+    expected = hmac.new(
+        RAZORPAY_KEY_SECRET.encode(),
+        payload,
+        hashlib.sha256
+    ).hexdigest()
 
-    # Parse as plain dict — avoids Stripe object access issues
-    event_dict = json.loads(payload)
-    obj = event_dict["data"]["object"]
+    if not hmac.compare_digest(expected, sig_header or ""):
+        raise HTTPException(status_code=400, detail="Invalid signature")
 
-    if event["type"] == "checkout.session.completed":
-        metadata = obj.get("metadata") or {}
-        user_id = metadata.get("user_id")
-        plan = metadata.get("plan", "free")
-        customer_id = obj.get("customer")
+    event = json.loads(payload)
+    event_type = event.get("event")
+    obj = event.get("payload", {}).get("subscription", {}).get("entity", {})
+
+    if event_type == "subscription.activated":
+        notes = obj.get("notes", {})
+        user_id = notes.get("user_id")
+        plan = notes.get("plan", "free")
 
         if user_id:
             supabase.table("profiles").update({
                 "plan": plan,
-                "stripe_customer_id": customer_id,
-                "subscription_status": "trialing",
+                "subscription_status": "active",
                 "message_count": 0
             }).eq("id", user_id).execute()
 
-    elif event["type"] == "customer.subscription.updated":
-        customer_id = obj.get("customer")
-        status = obj.get("status")
-        price_id = obj["items"]["data"][0]["price"]["id"]
-        plan = resolve_plan(price_id)
+    elif event_type == "subscription.charged":
+        notes = obj.get("notes", {})
+        user_id = notes.get("user_id")
+        plan_id = obj.get("plan_id")
+        plan = resolve_plan(plan_id)
 
-        supabase.table("profiles").update({
-            "plan": plan,
-            "subscription_status": status
-        }).eq("stripe_customer_id", customer_id).execute()
+        if user_id:
+            supabase.table("profiles").update({
+                "plan": plan,
+                "subscription_status": "active"
+            }).eq("id", user_id).execute()
 
-    elif event["type"] == "customer.subscription.deleted":
-        customer_id = obj.get("customer")
+    elif event_type == "subscription.cancelled":
+        notes = obj.get("notes", {})
+        user_id = notes.get("user_id")
 
-        supabase.table("profiles").update({
-            "plan": "free",
-            "subscription_status": "cancelled"
-        }).eq("stripe_customer_id", customer_id).execute()
+        if user_id:
+            supabase.table("profiles").update({
+                "plan": "free",
+                "subscription_status": "cancelled"
+            }).eq("id", user_id).execute()
 
     return {"status": "ok"}
