@@ -11,7 +11,7 @@ import {
   Home, ShoppingCart, Scale, UtensilsCrossed, Headphones,
 } from 'lucide-react'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types ---
 
 interface Profile {
   id: string
@@ -53,7 +53,7 @@ function trialDaysLeft(trial_ends_at: string): number {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }
 
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
+// --- Sidebar ---
 
 const navItems = [
   { id: 'overview' as Section, label: 'Overview', Icon: LayoutDashboard },
@@ -175,7 +175,7 @@ function Sidebar({
   )
 }
 
-// ─── Stat Card ────────────────────────────────────────────────────────────────
+// --- Stat Card ---
 
 function StatCard({
   label, value, sub, icon: Icon, iconBg, iconColor, bar, barValue,
@@ -217,7 +217,7 @@ function StatCard({
   )
 }
 
-// ─── Section wrapper ──────────────────────────────────────────────────────────
+// --- Section wrapper ---
 
 function SectionCard({ title, desc, children }: { title: string; desc: string; children: React.ReactNode }) {
   return (
@@ -234,7 +234,7 @@ function SectionCard({ title, desc, children }: { title: string; desc: string; c
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// --- Page ---
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -280,6 +280,14 @@ export default function DashboardPage() {
     load()
   }, [])
 
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    script.async = true
+    document.body.appendChild(script)
+    return () => { document.body.removeChild(script) }
+  }, [])
+
   const saveTemplate = async (key: string) => {
     setSelectedTemplate(key)
     setTemplateSaving(true)
@@ -322,14 +330,37 @@ export default function DashboardPage() {
   }
 
   const handleUpgrade = async (plan: string) => {
-    if (!userId) return
+    if (!userId || !userEmail) return
+
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/subscribe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: userId, email: userEmail, plan }),
     })
+
     const data = await res.json()
-    if (data.checkout_url) window.location.href = data.checkout_url
+
+    if (!data.subscription_id) {
+      console.error('Razorpay error:', data)
+      alert('Something went wrong. Please try again.')
+      return
+    }
+
+    const options = {
+      key: data.razorpay_key,
+      subscription_id: data.subscription_id,
+      name: 'CreoBot',
+      description: plan === 'spark' ? 'Spark Plan - $19/mo' : 'Blaze Plan - $49/mo',
+      handler: function () {
+        window.location.href = '/dashboard?success=true'
+      },
+      prefill: { email: userEmail },
+      theme: { color: '#1a56db' }
+    }
+
+    // @ts-ignore
+    const rzp = new window.Razorpay(options)
+    rzp.open()
   }
 
   const getEmbedCode = () => {
@@ -744,6 +775,7 @@ export default function DashboardPage() {
                 </SectionCard>
               </motion.div>
             )}
+
             {active === 'integrations' && (
               <motion.div
                 key="integrations"

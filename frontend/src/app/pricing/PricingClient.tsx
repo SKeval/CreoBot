@@ -68,11 +68,6 @@ export default function PricingClient() {
   }, [])
 
   const handleUpgrade = async (plan: string) => {
-    if (!isLoggedIn) {
-      window.location.href = '/signup'
-      return
-    }
-
     const { createClient } = await import('@supabase/supabase-js')
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -97,6 +92,12 @@ export default function PricingClient() {
 
     const data = await res.json()
 
+    if (!data.subscription_id) {
+      console.error('Razorpay error:', data)
+      alert('Something went wrong. Please try again.')
+      return
+    }
+
     const options = {
       key: data.razorpay_key,
       subscription_id: data.subscription_id,
@@ -105,12 +106,8 @@ export default function PricingClient() {
       handler: function () {
         window.location.href = '/dashboard?success=true'
       },
-      prefill: {
-        email: session.user.email
-      },
-      theme: {
-        color: '#1a56db'
-      }
+      prefill: { email: session.user.email },
+      theme: { color: '#1a56db' }
     }
 
     // @ts-ignore
@@ -186,8 +183,8 @@ export default function PricingClient() {
     { feature: t('pricing.feature_branding'),   free: false,      spark: true,       blaze: true,        type: 'bool' },
     { feature: t('pricing.feature_analytics'),  free: false,      spark: false,      blaze: true,        type: 'bool' },
     { feature: t('pricing.feature_priority'),   free: false,      spark: false,      blaze: true,        type: 'bool' },
-    { feature: t('pricing.feature_trial'),      free: false,      spark: true,       blaze: true,           type: 'bool' },
-    { feature: t('pricing.pricing_whatsapp'),  free: false,      spark: false,      blaze: 'comingsoon',   type: 'bool' },
+    { feature: t('pricing.feature_trial'),      free: false,      spark: true,       blaze: true,        type: 'bool' },
+    { feature: t('pricing.pricing_whatsapp'),   free: false,      spark: false,      blaze: 'comingsoon',type: 'bool' },
   ]
 
   const faqs = [
