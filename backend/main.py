@@ -502,10 +502,10 @@ async def razorpay_webhook(req: Request):
 
     # Verify webhook signature
     expected = hmac.new(
-        RAZORPAY_KEY_SECRET.encode(),
-        payload,
-        hashlib.sha256
-    ).hexdigest()
+    key=os.getenv("RAZORPAY_WEBHOOK_SECRET").encode(),
+    msg=payload,
+    digestmod=hashlib.sha256
+).hexdigest()  
 
     if not hmac.compare_digest(expected, sig_header or ""):
         raise HTTPException(status_code=400, detail="Invalid signature")

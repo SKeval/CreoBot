@@ -134,6 +134,11 @@
   `;
   document.head.appendChild(style);
 
+  // Load marked.js for markdown rendering
+  const markedScript = document.createElement('script');
+  markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+  document.head.appendChild(markedScript);
+
   // Build UI
   document.body.innerHTML += `
     <button id="creobot-launcher">💬</button>
@@ -229,6 +234,22 @@
     win.style.display = win.style.display === "flex" ? "none" : "flex";
   };
 
+  function sanitizeHtml(html) {
+    const allowed = new Set(['B', 'STRONG', 'EM', 'UL', 'OL', 'LI', 'P', 'BR']);
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    Array.from(tmp.querySelectorAll('*')).reverse().forEach(function(node) {
+      if (!allowed.has(node.tagName)) {
+        const parent = node.parentNode;
+        if (parent) {
+          while (node.firstChild) parent.insertBefore(node.firstChild, node);
+          parent.removeChild(node);
+        }
+      }
+    });
+    return tmp.innerHTML;
+  }
+
   // Send message
   async function sendMessage() {
     const input = document.getElementById("creobot-input");
@@ -256,13 +277,8 @@
       const data = await res.json();
       document.getElementById("creobot-typing").remove();
 
-      const formatted = data.reply
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/^- (.+)/gm, '<li>$1</li>')
-        .replace(/(<li>.*<\/li>)/gs, '<ul style="margin:6px 0;padding-left:18px;">$1</ul>')
-        .replace(/\n\n/g, '<br><br>')
-        .replace(/\n/g, '<br>');
+      const rawHtml = (window.marked && window.marked.parse) ? window.marked.parse(data.reply) : data.reply;
+      const formatted = sanitizeHtml(rawHtml);
 
       messages.innerHTML += `<div class="creobot-msg bot">${formatted}</div>`;
 
