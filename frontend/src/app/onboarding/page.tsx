@@ -177,7 +177,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-cb-bg text-white flex flex-col">
       <div className="border-b border-white/[0.08] bg-cb-card px-8 py-4 flex items-center gap-6">
         <a href="/" className="flex items-center gap-2 flex-shrink-0">
-          <Image src="/logo.png" alt="CreoBot" width={110} height={30} />
+          <Image src="/logo.png" alt="CreoBot" width={160} height={44} />
         </a>
         <div className="flex-1 flex flex-col gap-1.5">
           <div className="flex items-center justify-between">

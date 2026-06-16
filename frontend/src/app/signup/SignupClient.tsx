@@ -103,7 +103,7 @@ export default function SignupClient() {
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
           <Link href="/" className="inline-block">
-            <Image src="/logo.png" alt="CreoBot" width={120} height={32} />
+            <Image src="/logo.png" alt="CreoBot" width={160} height={44} />
           </Link>
         </motion.div>
 
@@ -176,7 +176,7 @@ export default function SignupClient() {
 
         {/* Mobile logo */}
         <Link href="/" className="mb-10 lg:hidden">
-          <Image src="/logo.png" alt="CreoBot" width={120} height={32} />
+          <Image src="/logo.png" alt="CreoBot" width={160} height={44} />
         </Link>
 
         <motion.div

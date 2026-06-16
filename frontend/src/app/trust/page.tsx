@@ -64,7 +64,7 @@ export default function TrustPage() {
       <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-cb-bg/80 backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-6 flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="CreoBot" width={120} height={32} />
+            <Image src="/logo.png" alt="CreoBot" width={160} height={44} />
           </Link>
           <Link
             href="/"
@@ -255,7 +255,7 @@ export default function TrustPage() {
       <footer className="border-t border-white/[0.08] px-6 pt-8 pb-6">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="CreoBot" width={100} height={28} />
+            <Image src="/logo.png" alt="CreoBot" width={160} height={44} />
           </div>
           <Link href="/" className="text-white/40 text-xs hover:text-white/80 transition-colors duration-200">
             Back to homepage

@@ -85,7 +85,7 @@ function Sidebar({
       <div className="flex items-center gap-3 px-4 py-5 border-b border-white/[0.08]">
         <a href="/" className="flex items-center gap-3">
           {open ? (
-            <Image src="/logo.png" alt="CreoBot" width={110} height={30} />
+            <Image src="/logo.png" alt="CreoBot" width={160} height={44} />
           ) : (
             <Image src="/logo-icon.jpg" alt="CreoBot" width={36} height={36} className="rounded-lg flex-shrink-0" />
           )}

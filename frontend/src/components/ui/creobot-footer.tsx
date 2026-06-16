@@ -34,7 +34,7 @@ export function CreoBotFooter({ langSwitcher }: { langSwitcher?: React.ReactNode
           {/* Col 1: Logo + tagline */}
           <div>
             <Link href="/" className="inline-block">
-              <Image src="/logo.png" alt="CreoBot" width={190} height={44} />
+              <Image src="/logo.png" alt="CreoBot" width={160} height={44} />
             </Link>
             <p className="text-white/40 text-[13px] mt-3 max-w-[28ch]">
               {t('homepage.footer_tagline')}
