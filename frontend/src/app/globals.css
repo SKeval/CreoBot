@@ -3,21 +3,29 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --bg-page: #0a0a0f;
+  --bg-surface: #111118;
+  --bg-card: #1a1a26;
+  --primary: #6B3FDC;
+  --primary-hover: #8B63F0;
+  --primary-tint: rgba(107, 63, 220, 0.15);
+  --primary-glow: rgba(107, 63, 220, 0.35);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --text-100: #ffffff;
+  --text-60: rgba(255, 255, 255, 0.6);
+  --text-40: rgba(255, 255, 255, 0.4);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-100);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 @layer utilities {
@@ -34,5 +42,55 @@ body {
   .framer-hidden {
     opacity: 1 !important;
     transform: none !important;
+  }
+}
+
+/* Chat bubble sequential animation */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.chat-bubble-1 { animation: fadeSlideUp 0.4s ease-out 0.3s both; }
+.chat-bubble-2 { animation: fadeSlideUp 0.4s ease-out 0.9s both; }
+.chat-bubble-3 { animation: fadeSlideUp 0.4s ease-out 1.5s both; }
+.chat-bubble-4 { animation: fadeSlideUp 0.4s ease-out 2.1s both; }
+
+/* CTA pulse ring */
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0 rgba(107, 63, 220, 0.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(107, 63, 220, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(107, 63, 220, 0); }
+}
+
+.btn-pulse {
+  animation: pulseRing 2s ease-out infinite;
+}
+.btn-pulse:hover {
+  animation: none;
+}
+
+/* Marquee scroll */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-bubble-1, .chat-bubble-2, .chat-bubble-3, .chat-bubble-4 {
+    animation-duration: 0.01ms;
+    animation-delay: 0ms;
+  }
+  .btn-pulse {
+    animation: none;
+  }
+  .marquee-track {
+    animation: none;
   }
 }

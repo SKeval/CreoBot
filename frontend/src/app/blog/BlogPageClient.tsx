@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { Bot } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
+import { CreoBotFooter } from '@/components/ui/creobot-footer'
 import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
@@ -42,7 +42,7 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
   const { t, currentLang } = useLanguage()
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-100)' }}>
       <CreoBotNavbar langSwitcher={<LanguageSwitcher />} />
 
       {/* Hero */}
@@ -51,7 +51,14 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={spring}
-          className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest"
+          className="inline-block mb-6"
+          style={{
+            border: '0.5px solid var(--border)',
+            borderRadius: '20px',
+            padding: '4px 14px',
+            fontSize: '12px',
+            color: 'var(--text-60)',
+          }}
         >
           {t('blog.blog_badge')}
         </motion.span>
@@ -59,7 +66,8 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.08 }}
-          className="text-[clamp(1.8rem,4vw,3.5rem)] font-bold tracking-tight leading-tight text-balance max-w-3xl mx-auto mb-4"
+          className="text-balance max-w-3xl mx-auto mb-4"
+          style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 500, lineHeight: 1.15 }}
         >
           {t('blog.blog_title')}
         </motion.h1>
@@ -67,7 +75,8 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.16 }}
-          className="text-gray-400 text-[clamp(0.95rem,2vw,1.2rem)] max-w-xl leading-relaxed"
+          className="max-w-xl leading-relaxed"
+          style={{ color: 'var(--text-60)', fontSize: '1rem' }}
         >
           {t('blog.blog_subtitle')}
         </motion.p>
@@ -76,7 +85,8 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ ...spring, delay: 0.26 }}
-            className="text-gray-500 text-sm italic mt-3"
+            className="text-sm italic mt-3"
+            style={{ color: 'var(--text-40)' }}
           >
             {t('blog.blog_language_note')}
           </motion.p>
@@ -95,19 +105,25 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
             <motion.article
               key={post.slug}
               variants={fadeUp}
-              whileHover={{ scale: 1.02, y: -4, transition: spring }}
-              className="bg-gray-900 hover:bg-gray-800/80 border border-gray-800 hover:border-gray-600 rounded-2xl p-7 flex flex-col gap-4 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out"
+              className="flex flex-col gap-4 transition-[border-color] duration-200 hover:border-[rgba(107,63,220,0.4)]"
+              style={{
+                background: 'var(--bg-card)',
+                border: '0.5px solid var(--border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '24px',
+              }}
             >
               <div>
-                <p className="text-gray-500 text-xs mb-3">{formatDate(post.date)}</p>
-                <h2 className="text-white font-semibold text-xl leading-snug mb-2 tracking-tight">
+                <p className="text-xs mb-3" style={{ color: 'var(--text-40)' }}>{formatDate(post.date)}</p>
+                <h2 className="text-xl leading-snug mb-2" style={{ color: 'var(--text-100)', fontWeight: 500 }}>
                   {post.title}
                 </h2>
-                <p className="text-gray-400 text-sm leading-relaxed">{post.description}</p>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-60)' }}>{post.description}</p>
               </div>
               <Link
                 href={`/blog/${post.slug}`}
-                className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors duration-200 mt-auto"
+                className="text-sm font-medium transition-colors duration-150 mt-auto hover:underline"
+                style={{ color: 'var(--primary)' }}
               >
                 {t('blog.blog_read_more')} &rarr;
               </Link>
@@ -117,36 +133,7 @@ export default function BlogPageClient({ posts }: { posts: PostMeta[] }) {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 px-6 pt-8 pb-6 mt-auto">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col items-center sm:items-start gap-1">
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-blue-500" />
-              <span className="font-bold text-white">CreoBot</span>
-            </div>
-            <p className="text-gray-500 text-xs">{t('homepage.footer_tagline')}</p>
-          </div>
-          <p className="text-xs text-gray-600">
-            Built by{' '}
-            <a
-              href="https://www.linkedin.com/in/keval-savaliya/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 font-medium hover:text-white transition-colors duration-200"
-            >
-              Keval Savaliya
-            </a>
-            <span className="text-gray-700 mx-2">·</span>
-            <span className="text-gray-600">Founder</span>
-          </p>
-          <div className="flex items-center gap-4">
-            <Link href="/trust" className="text-gray-500 text-xs hover:text-gray-300 transition-colors duration-200">
-              Trust &amp; Privacy
-            </Link>
-            <p className="text-gray-600 text-sm">{t('homepage.footer_copyright')}</p>
-          </div>
-        </div>
-      </footer>
+      <CreoBotFooter langSwitcher={<LanguageSwitcher />} />
     </main>
   )
 }

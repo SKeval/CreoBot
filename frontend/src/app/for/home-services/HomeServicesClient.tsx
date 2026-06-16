@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Bot } from 'lucide-react'
+import { PhoneMissed, Moon, Repeat } from 'lucide-react'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
+import { CreoBotFooter } from '@/components/ui/creobot-footer'
 import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useAuth } from '@/hooks/useAuth'
@@ -32,17 +33,17 @@ export default function HomeServicesClient() {
 
   const painPoints = [
     {
-      icon: '📞',
+      icon: PhoneMissed,
       title: t('home_services.pain1_title'),
       body: t('home_services.pain1_body'),
     },
     {
-      icon: '🌙',
+      icon: Moon,
       title: t('home_services.pain2_title'),
       body: t('home_services.pain2_body'),
     },
     {
-      icon: '🔁',
+      icon: Repeat,
       title: t('home_services.pain3_title'),
       body: t('home_services.pain3_body'),
     },
@@ -50,195 +51,249 @@ export default function HomeServicesClient() {
 
   const steps = [
     {
-      num: 1,
+      num: '01',
       title: t('home_services.step1_title'),
       desc: t('home_services.step1_body'),
     },
     {
-      num: 2,
+      num: '02',
       title: t('home_services.step2_title'),
       desc: t('home_services.step2_body'),
     },
     {
-      num: 3,
+      num: '03',
       title: t('home_services.step3_title'),
       desc: t('home_services.step3_body'),
     },
   ]
 
-  const heroLine1 = t('home_services.h1_line1')
-  const heroLine2 = t('home_services.h1_line2')
-
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-100)' }}>
 
       {/* 1. NAVBAR */}
       <CreoBotNavbar langSwitcher={<LanguageSwitcher />} isLoggedIn={isLoggedIn} />
 
       {/* 2. HERO */}
-      <section className="flex flex-col items-center justify-center text-center px-6 pt-28 pb-24">
-        <motion.span
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={spring}
-          className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-8 uppercase tracking-widest"
-        >
-          {t('home_services.badge')}
-        </motion.span>
+      <section className="relative flex flex-col items-center justify-center text-center px-6 pt-28 pb-24">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{
+            top: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '600px',
+            height: '400px',
+            maxWidth: '100%',
+            background: 'radial-gradient(ellipse, rgba(107,63,220,0.25) 0%, transparent 65%)',
+          }}
+        />
 
-        <h1 className="text-[clamp(1.8rem,4vw,3.5rem)] font-bold tracking-tight leading-tight max-w-4xl text-balance">
-          <span className="inline">
-            {heroLine1.split(' ').map((word, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...spring, delay: 0.1 + i * 0.08 }}
-                className="inline-block mr-4"
-              >
-                {word}
-              </motion.span>
-            ))}
-          </span>
-          <br />
-          <span className="inline">
-            {heroLine2.split(' ').map((word, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...spring, delay: 0.3 + i * 0.08 }}
-                className="inline-block mr-3 bg-gradient-to-r from-[#1a56db] to-[#3b82f6] bg-clip-text text-transparent"
-              >
-                {word}
-              </motion.span>
-            ))}
-          </span>
-        </h1>
+        <div className="relative z-[1] flex flex-col items-center">
+          <motion.span
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={spring}
+            className="inline-block mb-6"
+            style={{
+              border: '0.5px solid var(--border)',
+              borderRadius: '20px',
+              padding: '4px 14px',
+              fontSize: '12px',
+              color: 'var(--text-60)',
+            }}
+          >
+            {t('home_services.badge')}
+          </motion.span>
 
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...spring, delay: 0.55 }}
-          className="text-gray-400 text-lg md:text-xl mt-8 max-w-2xl leading-relaxed"
-        >
-          {t('home_services.subtitle')}
-        </motion.p>
+          <h1
+            className="text-balance"
+            style={{
+              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              fontWeight: 500,
+              lineHeight: 1.15,
+              color: 'var(--text-100)',
+              maxWidth: '700px',
+              margin: '0 auto 16px',
+              textAlign: 'center',
+            }}
+          >
+            {t('home_services.h1_line1')} {t('home_services.h1_line2')}
+          </h1>
 
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...spring, delay: 0.65 }}
-          className="flex flex-col sm:flex-row gap-4 mt-10"
-        >
-          <motion.div whileTap={{ scale: 0.97, transition: spring }}>
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...spring, delay: 0.2 }}
+            style={{
+              fontSize: '1.0625rem',
+              color: 'var(--text-60)',
+              maxWidth: '480px',
+              margin: '0 auto 32px',
+              textAlign: 'center',
+              lineHeight: 1.65,
+            }}
+          >
+            {t('home_services.subtitle')}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...spring, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4"
+          >
             <Link
               href={isLoggedIn ? '/dashboard' : '/signup'}
-              className="inline-block bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white px-8 py-3.5 rounded-lg font-semibold transition-shadow duration-200"
+              className="btn-pulse inline-block transition-[background-color,transform] duration-150 active:scale-[0.97]"
+              style={{
+                background: 'var(--primary)',
+                color: 'white',
+                padding: '12px 28px',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.9375rem',
+                fontWeight: 500,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-hover)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--primary)' }}
             >
               {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('homepage.hero_cta_primary')}
             </Link>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.02, transition: spring }} whileTap={{ scale: 0.97, transition: spring }}>
             <Link
               href="/pricing"
-              className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-[border-color,color] duration-200"
+              className="inline-block transition-[border-color,color,transform] duration-150 active:scale-[0.97] hover:text-white"
+              style={{
+                border: '0.5px solid var(--border)',
+                color: 'var(--text-60)',
+                padding: '12px 28px',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.9375rem',
+                fontWeight: 500,
+              }}
             >
               {t('homepage.hero_cta_secondary')}
             </Link>
           </motion.div>
-        </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ ...spring, delay: 0.8 }}
-          className="text-gray-600 text-sm mt-4"
-        >
-          {t('homepage.hero_tagline')}
-        </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ ...spring, delay: 0.4 }}
+            className="mt-4"
+            style={{ color: 'var(--text-40)', fontSize: '12px' }}
+          >
+            {t('homepage.hero_tagline')}
+          </motion.p>
+        </div>
       </section>
 
       {/* 3. PAIN POINTS */}
-      <section className="bg-gray-900/40 border-t border-gray-800 px-6 py-24">
+      <section className="px-6 py-24" style={{ borderTop: '0.5px solid var(--border)' }}>
         <div className="max-w-6xl mx-auto">
           <motion.h2
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-14"
+            className="text-center"
+            style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 500, marginBottom: '56px' }}
           >
             {t('home_services.sound_familiar')}
           </motion.h2>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '1px',
+              background: 'var(--border)',
+            }}
           >
-            {painPoints.map((card) => (
-              <motion.div
-                key={card.title}
-                variants={fadeUp}
-                whileHover={{ scale: 1.02, y: -4, transition: spring }}
-                className="bg-gray-900 hover:bg-gray-800/80 border border-gray-800 hover:border-gray-600 rounded-2xl p-7 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out"
-              >
-                <div className="text-3xl mb-4">{card.icon}</div>
-                <h3 className="font-semibold text-white text-lg mb-3 tracking-tight">{card.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{card.body}</p>
-              </motion.div>
-            ))}
-          </motion.div>
+            {painPoints.map((card, index) => {
+              const Icon = card.icon
+              return (
+                <motion.div
+                  key={card.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.1 }}
+                  style={{ background: 'var(--bg-card)', padding: '28px' }}
+                >
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: 'var(--radius-sm)',
+                      background: 'var(--primary-tint)',
+                      marginBottom: '16px',
+                    }}
+                  >
+                    <Icon style={{ color: 'var(--primary)', width: '18px', height: '18px' }} />
+                  </div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-100)', marginBottom: '8px' }}>{card.title}</h3>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--text-60)', lineHeight: 1.6 }}>{card.body}</p>
+                </motion.div>
+              )
+            })}
+          </div>
         </div>
       </section>
 
       {/* 4. HOW IT WORKS */}
       <section className="px-6 py-24">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <motion.h2
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-16"
+            className="text-center"
+            style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 500, marginBottom: '56px' }}
           >
             {t('home_services.how_title')}
           </motion.h2>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-10"
-          >
-            {steps.map((s) => (
+          <div className="flex flex-col md:flex-row items-stretch gap-10 md:gap-0">
+            {steps.map((step, index) => (
               <motion.div
-                key={s.num}
-                variants={fadeUp}
-                className="text-center"
+                key={step.num}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.2 }}
+                className="flex-1 border-t-2 md:border-t-0 md:border-l-2 pt-6 md:pt-0 md:pl-6 md:mr-10 last:mr-0"
+                style={{ borderColor: 'var(--primary)' }}
               >
-                <div className="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-5">
-                  <span className="text-blue-400 font-bold text-lg">{s.num}</span>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: 'var(--primary)',
+                    fontWeight: 600,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    marginBottom: '12px',
+                  }}
+                >
+                  {step.num}
                 </div>
-                <h3 className="font-semibold text-white text-lg mb-2 tracking-tight">{s.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 500, color: 'var(--text-100)', marginBottom: '8px' }}>{step.title}</h3>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-60)', lineHeight: 1.6 }}>{step.desc}</p>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* 5. INDUSTRIES */}
-      <section className="bg-gray-900/40 border-t border-gray-800 px-6 py-24">
+      <section className="px-6 py-24" style={{ borderTop: '0.5px solid var(--border)', background: 'var(--bg-surface)' }}>
         <div className="max-w-4xl mx-auto text-center">
           <motion.h2
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-12"
+            className="text-center"
+            style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 500, marginBottom: '48px' }}
           >
             {t('home_services.industries_title')}
           </motion.h2>
@@ -253,8 +308,14 @@ export default function HomeServicesClient() {
               <motion.span
                 key={tag}
                 variants={fadeUp}
-                whileHover={{ scale: 1.05, transition: spring }}
-                className="bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-gray-600 text-gray-300 text-sm font-medium px-4 py-2 rounded-full transition-[border-color,background-color] duration-200 ease-out cursor-default"
+                className="text-sm font-medium cursor-default transition-[border-color] duration-150 hover:border-[rgba(107,63,220,0.4)]"
+                style={{
+                  background: 'var(--bg-card)',
+                  border: '0.5px solid var(--border)',
+                  color: 'var(--text-60)',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                }}
               >
                 {tag}
               </motion.span>
@@ -263,65 +324,53 @@ export default function HomeServicesClient() {
         </div>
       </section>
 
-      {/* 6. CTA BANNER */}
-      <motion.section
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="mx-4 md:mx-8 my-16 rounded-2xl px-8 py-20 text-center"
-        style={{ backgroundColor: '#1a56db' }}
-      >
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 max-w-2xl mx-auto">
-          {t('home_services.cta_headline')}
-        </h2>
-        <p className="text-blue-100 mb-10 max-w-xl mx-auto leading-relaxed">
-          {t('home_services.cta_subtext')}
-        </p>
-        <motion.div
-          whileTap={{ scale: 0.97, transition: spring }}
-          className="inline-block"
-        >
-          <Link
-            href={isLoggedIn ? '/dashboard' : '/signup'}
-            className="inline-block bg-gray-950 hover:bg-gray-900 text-white px-10 py-4 rounded-lg font-semibold text-base transition-colors duration-200"
+      {/* 6. FINAL CTA */}
+      <section className="relative overflow-hidden px-6 text-center" style={{ padding: '120px 24px', background: 'var(--bg-page)' }}>
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 600px 300px at 50% 50%, rgba(107,63,220,0.2) 0%, transparent 70%)',
+          }}
+        />
+        <div className="relative z-[1]">
+          <h2
+            className="text-balance mx-auto"
+            style={{
+              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              fontWeight: 500,
+              lineHeight: 1.15,
+              maxWidth: '700px',
+            }}
           >
-            {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('home_services.cta_button')}
-          </Link>
-        </motion.div>
-      </motion.section>
-
-      {/* 7. FOOTER */}
-      <footer className="border-t border-gray-800 px-6 pt-8 pb-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col items-center sm:items-start gap-1">
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-blue-500" />
-              <span className="font-bold text-white">CreoBot</span>
-            </div>
-            <p className="text-gray-500 text-xs">{t('homepage.footer_tagline')}</p>
-          </div>
-          <p className="text-xs text-gray-600">
-            Built by{' '}
-            <a
-              href="https://www.linkedin.com/in/keval-savaliya/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 font-medium hover:text-white transition-colors duration-200"
-            >
-              Keval Savaliya
-            </a>
-            <span className="text-gray-700 mx-2">-</span>
-            <span className="text-gray-600">Founder</span>
+            {t('home_services.cta_headline')}
+          </h2>
+          <p style={{ color: 'var(--text-60)', fontSize: '16px', marginTop: '12px' }} className="max-w-xl mx-auto leading-relaxed">
+            {t('home_services.cta_subtext')}
           </p>
-          <div className="flex items-center gap-4">
-            <Link href="/trust" className="text-gray-500 text-xs hover:text-gray-300 transition-colors duration-200">
-              Trust &amp; Privacy
+          <div style={{ marginTop: '32px' }}>
+            <Link
+              href={isLoggedIn ? '/dashboard' : '/signup'}
+              className="btn-pulse inline-block transition-[background-color,transform] duration-150 active:scale-[0.97]"
+              style={{
+                background: 'var(--primary)',
+                color: 'white',
+                padding: '12px 28px',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.9375rem',
+                fontWeight: 500,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-hover)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--primary)' }}
+            >
+              {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('home_services.cta_button')}
             </Link>
-            <p className="text-gray-600 text-sm">{t('homepage.footer_copyright')}</p>
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* 7. FOOTER */}
+      <CreoBotFooter langSwitcher={<LanguageSwitcher />} />
 
     </main>
   )

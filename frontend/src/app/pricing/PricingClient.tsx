@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bot, ChevronDown } from 'lucide-react'
+import { ChevronDown, Check, X } from 'lucide-react'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
+import { CreoBotFooter } from '@/components/ui/creobot-footer'
 import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useAuth } from '@/hooks/useAuth'
@@ -28,7 +29,7 @@ const stagger = {
 function Cell({ value, type }: { value: string | boolean; type: 'text' | 'bool' }) {
   if (type === 'text') {
     return (
-      <td className="px-6 py-4 text-center text-sm text-gray-300">
+      <td className="px-6 py-4 text-center text-sm" style={{ color: 'var(--text-60)' }}>
         {value as string}
       </td>
     )
@@ -37,8 +38,13 @@ function Cell({ value, type }: { value: string | boolean; type: 'text' | 'bool' 
     return (
       <td className="px-6 py-4 text-center text-sm">
         <span className="inline-flex items-center justify-center gap-1">
-          <span className="text-green-400">&#10003;</span>
-          <span className="bg-blue-900/40 text-blue-400 text-xs px-2 py-0.5 rounded-full">Coming soon</span>
+          <Check className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+          <span
+            className="text-xs px-2 py-0.5 rounded-full"
+            style={{ background: 'var(--primary-tint)', color: 'var(--primary-hover)' }}
+          >
+            Coming soon
+          </span>
         </span>
       </td>
     )
@@ -46,9 +52,9 @@ function Cell({ value, type }: { value: string | boolean; type: 'text' | 'bool' 
   return (
     <td className="px-6 py-4 text-center text-sm">
       {value ? (
-        <span className="text-green-400">&#10003;</span>
+        <Check className="w-4 h-4 inline-block" style={{ color: 'var(--primary)' }} />
       ) : (
-        <span className="text-gray-600">-</span>
+        <X className="w-4 h-4 inline-block" style={{ color: 'var(--text-40)' }} />
       )}
     </td>
   )
@@ -107,7 +113,7 @@ export default function PricingClient() {
         window.location.href = '/dashboard?success=true'
       },
       prefill: { email: session.user.email },
-      theme: { color: '#1a56db' }
+      theme: { color: '#6B3FDC' }
     }
 
     // @ts-ignore
@@ -137,6 +143,7 @@ export default function PricingClient() {
       href: '/signup',
       highlight: false,
       note: '',
+      ctaStyle: 'ghost' as const,
     },
     {
       name: t('pricing.plan_spark'),
@@ -151,9 +158,10 @@ export default function PricingClient() {
         t('pricing.pricing_feature_trial'),
       ],
       href: '/signup',
-      highlight: false,
+      highlight: true,
       note: t('pricing.no_card'),
       upgradePlan: 'spark',
+      ctaStyle: 'primary' as const,
     },
     {
       name: t('pricing.plan_blaze'),
@@ -169,9 +177,10 @@ export default function PricingClient() {
         'whatsapp',
       ],
       href: '/signup',
-      highlight: true,
+      highlight: false,
       note: t('pricing.no_card'),
       upgradePlan: 'blaze',
+      ctaStyle: 'ghost-primary' as const,
     },
   ]
 
@@ -196,8 +205,17 @@ export default function PricingClient() {
     { q: t('pricing.faq_6_q'), a: t('pricing.faq_6_a') },
   ]
 
+  const ctaButtonStyle = (style: 'ghost' | 'primary' | 'ghost-primary'): React.CSSProperties => ({
+    borderRadius: 'var(--radius-md)',
+    ...(style === 'primary'
+      ? { background: 'var(--primary)', color: 'white', border: '0.5px solid transparent' }
+      : style === 'ghost-primary'
+      ? { background: 'transparent', color: 'var(--text-100)', border: '0.5px solid var(--primary)' }
+      : { background: 'transparent', color: 'var(--text-100)', border: '0.5px solid var(--border)' }),
+  })
+
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-100)' }}>
 
       {/* 1. NAVBAR */}
       <CreoBotNavbar langSwitcher={<LanguageSwitcher />} isLoggedIn={isLoggedIn} />
@@ -208,7 +226,14 @@ export default function PricingClient() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={spring}
-          className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-8 uppercase tracking-widest"
+          className="inline-block mb-8"
+          style={{
+            border: '0.5px solid var(--border)',
+            borderRadius: '20px',
+            padding: '4px 14px',
+            fontSize: '12px',
+            color: 'var(--text-60)',
+          }}
         >
           {t('pricing.page_badge')}
         </motion.span>
@@ -216,7 +241,8 @@ export default function PricingClient() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.08 }}
-          className="text-4xl md:text-5xl font-bold tracking-tight mb-6"
+          className="mb-6"
+          style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 500, lineHeight: 1.15 }}
         >
           {t('pricing.page_title')}
         </motion.h1>
@@ -224,7 +250,8 @@ export default function PricingClient() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.16 }}
-          className="text-gray-400 text-lg max-w-xl leading-relaxed"
+          className="max-w-xl leading-relaxed"
+          style={{ color: 'var(--text-60)', fontSize: '14px' }}
         >
           {t('pricing.page_subtitle')}
         </motion.p>
@@ -236,79 +263,96 @@ export default function PricingClient() {
           variants={stagger}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3"
         >
           {plans.map((p) => (
             <motion.div
               key={p.name}
               variants={fadeUp}
-              whileHover={{
-                scale: 1.02,
-                y: -4,
-                transition: spring,
+              className="relative flex flex-col gap-6"
+              style={{
+                background: 'var(--bg-card)',
+                border: p.highlight ? '0.5px solid var(--primary)' : '0.5px solid var(--border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '28px',
               }}
-              className={`relative rounded-2xl border p-8 flex flex-col gap-6 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out ${
-                p.highlight
-                  ? 'border-blue-500 bg-blue-500/5 hover:border-blue-400 hover:bg-blue-500/10'
-                  : 'border-gray-800 bg-gray-900 hover:border-gray-600 hover:bg-gray-800/80'
-              }`}
             >
               {p.highlight && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#1a56db] to-[#1e40af] text-white text-xs font-semibold px-4 py-1 rounded-full">
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '-12px',
+                    right: '16px',
+                    background: 'var(--primary)',
+                    color: 'white',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    padding: '3px 10px',
+                    borderRadius: '20px',
+                  }}
+                >
                   {t('pricing.most_popular')}
                 </span>
               )}
               <div>
-                <h3 className="text-xl font-bold tracking-tight">{p.name}</h3>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold tracking-tight">{p.price}</span>
-                  <span className="text-gray-400 text-sm">/{p.period}</span>
+                <h3
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: 'var(--text-60)',
+                    marginBottom: '8px',
+                  }}
+                >
+                  {p.name}
+                </h3>
+                <div className="flex items-baseline gap-1">
+                  <span style={{ fontSize: '2rem', fontWeight: 500, color: 'var(--text-100)' }}>{p.price}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--text-40)' }}>/{p.period}</span>
                 </div>
               </div>
-              <ul className="flex flex-col gap-3 flex-1">
+              <ul className="flex flex-col flex-1" style={{ gap: '10px' }}>
                 {p.features.map((f) => (
                   f === 'whatsapp' ? (
-                    <li key="whatsapp" className="flex items-center gap-2.5 text-sm text-gray-300 leading-relaxed">
-                      <span className="text-green-400 text-base leading-none">&#10003;</span>
-                      WhatsApp integration
-                      <span className="bg-blue-900/40 text-blue-400 text-xs px-2 py-0.5 rounded-full ml-2">coming soon</span>
+                    <li key="whatsapp" className="flex items-center gap-2.5 text-sm leading-relaxed" style={{ color: 'var(--text-60)' }}>
+                      <Check className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--primary)' }} />
+                      {t('pricing.pricing_whatsapp')}
+                      <span
+                        className="text-xs px-2 py-0.5 rounded-full ml-1"
+                        style={{ background: 'var(--primary-tint)', color: 'var(--primary-hover)' }}
+                      >
+                        coming soon
+                      </span>
                     </li>
                   ) : (
-                    <li key={f} className="flex items-center gap-2.5 text-sm text-gray-300 leading-relaxed">
-                      <span className="text-green-400 text-base leading-none">&#10003;</span>
+                    <li key={f} className="flex items-center gap-2.5 text-sm leading-relaxed" style={{ color: 'var(--text-60)' }}>
+                      <Check className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--primary)' }} />
                       {f}
                     </li>
                   )
                 ))}
               </ul>
               <div className="flex flex-col gap-2">
-                <motion.div whileTap={{ scale: 0.97, transition: spring }}>
-                  {p.upgradePlan ? (
-                    <button
-                      onClick={() => handleUpgrade(p.upgradePlan!)}
-                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-shadow duration-200 ${
-                        p.highlight
-                          ? 'bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white'
-                          : 'bg-gray-800 hover:bg-gray-700 text-white transition-colors'
-                      }`}
-                    >
-                      {isLoggedIn ? t('pricing.pricing_cta_upgrade') : t('pricing.pricing_cta_trial')}
-                    </button>
-                  ) : (
-                    <Link
-                      href={isLoggedIn ? '/dashboard' : '/signup'}
-                      className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-shadow duration-200 ${
-                        p.highlight
-                          ? 'bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white'
-                          : 'bg-gray-800 hover:bg-gray-700 text-white transition-colors'
-                      }`}
-                    >
-                      {isLoggedIn ? t('pricing.pricing_cta_dashboard') : t('pricing.pricing_cta_start_free')}
-                    </Link>
-                  )}
-                </motion.div>
+                {p.upgradePlan ? (
+                  <button
+                    onClick={() => handleUpgrade(p.upgradePlan!)}
+                    className="block w-full text-center py-3 font-medium text-sm transition-[background-color,transform] duration-150 active:scale-[0.98] hover:opacity-90"
+                    style={ctaButtonStyle(p.ctaStyle)}
+                  >
+                    {isLoggedIn ? t('pricing.pricing_cta_upgrade') : t('pricing.pricing_cta_trial')}
+                  </button>
+                ) : (
+                  <Link
+                    href={isLoggedIn ? '/dashboard' : '/signup'}
+                    className="block w-full text-center py-3 font-medium text-sm transition-[background-color,transform] duration-150 active:scale-[0.98] hover:opacity-90"
+                    style={ctaButtonStyle(p.ctaStyle)}
+                  >
+                    {isLoggedIn ? t('pricing.pricing_cta_dashboard') : t('pricing.pricing_cta_start_free')}
+                  </Link>
+                )}
                 {p.note && (
-                  <p className="text-center text-gray-600 text-xs">{p.note}</p>
+                  <p className="text-center text-xs" style={{ color: 'var(--text-40)' }}>{p.note}</p>
                 )}
               </div>
             </motion.div>
@@ -317,14 +361,15 @@ export default function PricingClient() {
       </section>
 
       {/* 4. COMPARISON TABLE */}
-      <section className="bg-gray-900/40 border-t border-gray-800 px-6 py-24">
+      <section className="px-6 py-24" style={{ borderTop: '0.5px solid var(--border)' }}>
         <div className="max-w-5xl mx-auto">
           <motion.h2
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="text-2xl font-bold tracking-tight text-center mb-8"
+            className="text-center mb-8"
+            style={{ fontSize: '1.5rem', fontWeight: 500 }}
           >
             {t('pricing.compare_title')}
           </motion.h2>
@@ -337,20 +382,28 @@ export default function PricingClient() {
               transition={{ delay: 0.08 }}
               className="overflow-x-auto w-full"
             >
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl min-w-[560px]">
+              <div
+                className="min-w-[560px]"
+                style={{
+                  background: 'var(--bg-card)',
+                  border: '0.5px solid var(--border)',
+                  borderRadius: 'var(--radius-lg)',
+                  overflow: 'hidden',
+                }}
+              >
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gray-800/50">
-                      <th className="px-6 py-4 text-left text-sm text-gray-400 font-medium">{t('pricing.table_feature')}</th>
-                      <th className="px-6 py-4 text-center text-sm text-gray-400 font-medium">{t('pricing.plan_free')}</th>
-                      <th className="px-6 py-4 text-center text-sm text-gray-400 font-medium">{t('pricing.plan_spark')}</th>
-                      <th className="px-6 py-4 text-center text-sm text-gray-400 font-medium">{t('pricing.plan_blaze')}</th>
+                    <tr style={{ background: 'var(--bg-surface)' }}>
+                      <th className="px-6 py-4 text-left text-sm font-medium" style={{ color: 'var(--text-40)' }}>{t('pricing.table_feature')}</th>
+                      <th className="px-6 py-4 text-center text-sm font-medium" style={{ color: 'var(--text-40)' }}>{t('pricing.plan_free')}</th>
+                      <th className="px-6 py-4 text-center text-sm font-medium" style={{ color: 'var(--text-40)' }}>{t('pricing.plan_spark')}</th>
+                      <th className="px-6 py-4 text-center text-sm font-medium" style={{ color: 'var(--text-40)' }}>{t('pricing.plan_blaze')}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {tableRows.map((row, i) => (
-                      <tr key={row.feature} className={i % 2 === 1 ? 'bg-gray-900/40' : ''}>
-                        <td className="px-6 py-4 text-sm font-medium text-white">{row.feature}</td>
+                    {tableRows.map((row) => (
+                      <tr key={row.feature} className="hover:bg-white/[0.02] transition-colors duration-150">
+                        <td className="px-6 py-4 text-sm font-medium" style={{ color: 'var(--text-100)' }}>{row.feature}</td>
                         <Cell value={row.free}  type={row.type} />
                         <Cell value={row.spark} type={row.type} />
                         <Cell value={row.blaze} type={row.type} />
@@ -360,9 +413,12 @@ export default function PricingClient() {
                 </table>
               </div>
             </motion.div>
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-gray-950 to-transparent md:hidden" />
+            <div
+              className="pointer-events-none absolute inset-y-0 right-0 w-16 md:hidden"
+              style={{ background: 'linear-gradient(to left, var(--bg-page), transparent)' }}
+            />
           </div>
-          <p className="text-center text-xs text-gray-500 mt-2 md:hidden">{t('pricing.pricing_swipe_hint')}</p>
+          <p className="text-center text-xs mt-2 md:hidden" style={{ color: 'var(--text-40)' }}>{t('pricing.pricing_swipe_hint')}</p>
         </div>
       </section>
 
@@ -374,7 +430,8 @@ export default function PricingClient() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-14"
+            className="text-center mb-14"
+            style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 500 }}
           >
             {t('pricing.faq_title')}
           </motion.h2>
@@ -383,7 +440,7 @@ export default function PricingClient() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="flex flex-col divide-y divide-gray-800"
+            className="flex flex-col divide-y divide-white/[0.08]"
           >
             {faqs.map((faq, i) => (
               <motion.div key={i} variants={fadeUp}>
@@ -391,13 +448,17 @@ export default function PricingClient() {
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between py-5 text-left group"
                 >
-                  <span className="font-medium text-white group-hover:text-blue-400 transition-colors duration-200 pr-4">
+                  <span
+                    className="font-medium pr-4 transition-colors duration-150 group-hover:text-white"
+                    style={{ color: 'var(--text-100)' }}
+                  >
                     {faq.q}
                   </span>
                   <motion.span
                     animate={{ rotate: openFaq === i ? 180 : 0 }}
                     transition={spring}
-                    className="text-gray-400 flex-shrink-0"
+                    className="flex-shrink-0"
+                    style={{ color: 'var(--text-40)' }}
                   >
                     <ChevronDown className="w-5 h-5" />
                   </motion.span>
@@ -412,7 +473,7 @@ export default function PricingClient() {
                       transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
                       className="overflow-hidden"
                     >
-                      <p className="text-gray-400 text-sm leading-relaxed pb-5 pr-8">{faq.a}</p>
+                      <p className="text-sm leading-relaxed pb-5 pr-8" style={{ color: 'var(--text-60)' }}>{faq.a}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -423,19 +484,20 @@ export default function PricingClient() {
       </section>
 
       {/* 6. ENTERPRISE NOTE */}
-      <section className="bg-gray-900/40 border-t border-gray-800 py-16 text-center px-6">
+      <section className="py-16 text-center px-6" style={{ borderTop: '0.5px solid var(--border)', background: 'var(--bg-surface)' }}>
         <motion.div
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
         >
-          <p className="text-gray-400 mb-3 leading-relaxed">
+          <p className="mb-3 leading-relaxed" style={{ color: 'var(--text-60)' }}>
             {t('pricing.enterprise_note')}
           </p>
           <a
             href="mailto:creoadsai@gmail.com"
-            className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
+            className="font-medium transition-colors duration-150 hover:underline"
+            style={{ color: 'var(--primary)' }}
           >
             {t('pricing.enterprise_contact')} &rarr;
           </a>
@@ -443,36 +505,7 @@ export default function PricingClient() {
       </section>
 
       {/* 7. FOOTER */}
-      <footer className="border-t border-gray-800 px-6 pt-8 pb-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col items-center sm:items-start gap-1">
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-blue-500" />
-              <span className="font-bold text-white">CreoBot</span>
-            </div>
-            <p className="text-gray-500 text-xs">{t('pricing.footer_tagline')}</p>
-          </div>
-          <p className="text-xs text-gray-600">
-            Built by{' '}
-            <a
-              href="https://www.linkedin.com/in/keval-savaliya/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 font-medium hover:text-white transition-colors duration-200"
-            >
-              Keval Savaliya
-            </a>
-            <span className="text-gray-700 mx-2">·</span>
-            <span className="text-gray-600">Founder</span>
-          </p>
-          <div className="flex items-center gap-4">
-            <Link href="/trust" className="text-gray-500 text-xs hover:text-gray-300 transition-colors duration-200">
-              Trust &amp; Privacy
-            </Link>
-            <p className="text-gray-600 text-sm">{t('pricing.footer_copyright')}</p>
-          </div>
-        </div>
-      </footer>
+      <CreoBotFooter langSwitcher={<LanguageSwitcher />} />
 
     </main>
   )

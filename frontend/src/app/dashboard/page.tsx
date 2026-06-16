@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -10,6 +11,7 @@ import {
   TrendingUp, Clock, ChevronRight, AlertCircle, Lock,
   Home, ShoppingCart, Scale, UtensilsCrossed, Headphones,
 } from 'lucide-react'
+import { PLATFORMS } from '@/lib/platforms'
 
 // --- Types ---
 
@@ -22,6 +24,7 @@ interface Profile {
   subscription_status: string
   zapier_webhook_url?: string
   onboarding_complete?: boolean
+  website_platform?: string
 }
 
 interface Handoff {
@@ -76,23 +79,15 @@ function Sidebar({
   daysLeft: number
 }) {
   return (
-    <nav className={`sticky top-0 h-screen shrink-0 flex flex-col border-r border-gray-800 bg-gray-900 transition-all duration-300 ease-in-out ${open ? 'w-64' : 'w-[70px]'}`}>
+    <nav className={`sticky top-0 h-screen shrink-0 flex flex-col border-r border-white/[0.08] bg-cb-card transition-all duration-300 ease-in-out ${open ? 'w-64' : 'w-[70px]'}`}>
 
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-gray-800">
+      <div className="flex items-center gap-3 px-4 py-5 border-b border-white/[0.08]">
         <a href="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
-            <Bot className="w-5 h-5 text-white" />
-          </div>
-          {open && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-              className="font-bold text-white text-lg"
-            >
-              CreoBot
-            </motion.span>
+          {open ? (
+            <Image src="/logo.png" alt="CreoBot" width={110} height={30} />
+          ) : (
+            <Image src="/logo-icon.jpg" alt="CreoBot" width={36} height={36} className="rounded-lg flex-shrink-0" />
           )}
         </a>
       </div>
@@ -107,8 +102,8 @@ function Sidebar({
               onClick={() => setActive(id)}
               className={`relative flex items-center h-10 w-full rounded-lg transition-all duration-150 ${
                 isActive
-                  ? 'bg-blue-600/15 text-blue-400 border-l-2 border-blue-500'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                  ? 'bg-cb-primary/15 text-cb-primary-hover border-l-2 border-cb-primary'
+                  : 'text-white/60 hover:bg-white/[0.06] hover:text-white'
               } ${open ? 'gap-3 px-3' : 'justify-center'}`}
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
@@ -128,14 +123,14 @@ function Sidebar({
       </div>
 
       {/* Bottom: plan + sign out */}
-      <div className="border-t border-gray-800 p-3 space-y-1">
+      <div className="border-t border-white/[0.08] p-3 space-y-1">
         {open && profile && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="px-3 py-2 mb-1"
           >
-            <p className="text-xs text-gray-500 truncate">{profile.business_name}</p>
+            <p className="text-xs text-white/40 truncate">{profile.business_name}</p>
             <div className="flex items-center gap-2 mt-1">
               <span className="capitalize text-xs font-semibold text-white">{profile.plan}</span>
               {isTrialing && (
@@ -149,7 +144,7 @@ function Sidebar({
 
         <button
           onClick={onLogout}
-          className={`flex items-center h-10 w-full rounded-lg text-gray-400 hover:bg-gray-800 hover:text-red-400 transition-all duration-150 ${open ? 'gap-3 px-3' : 'justify-center'}`}
+          className={`flex items-center h-10 w-full rounded-lg text-white/60 hover:bg-white/[0.06] hover:text-red-400 transition-all duration-150 ${open ? 'gap-3 px-3' : 'justify-center'}`}
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />
           {open && (
@@ -167,7 +162,7 @@ function Sidebar({
       {/* Toggle */}
       <button
         onClick={() => setOpen(!open)}
-        className="border-t border-gray-800 flex items-center justify-center p-3 text-gray-500 hover:bg-gray-800 hover:text-gray-300 transition-colors"
+        className="border-t border-white/[0.08] flex items-center justify-center p-3 text-white/40 hover:bg-white/[0.06] hover:text-white/80 transition-colors"
       >
         <ChevronsRight className={`w-4 h-4 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
       </button>
@@ -194,7 +189,7 @@ function StatCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-gray-900 border border-gray-800 rounded-2xl p-5 hover:border-gray-700 transition-colors"
+      className="bg-cb-card border border-white/[0.08] rounded-2xl p-5 hover:border-white/[0.16] transition-colors"
     >
       <div className="flex items-center justify-between mb-4">
         <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${iconBg}`}>
@@ -202,13 +197,13 @@ function StatCard({
         </div>
         <TrendingUp className="w-4 h-4 text-green-500 opacity-60" />
       </div>
-      <p className="text-sm text-gray-400 mb-1">{label}</p>
-      <p className="text-2xl font-bold text-white">{value}</p>
-      {sub && <p className="text-xs text-gray-500 mt-1">{sub}</p>}
+      <p className="text-sm text-white/60 mb-1">{label}</p>
+      <p className="text-2xl font-medium text-white">{value}</p>
+      {sub && <p className="text-xs text-white/40 mt-1">{sub}</p>}
       {bar && barValue !== undefined && (
-        <div className="mt-3 w-full bg-gray-800 rounded-full h-1.5">
+        <div className="mt-3 w-full bg-cb-surface rounded-full h-1.5">
           <div
-            className="bg-blue-500 h-1.5 rounded-full transition-all"
+            className="bg-cb-primary h-1.5 rounded-full transition-all"
             style={{ width: `${barValue}%` }}
           />
         </div>
@@ -225,10 +220,10 @@ function SectionCard({ title, desc, children }: { title: string; desc: string; c
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-gray-900 border border-gray-800 rounded-2xl p-6"
+      className="bg-cb-card border border-white/[0.08] rounded-2xl p-6"
     >
       <h2 className="text-lg font-semibold text-white mb-1">{title}</h2>
-      <p className="text-gray-400 text-sm mb-6">{desc}</p>
+      <p className="text-white/60 text-sm mb-6">{desc}</p>
       {children}
     </motion.div>
   )
@@ -254,6 +249,9 @@ export default function DashboardPage() {
   const [zapierSaved, setZapierSaved] = useState(false)
   const [zapierError, setZapierError] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [platformGuideOpen, setPlatformGuideOpen] = useState(false)
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null)
+  const [platformCopied, setPlatformCopied] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -275,6 +273,7 @@ export default function DashboardPage() {
       setHandoffs(handoffData || [])
       if (profileData?.bot_template) setSelectedTemplate(profileData.bot_template)
       if (profileData?.zapier_webhook_url) setZapierWebhookUrl(profileData.zapier_webhook_url)
+      if (profileData?.website_platform) setSelectedPlatform(profileData.website_platform)
       setLoading(false)
     }
     load()
@@ -355,7 +354,7 @@ export default function DashboardPage() {
         window.location.href = '/dashboard?success=true'
       },
       prefill: { email: userEmail },
-      theme: { color: '#1a56db' }
+      theme: { color: '#6B3FDC' }
     }
 
     // @ts-ignore
@@ -380,6 +379,18 @@ export default function DashboardPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const savePlatform = async (platformId: string) => {
+    setSelectedPlatform(platformId)
+    if (!userId) return
+    await supabase.from('profiles').update({ website_platform: platformId }).eq('id', userId)
+  }
+
+  const handlePlatformCopy = () => {
+    navigator.clipboard.writeText(getEmbedCode())
+    setPlatformCopied(true)
+    setTimeout(() => setPlatformCopied(false), 2000)
+  }
+
   const saveZapierWebhook = async () => {
     setZapierSaving(true)
     setZapierError('')
@@ -402,9 +413,9 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="flex items-center gap-3 text-gray-400">
-          <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-cb-bg flex items-center justify-center">
+        <div className="flex items-center gap-3 text-white/60">
+          <div className="w-5 h-5 border-2 border-cb-primary border-t-transparent rounded-full animate-spin" />
           <span className="text-sm">Loading dashboard...</span>
         </div>
       </div>
@@ -426,7 +437,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-950 text-white">
+    <div className="flex min-h-screen bg-cb-bg text-white">
 
       <Sidebar
         open={sidebarOpen}
@@ -443,20 +454,20 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Top bar */}
-        <header className="sticky top-0 z-10 bg-gray-950/80 backdrop-blur-md border-b border-gray-800 px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+        <header className="sticky top-0 z-10 bg-cb-bg/80 backdrop-blur-md border-b border-white/[0.08] px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-white/40">
             <span>Dashboard</span>
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-white font-medium">{sectionTitles[active].crumb}</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-400">{profile?.business_name}</span>
+            <span className="text-sm text-white/60">{profile?.business_name}</span>
             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${
               profile?.plan === 'blaze'
-                ? 'bg-purple-500/20 text-purple-400'
+                ? 'bg-cb-primary/20 text-cb-primary-hover'
                 : profile?.plan === 'spark'
-                ? 'bg-blue-500/20 text-blue-400'
-                : 'bg-gray-700 text-gray-400'
+                ? 'bg-cb-primary/20 text-cb-primary-hover'
+                : 'bg-cb-surface text-white/60'
             }`}>
               {profile?.plan}
             </span>
@@ -477,10 +488,10 @@ export default function DashboardPage() {
                 className="space-y-8"
               >
                 <div>
-                  <h1 className="text-2xl font-bold text-white">
+                  <h1 className="text-2xl font-medium text-white">
                     Welcome back, {profile?.business_name}
                   </h1>
-                  <p className="text-gray-400 text-sm mt-1">Here is what is happening with your bot today.</p>
+                  <p className="text-white/60 text-sm mt-1">Here is what is happening with your bot today.</p>
                 </div>
 
                 {!profile?.onboarding_complete && (
@@ -492,7 +503,7 @@ export default function DashboardPage() {
                   >
                     <div className="flex items-center gap-3">
                       <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                      <p className="text-sm text-gray-300">Complete your setup to get the most out of CreoBot.</p>
+                      <p className="text-sm text-white/70">Complete your setup to get the most out of CreoBot.</p>
                     </div>
                     <a
                       href="/onboarding"
@@ -510,8 +521,8 @@ export default function DashboardPage() {
                     value={`${usage}`}
                     sub={`of ${limit === null ? 'unlimited' : limit} this month`}
                     icon={MessageSquare}
-                    iconBg="bg-blue-500/10"
-                    iconColor="text-blue-400"
+                    iconBg="bg-cb-primary/10"
+                    iconColor="text-cb-primary-hover"
                     bar={limit !== null}
                     barValue={usagePercent}
                   />
@@ -536,8 +547,8 @@ export default function DashboardPage() {
                     value="Live"
                     sub="Bot is active"
                     icon={TrendingUp}
-                    iconBg="bg-purple-500/10"
-                    iconColor="text-purple-400"
+                    iconBg="bg-cb-primary/10"
+                    iconColor="text-cb-primary-hover"
                   />
                 </div>
 
@@ -547,27 +558,27 @@ export default function DashboardPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.1 }}
-                    className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-500/20 rounded-2xl p-6 flex items-center justify-between gap-6"
+                    className="bg-gradient-to-r from-cb-primary/10 to-cb-primary/5 border border-cb-primary/20 rounded-2xl p-6 flex items-center justify-between gap-6"
                   >
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <Zap className="w-4 h-4 text-blue-400" />
+                        <Zap className="w-4 h-4 text-cb-primary-hover" />
                         <p className="font-semibold text-white text-sm">Unlock more with a higher plan</p>
                       </div>
-                      <p className="text-gray-400 text-xs">Get unlimited messages, more docs, and priority support.</p>
+                      <p className="text-white/60 text-xs">Get unlimited messages, more docs, and priority support.</p>
                     </div>
                     <div className="flex gap-3 flex-shrink-0">
                       {profile?.plan !== 'spark' && (
                         <button
                           onClick={() => handleUpgrade('spark')}
-                          className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                          className="bg-cb-primary hover:bg-cb-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
                         >
                           Spark ($19/mo)
                         </button>
                       )}
                       <button
                         onClick={() => handleUpgrade('blaze')}
-                        className="bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                        className="bg-cb-primary hover:bg-cb-primary-hover text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
                       >
                         Blaze ($49/mo)
                       </button>
@@ -585,16 +596,16 @@ export default function DashboardPage() {
                     <button
                       key={section}
                       onClick={() => setActive(section)}
-                      className="group bg-gray-900 border border-gray-800 rounded-2xl p-5 text-left hover:border-gray-700 hover:bg-gray-800/50 transition-all duration-200"
+                      className="group bg-cb-card border border-white/[0.08] rounded-2xl p-5 text-left hover:border-white/[0.16] hover:bg-white/[0.04] transition-all duration-200"
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-8 h-8 rounded-lg bg-gray-800 group-hover:bg-gray-700 flex items-center justify-center transition-colors">
-                          <Icon className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
+                        <div className="w-8 h-8 rounded-lg bg-cb-surface group-hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+                          <Icon className="w-4 h-4 text-white/60 group-hover:text-cb-primary-hover transition-colors" />
                         </div>
-                        <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
+                        <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white/60 transition-colors" />
                       </div>
                       <p className="text-sm font-semibold text-white">{label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+                      <p className="text-xs text-white/40 mt-0.5">{desc}</p>
                     </button>
                   ))}
                 </div>
@@ -610,12 +621,12 @@ export default function DashboardPage() {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
+                <div className="bg-cb-card border border-white/[0.08] rounded-2xl p-6 mb-6">
                   <div className="flex items-center justify-between mb-1">
                     <h2 className="text-white font-semibold text-lg">Bot Personality</h2>
                     {templateSaved && <span className="text-green-400 text-sm font-medium">Saved</span>}
                   </div>
-                  <p className="text-gray-400 text-sm mb-5">Choose the personality that matches your business. This shapes how your bot communicates with customers.</p>
+                  <p className="text-white/60 text-sm mb-5">Choose the personality that matches your business. This shapes how your bot communicates with customers.</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {BOT_TEMPLATES.map((t) => {
                       const icons = { Robot: Bot, Home: Home, ShoppingCart: ShoppingCart, Scale: Scale, UtensilsCrossed: UtensilsCrossed, Headphones: Headphones }
@@ -627,14 +638,14 @@ export default function DashboardPage() {
                           disabled={templateSaving}
                           className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all duration-200 ${
                             selectedTemplate === t.key
-                              ? 'border-blue-500 bg-blue-500/10'
-                              : 'border-gray-700 bg-gray-800/40 hover:border-gray-600'
+                              ? 'border-cb-primary bg-cb-primary/10'
+                              : 'border-white/[0.08] bg-cb-surface hover:border-white/[0.16]'
                           }`}
                         >
-                          <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${selectedTemplate === t.key ? 'text-blue-400' : 'text-gray-400'}`} />
+                          <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${selectedTemplate === t.key ? 'text-cb-primary-hover' : 'text-white/60'}`} />
                           <div>
-                            <div className={`text-sm font-medium ${selectedTemplate === t.key ? 'text-blue-300' : 'text-white'}`}>{t.label}</div>
-                            <div className="text-gray-500 text-xs mt-0.5 leading-relaxed">{t.desc}</div>
+                            <div className={`text-sm font-medium ${selectedTemplate === t.key ? 'text-cb-primary-hover' : 'text-white'}`}>{t.label}</div>
+                            <div className="text-white/40 text-xs mt-0.5 leading-relaxed">{t.desc}</div>
                           </div>
                         </button>
                       )
@@ -648,16 +659,16 @@ export default function DashboardPage() {
                 >
                   <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl py-14 cursor-pointer transition-colors ${
                     uploading
-                      ? 'border-blue-500/50 bg-blue-500/5'
-                      : 'border-gray-700 hover:border-blue-500 hover:bg-blue-500/5'
+                      ? 'border-cb-primary/50 bg-cb-primary/5'
+                      : 'border-white/[0.08] hover:border-cb-primary hover:bg-cb-primary-hover/5'
                   }`}>
-                    <div className="w-12 h-12 rounded-xl bg-gray-800 flex items-center justify-center mb-4">
-                      <Upload className={`w-5 h-5 ${uploading ? 'text-blue-400 animate-bounce' : 'text-gray-400'}`} />
+                    <div className="w-12 h-12 rounded-xl bg-cb-surface flex items-center justify-center mb-4">
+                      <Upload className={`w-5 h-5 ${uploading ? 'text-cb-primary-hover animate-bounce' : 'text-white/60'}`} />
                     </div>
-                    <span className="text-sm text-gray-300 font-medium mb-1">
+                    <span className="text-sm text-white/70 font-medium mb-1">
                       {uploading ? 'Uploading...' : 'Click to upload PDF or TXT'}
                     </span>
-                    <span className="text-xs text-gray-600">Max 10 MB</span>
+                    <span className="text-xs text-white/40">Max 10 MB</span>
                     <input
                       type="file"
                       accept=".pdf,.txt"
@@ -696,7 +707,7 @@ export default function DashboardPage() {
                   desc="Paste this snippet into your website to add the chatbot widget."
                 >
                   <div className="relative">
-                    <pre className="bg-gray-800/60 border border-gray-700 rounded-xl p-5 text-sm text-green-400 overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
+                    <pre className="bg-cb-surface border border-white/[0.08] rounded-xl p-5 text-sm text-green-400 overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
                       {getEmbedCode()}
                     </pre>
                     <button
@@ -704,19 +715,109 @@ export default function DashboardPage() {
                       className={`absolute top-3 right-3 flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all ${
                         copied
                           ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                          : 'bg-gray-700 hover:bg-gray-600 text-gray-300 border border-gray-600'
+                          : 'bg-cb-surface hover:bg-white/[0.1] text-white/70 border border-white/[0.12]'
                       }`}
                     >
                       {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                       {copied ? 'Copied!' : 'Copy'}
                     </button>
                   </div>
-                  <div className="mt-4 flex items-start gap-3 bg-blue-500/5 border border-blue-500/20 rounded-xl px-4 py-3">
-                    <AlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-gray-400">
-                      Paste both script tags before the closing <code className="text-blue-400">&lt;/body&gt;</code> tag of your website. The widget will appear as a chat bubble in the bottom-right corner.
+                  <div className="mt-4 flex items-start gap-3 bg-cb-primary/5 border border-cb-primary/20 rounded-xl px-4 py-3">
+                    <AlertCircle className="w-4 h-4 text-cb-primary-hover flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-white/60">
+                      Paste both script tags before the closing <code className="text-cb-primary-hover">&lt;/body&gt;</code> tag of your website. The widget will appear as a chat bubble in the bottom-right corner.
                     </p>
                   </div>
+
+                  <button
+                    onClick={() => setPlatformGuideOpen(v => !v)}
+                    className="mt-5 text-sm text-cb-primary-hover hover:underline transition-colors"
+                  >
+                    {platformGuideOpen ? 'Hide installation guide' : 'Show step-by-step installation guide'}
+                  </button>
+
+                  <AnimatePresence>
+                    {platformGuideOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-5 pt-5 border-t border-white/[0.08]">
+                          <p className="text-sm font-medium text-white/70 mb-3">
+                            Choose your platform to see exact instructions:
+                          </p>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-5">
+                            {PLATFORMS.map(p => (
+                              <button
+                                key={p.id}
+                                onClick={() => savePlatform(p.id)}
+                                className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border text-left transition-all duration-150 ${
+                                  selectedPlatform === p.id
+                                    ? 'border-cb-primary bg-cb-primary/10'
+                                    : 'border-white/[0.08] hover:border-white/[0.16]'
+                                }`}
+                              >
+                                <span className={`text-sm font-medium ${selectedPlatform === p.id ? 'text-cb-primary-hover' : 'text-white/60'}`}>
+                                  {p.name}
+                                </span>
+                                {selectedPlatform === p.id && <Check className="w-3 h-3 text-cb-primary-hover flex-shrink-0" />}
+                              </button>
+                            ))}
+                          </div>
+
+                          <AnimatePresence mode="wait">
+                            {selectedPlatform && (() => {
+                              const plat = PLATFORMS.find(p => p.id === selectedPlatform)
+                              if (!plat) return null
+                              return (
+                                <motion.div
+                                  key={plat.id}
+                                  initial={{ opacity: 0, y: 8 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0 }}
+                                  transition={{ duration: 0.25 }}
+                                >
+                                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3">
+                                    Installation steps for {plat.name}
+                                  </p>
+                                  <ol className="space-y-3 mb-5">
+                                    {plat.steps.map((step, i) => (
+                                      <li key={i} className="flex gap-3 items-start">
+                                        <span className="min-w-[22px] h-[22px] rounded-full bg-cb-primary/10 border border-cb-primary/30 flex items-center justify-center text-[11px] font-semibold text-cb-primary-hover flex-shrink-0 mt-0.5">
+                                          {i + 1}
+                                        </span>
+                                        <span className="text-sm text-white/60 leading-relaxed">{step}</span>
+                                      </li>
+                                    ))}
+                                  </ol>
+                                  <p className="text-xs text-white/50 mb-2">{plat.codeNote}</p>
+                                  <div className="relative bg-cb-surface border border-white/[0.08] rounded-xl p-4 font-mono">
+                                    <pre className="text-xs text-green-400 whitespace-pre-wrap break-all leading-relaxed pr-16">
+                                      {getEmbedCode()}
+                                    </pre>
+                                    <button
+                                      onClick={handlePlatformCopy}
+                                      className={`absolute top-3 right-3 flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-all ${
+                                        platformCopied
+                                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                          : 'bg-cb-card hover:bg-white/[0.1] text-white/70 border border-white/[0.12]'
+                                      }`}
+                                    >
+                                      {platformCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                      {platformCopied ? 'Copied' : 'Copy'}
+                                    </button>
+                                  </div>
+                                </motion.div>
+                              )
+                            })()}
+                          </AnimatePresence>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </SectionCard>
               </motion.div>
             )}
@@ -735,11 +836,11 @@ export default function DashboardPage() {
                 >
                   {handoffs.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-14 text-center">
-                      <div className="w-14 h-14 rounded-2xl bg-gray-800 flex items-center justify-center mb-4">
-                        <Users className="w-6 h-6 text-gray-600" />
+                      <div className="w-14 h-14 rounded-2xl bg-cb-surface flex items-center justify-center mb-4">
+                        <Users className="w-6 h-6 text-white/40" />
                       </div>
-                      <p className="text-gray-400 text-sm font-medium mb-1">No leads yet</p>
-                      <p className="text-gray-600 text-xs max-w-xs">
+                      <p className="text-white/60 text-sm font-medium mb-1">No leads yet</p>
+                      <p className="text-white/40 text-xs max-w-xs">
                         They will appear here when customers ask for human help through your chatbot.
                       </p>
                     </div>
@@ -751,23 +852,23 @@ export default function DashboardPage() {
                           initial={{ opacity: 0, x: -8 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.3, delay: i * 0.05 }}
-                          className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 hover:border-gray-600 transition-colors"
+                          className="bg-cb-surface border border-white/[0.05] rounded-xl p-4 hover:border-white/[0.16] transition-colors"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-blue-600/20 flex items-center justify-center">
-                                <span className="text-blue-400 text-xs font-bold">
+                              <div className="w-7 h-7 rounded-full bg-cb-primary/20 flex items-center justify-center">
+                                <span className="text-cb-primary-hover text-xs font-medium">
                                   {h.customer_contact?.[0]?.toUpperCase() ?? '?'}
                                 </span>
                               </div>
                               <span className="text-white text-sm font-medium">{h.customer_contact}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-gray-500 text-xs">
+                            <div className="flex items-center gap-1.5 text-white/40 text-xs">
                               <Clock className="w-3 h-3" />
                               {new Date(h.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                             </div>
                           </div>
-                          <p className="text-gray-400 text-sm leading-relaxed pl-9">{h.customer_message}</p>
+                          <p className="text-white/60 text-sm leading-relaxed pl-9">{h.customer_message}</p>
                         </motion.div>
                       ))}
                     </div>
@@ -790,49 +891,49 @@ export default function DashboardPage() {
                 >
                   {profile?.plan === 'free' ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gray-800 flex items-center justify-center">
-                        <Lock className="w-5 h-5 text-gray-500" />
+                      <div className="w-12 h-12 rounded-2xl bg-cb-surface flex items-center justify-center">
+                        <Lock className="w-5 h-5 text-white/40" />
                       </div>
                       <div>
-                        <p className="text-gray-300 text-sm font-medium mb-1">Zapier integration is available on Spark and Blaze plans.</p>
-                        <p className="text-gray-500 text-xs">Upgrade to automatically send lead data to any app in the Zapier ecosystem.</p>
+                        <p className="text-white/70 text-sm font-medium mb-1">Zapier integration is available on Spark and Blaze plans.</p>
+                        <p className="text-white/40 text-xs">Upgrade to automatically send lead data to any app in the Zapier ecosystem.</p>
                       </div>
                       <a
                         href="/pricing"
-                        className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
+                        className="bg-cb-primary hover:bg-cb-primary-hover text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
                       >
                         Upgrade Plan
                       </a>
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      <ol className="space-y-2 text-sm text-gray-400">
+                      <ol className="space-y-2 text-sm text-white/60">
                         <li className="flex gap-3">
-                          <span className="w-5 h-5 rounded-full bg-blue-600/20 text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                          <span className="w-5 h-5 rounded-full bg-cb-primary/20 text-cb-primary-hover text-xs font-medium flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
                           <span>Go to <span className="text-white">zapier.com</span> and create a new Zap</span>
                         </li>
                         <li className="flex gap-3">
-                          <span className="w-5 h-5 rounded-full bg-blue-600/20 text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                          <span className="w-5 h-5 rounded-full bg-cb-primary/20 text-cb-primary-hover text-xs font-medium flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
                           <span>Choose trigger - <span className="text-white">Webhooks by Zapier</span> then <span className="text-white">Catch Hook</span></span>
                         </li>
                         <li className="flex gap-3">
-                          <span className="w-5 h-5 rounded-full bg-blue-600/20 text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                          <span className="w-5 h-5 rounded-full bg-cb-primary/20 text-cb-primary-hover text-xs font-medium flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
                           <span>Copy your webhook URL from Zapier and paste it below</span>
                         </li>
                         <li className="flex gap-3">
-                          <span className="w-5 h-5 rounded-full bg-blue-600/20 text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
+                          <span className="w-5 h-5 rounded-full bg-cb-primary/20 text-cb-primary-hover text-xs font-medium flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
                           <span>Test it by triggering a handoff in your widget</span>
                         </li>
                       </ol>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Zapier Webhook URL</label>
+                        <label className="block text-sm font-medium text-white/70 mb-2">Zapier Webhook URL</label>
                         <input
                           type="url"
                           value={zapierWebhookUrl}
                           onChange={(e) => setZapierWebhookUrl(e.target.value)}
                           placeholder="https://hooks.zapier.com/hooks/catch/..."
-                          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full bg-cb-surface border border-white/[0.08] rounded-lg px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-cb-primary transition-colors"
                         />
                       </div>
 
@@ -840,7 +941,7 @@ export default function DashboardPage() {
                         <button
                           onClick={saveZapierWebhook}
                           disabled={zapierSaving}
-                          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
+                          className="bg-cb-primary hover:bg-cb-primary-hover disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
                         >
                           {zapierSaving ? 'Saving...' : 'Save Webhook'}
                         </button>
@@ -871,8 +972,8 @@ export default function DashboardPage() {
                       </div>
 
                       <div>
-                        <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">Payload preview</p>
-                        <pre className="bg-gray-800/60 border border-gray-700 rounded-xl p-5 text-sm text-green-400 overflow-x-auto whitespace-pre font-mono leading-relaxed">{`{
+                        <p className="text-xs text-white/40 mb-2 font-medium uppercase tracking-wide">Payload preview</p>
+                        <pre className="bg-cb-surface border border-white/[0.08] rounded-xl p-5 text-sm text-green-400 overflow-x-auto whitespace-pre font-mono leading-relaxed">{`{
   "event": "handoff_triggered",
   "business_name": "Your business name",
   "user_id": "uuid",

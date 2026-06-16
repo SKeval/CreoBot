@@ -6,7 +6,10 @@
       "Bash(git commit *)",
       "Bash(git push *)",
       "Skill(emil-design-eng)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(New-Item -ItemType Directory -Force \"D:\\\\Projects\\\\CreoBot\\\\frontend\\\\src\\\\components\\\\onboarding\")",
+      "Bash(Out-Null)",
+      "Bash(Write-Output \"Created\")"
     ]
   }
 }

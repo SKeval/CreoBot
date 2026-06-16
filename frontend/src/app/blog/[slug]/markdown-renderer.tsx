@@ -7,25 +7,28 @@ export function MarkdownRenderer({ content }: { content: string }) {
     <ReactMarkdown
       components={{
         h2: ({ children }) => (
-          <h2 className="text-white font-bold text-2xl mt-10 mb-4">{children}</h2>
+          <h2 className="text-2xl mt-10 mb-4" style={{ color: 'var(--text-100)', fontWeight: 500 }}>{children}</h2>
         ),
         h3: ({ children }) => (
-          <h3 className="text-white font-bold text-xl mt-8 mb-3">{children}</h3>
+          <h3 className="text-xl mt-8 mb-3" style={{ color: 'var(--text-100)', fontWeight: 500 }}>{children}</h3>
         ),
         p: ({ children }) => (
-          <p className="text-gray-300 leading-relaxed mb-5">{children}</p>
+          <p className="leading-relaxed mb-5" style={{ color: 'var(--text-60)' }}>{children}</p>
         ),
         ul: ({ children }) => (
-          <ul className="text-gray-300 list-disc list-inside mb-5 space-y-2">{children}</ul>
+          <ul className="list-disc list-inside mb-5 space-y-2" style={{ color: 'var(--text-60)' }}>{children}</ul>
         ),
         ol: ({ children }) => (
-          <ol className="text-gray-300 list-decimal list-inside mb-5 space-y-2">{children}</ol>
+          <ol className="list-decimal list-inside mb-5 space-y-2" style={{ color: 'var(--text-60)' }}>{children}</ol>
         ),
         li: ({ children }) => (
-          <li className="text-gray-300 leading-relaxed">{children}</li>
+          <li className="leading-relaxed" style={{ color: 'var(--text-60)' }}>{children}</li>
         ),
         strong: ({ children }) => (
-          <strong className="text-white font-semibold">{children}</strong>
+          <strong className="font-semibold" style={{ color: 'var(--text-100)' }}>{children}</strong>
+        ),
+        a: ({ children, href }) => (
+          <a href={href} className="hover:underline" style={{ color: 'var(--primary)' }}>{children}</a>
         ),
       }}
     >

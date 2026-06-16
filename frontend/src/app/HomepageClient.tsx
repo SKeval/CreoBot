@@ -1,636 +1,601 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Bot, ChevronDown, TrendingUp } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Shield, Clock, Zap, Users, Globe, BarChart2, Check } from 'lucide-react'
 import { CreoBotNavbar } from '@/components/ui/creobot-navbar'
+import { CreoBotFooter } from '@/components/ui/creobot-footer'
 import { useLanguage } from '@/lib/LanguageContext'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useAuth } from '@/hooks/useAuth'
 
-const spring = { type: 'spring' as const, stiffness: 300, damping: 30 }
+const PLATFORMS = [
+  'WordPress', 'Shopify', 'Wix', 'Webflow', 'Squarespace',
+  'Jimdo', 'HTML', 'Wix', 'WordPress', 'Shopify',
+]
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 8 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: spring,
+const FEATURES = [
+  {
+    icon: Shield,
+    title: 'Zero hallucination',
+    desc: 'Answers only from your uploaded documents. If it does not know, it says so.',
   },
-}
+  {
+    icon: Clock,
+    title: '24/7 availability',
+    desc: 'Your chatbot never sleeps. Answers customer questions at 3am without you.',
+  },
+  {
+    icon: Zap,
+    title: 'Live in 10 minutes',
+    desc: 'Upload your docs, copy one script tag, done. No developer needed.',
+  },
+  {
+    icon: Users,
+    title: 'Human handoff',
+    desc: 'When confidence drops below 80%, CreoBot emails you automatically.',
+  },
+  {
+    icon: Globe,
+    title: 'Multi-language',
+    desc: 'Supports EN, DE, FR, ES, PT out of the box. Detects visitor language.',
+  },
+  {
+    icon: BarChart2,
+    title: 'Usage analytics',
+    desc: 'See message volume, top questions, and handoff rate. Blaze plan.',
+  },
+]
 
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-}
+const STEPS = [
+  {
+    num: '01',
+    title: 'Upload your documents',
+    desc: 'FAQ, price list, menu, policies - any PDF or text file.',
+  },
+  {
+    num: '02',
+    title: 'Embed one script tag',
+    desc: 'Copy a single line of code into your website. Works on any platform.',
+  },
+  {
+    num: '03',
+    title: 'Customers get instant answers',
+    desc: 'CreoBot responds 24/7 from your docs. You get notified for handoffs.',
+  },
+]
+
+const CHAT_BUBBLES = [
+  { role: 'bot' as const, cls: 'chat-bubble-1', text: 'Hi! What are your opening hours on Sunday?' },
+  { role: 'user' as const, cls: 'chat-bubble-2', text: 'We are open 10am - 6pm on Sundays.' },
+  { role: 'bot' as const, cls: 'chat-bubble-3', text: 'Great, and do you offer takeaway?' },
+  { role: 'user' as const, cls: 'chat-bubble-4', text: 'Yes, via our website or by phone.' },
+]
+
+const headingClamp = 'clamp(2rem, 5vw, 3.5rem)'
+const sectionHeadingClamp = 'clamp(1.5rem, 3vw, 2.25rem)'
 
 export default function HomepageClient() {
-  const [openFaq, setOpenFaq] = useState<number | null>(0)
   const { t } = useLanguage()
   const { isLoggedIn } = useAuth()
+
+  const ctaHref = isLoggedIn ? '/dashboard' : '/signup'
 
   const stats = [
     { value: '24/7', label: t('homepage.stat1_label') },
     { value: '0', label: t('homepage.stat2_label') },
-    { value: '< 10 min', label: t('homepage.stat3_label') },
+    { value: '<10 min', label: t('homepage.stat3_label') },
   ]
 
-  const features = [
+  const plans = [
     {
-      icon: '🛡️',
-      title: t('homepage.feature_1_title'),
-      desc: t('homepage.feature_1_desc'),
+      name: t('pricing.plan_free'),
+      price: '$0',
+      period: '/' + t('pricing.billing_forever'),
+      features: [
+        '50 ' + t('pricing.feature_messages').toLowerCase(),
+        t('pricing.feature_1_doc'),
+        t('pricing.feature_widget'),
+      ],
+      cta: t('pricing.pricing_cta_start_free'),
+      style: 'ghost' as const,
+      popular: false,
     },
     {
-      icon: '📧',
-      title: t('homepage.feature_2_title'),
-      desc: t('homepage.feature_2_desc'),
+      name: t('pricing.plan_spark'),
+      price: '$19',
+      period: '/' + t('pricing.billing_monthly'),
+      features: [
+        '1,000 ' + t('pricing.feature_messages').toLowerCase(),
+        '5 ' + t('pricing.feature_docs').toLowerCase(),
+        t('pricing.feature_handoff'),
+        t('pricing.feature_branding'),
+      ],
+      cta: t('pricing.pricing_cta_trial'),
+      style: 'primary' as const,
+      popular: true,
     },
     {
-      icon: '💬',
-      title: t('homepage.feature_3_title'),
-      desc: t('homepage.feature_3_desc'),
-    },
-    {
-      icon: '🔌',
-      title: t('homepage.feature_4_title'),
-      desc: t('homepage.feature_4_desc'),
-    },
-  ]
-
-  const differentiators = [
-    {
-      icon: '✅',
-      title: t('homepage.diff_1_title'),
-      desc: t('homepage.diff_1_desc'),
-    },
-    {
-      icon: '📬',
-      title: t('homepage.diff_2_title'),
-      desc: t('homepage.diff_2_desc'),
-    },
-    {
-      icon: '💸',
-      title: t('homepage.diff_3_title'),
-      desc: t('homepage.diff_3_desc'),
-    },
-  ]
-
-  const steps = [
-    { step: '01', title: t('homepage.step_1_title'), desc: t('homepage.step_1_desc') },
-    { step: '02', title: t('homepage.step_2_title'), desc: t('homepage.step_2_desc') },
-    { step: '03', title: t('homepage.step_3_title'), desc: t('homepage.step_3_desc') },
-  ]
-
-  const testimonials = [
-    {
-      quote: 'CreoBot answered 90% of our customer questions automatically. Game changer.',
-      name: 'Sarah M.',
-      role: 'Coffee Shop Owner',
-    },
-    {
-      quote: 'Setup took 5 minutes. Now our bot handles enquiries 24/7 while we sleep.',
-      name: 'James K.',
-      role: 'Restaurant Owner',
-    },
-    {
-      quote: 'The human handoff feature is brilliant. We never miss a hot lead.',
-      name: 'Priya R.',
-      role: 'Boutique Owner',
+      name: t('pricing.plan_blaze'),
+      price: '$49',
+      period: '/' + t('pricing.billing_monthly'),
+      features: [
+        t('pricing.pricing_feature_unlimited') + ' ' + t('pricing.feature_messages').toLowerCase(),
+        t('pricing.pricing_feature_unlimited') + ' ' + t('pricing.feature_docs').toLowerCase(),
+        t('pricing.feature_analytics'),
+        t('pricing.pricing_feature_priority'),
+      ],
+      cta: t('pricing.pricing_cta_trial'),
+      style: 'ghost-primary' as const,
+      popular: false,
     },
   ]
-
-  const faqs = [
-    { q: t('homepage.faq_1_q'), a: t('homepage.faq_1_a') },
-    { q: t('homepage.faq_2_q'), a: t('homepage.faq_2_a') },
-    { q: t('homepage.faq_3_q'), a: t('homepage.faq_3_a') },
-    { q: t('homepage.faq_4_q'), a: t('homepage.faq_4_a') },
-    { q: t('homepage.faq_5_q'), a: t('homepage.faq_5_a') },
-    { q: t('homepage.faq_6_q'), a: t('homepage.faq_6_a') },
-  ]
-
-  const heroLine1 = t('homepage.hero_line1')
-  const heroLine2 = t('homepage.hero_line2')
 
   return (
-    <div style={{ opacity: 1 }}>
-    <main className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-page)', color: 'var(--text-100)' }}>
 
-      {/* 1. NAVBAR */}
+      {/* NAVBAR */}
       <CreoBotNavbar langSwitcher={<LanguageSwitcher />} isLoggedIn={isLoggedIn} />
 
-      {/* 2. HERO */}
-      <section className="flex flex-col items-center justify-center text-center px-6 pt-28 pb-24">
-        <motion.span
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={spring}
-          className="text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full mb-8 uppercase tracking-widest"
-        >
-          {t('homepage.hero_badge')}
-        </motion.span>
+      {/* SECTION 1 - HERO */}
+      <section className="relative flex flex-col items-center justify-center text-center px-6 py-20" style={{ minHeight: '100vh' }}>
+        {/* Radial glow */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{
+            top: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '600px',
+            height: '400px',
+            maxWidth: '100%',
+            background: 'radial-gradient(ellipse, rgba(107,63,220,0.25) 0%, transparent 65%)',
+          }}
+        />
 
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight max-w-4xl text-balance">
-          <span className="inline">
-            {heroLine1.split(' ').map((word, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...spring, delay: 0.1 + i * 0.08 }}
-                className="inline-block mr-4"
-              >
-                {word}
-              </motion.span>
-            ))}
+        <div className="relative z-[1] w-full">
+          {/* Badge pill */}
+          <span
+            className="inline-block"
+            style={{
+              border: '0.5px solid var(--border)',
+              borderRadius: '20px',
+              padding: '4px 14px',
+              fontSize: '12px',
+              color: 'var(--text-60)',
+              marginBottom: '24px',
+            }}
+          >
+            {t('homepage.hero_badge')}
           </span>
-          <br />
-          <span className="inline">
-            {heroLine2.split(' ').map((word, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...spring, delay: 0.3 + i * 0.08 }}
-                className="inline-block mr-3 bg-gradient-to-r from-[#1a56db] to-[#3b82f6] bg-clip-text text-transparent"
-              >
-                {word}
-              </motion.span>
-            ))}
+
+          {/* Headline - plain string with normal spaces (fixes prior word-merging bug) */}
+          <h1
+            className="text-balance"
+            style={{
+              fontSize: headingClamp,
+              fontWeight: 500,
+              lineHeight: 1.15,
+              color: 'var(--text-100)',
+              maxWidth: '700px',
+              margin: '0 auto 16px',
+              textAlign: 'center',
+            }}
+          >
+            {t('homepage.cta_title')}
+          </h1>
+
+          {/* Subheadline */}
+          <p
+            style={{
+              fontSize: '1.0625rem',
+              color: 'var(--text-60)',
+              maxWidth: '480px',
+              margin: '0 auto 32px',
+              textAlign: 'center',
+              lineHeight: 1.65,
+            }}
+          >
+            {t('homepage.hero_subtitle')}
+          </p>
+
+          {/* CTA */}
+          <Link
+            href={ctaHref}
+            className="btn-pulse inline-block transition-[background-color,transform] duration-150 active:scale-[0.97]"
+            style={{
+              background: 'var(--primary)',
+              color: 'white',
+              padding: '12px 28px',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '0.9375rem',
+              fontWeight: 500,
+              border: 'none',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-hover)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--primary)' }}
+          >
+            {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('homepage.hero_cta_primary')}
+          </Link>
+
+          {/* Animated chat mockup */}
+          <div
+            className="w-full"
+            style={{
+              maxWidth: '480px',
+              margin: '40px auto 0',
+              background: 'rgba(255,255,255,0.03)',
+              border: '0.5px solid var(--border)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '16px',
+            }}
+          >
+            <div className="flex flex-col gap-2.5">
+              {CHAT_BUBBLES.map((bubble) => (
+                <div
+                  key={bubble.cls}
+                  className="flex"
+                  style={{ justifyContent: bubble.role === 'bot' ? 'flex-start' : 'flex-end' }}
+                >
+                  <span
+                    className={bubble.cls}
+                    style={
+                      bubble.role === 'bot'
+                        ? {
+                            background: 'rgba(255,255,255,0.07)',
+                            color: 'var(--text-100)',
+                            borderRadius: '10px 10px 10px 2px',
+                            padding: '8px 12px',
+                            fontSize: '13px',
+                            maxWidth: '75%',
+                            display: 'inline-block',
+                            textAlign: 'left',
+                          }
+                        : {
+                            background: 'var(--primary)',
+                            color: 'white',
+                            borderRadius: '10px 10px 2px 10px',
+                            padding: '8px 12px',
+                            fontSize: '13px',
+                            maxWidth: '75%',
+                            display: 'inline-block',
+                            marginLeft: 'auto',
+                            textAlign: 'left',
+                          }
+                    }
+                  >
+                    {bubble.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Stats row */}
+            <div
+              className="flex justify-center"
+              style={{
+                borderTop: '0.5px solid var(--border)',
+                marginTop: '24px',
+                paddingTop: '24px',
+                gap: '48px',
+              }}
+            >
+              {stats.map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <div style={{ fontSize: '1.5rem', fontWeight: 500, color: 'var(--text-100)' }}>
+                    {stat.value}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: 'var(--text-40)',
+                      marginTop: '4px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                    }}
+                  >
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2 - PLATFORM BAR */}
+      <section
+        className="overflow-hidden"
+        style={{
+          padding: '24px 0',
+          borderTop: '0.5px solid var(--border)',
+          borderBottom: '0.5px solid var(--border)',
+        }}
+      >
+        <div className="max-w-6xl mx-auto flex items-center gap-6 px-6">
+          <span
+            className="hidden md:block flex-shrink-0"
+            style={{ color: 'var(--text-40)', fontSize: '12px', whiteSpace: 'nowrap' }}
+          >
+            Works on every platform
           </span>
-        </h1>
+          <div className="overflow-hidden flex-1 relative">
+            <div className="marquee-track">
+              {[...PLATFORMS, ...PLATFORMS].map((name, i) => (
+                <span
+                  key={`${name}-${i}`}
+                  style={{ fontSize: '13px', color: 'var(--text-60)', padding: '0 32px', whiteSpace: 'nowrap' }}
+                >
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...spring, delay: 0.55 }}
-          className="text-gray-400 text-lg md:text-xl mt-8 max-w-2xl leading-relaxed"
-        >
-          {t('homepage.hero_subtitle')}
-        </motion.p>
+      {/* SECTION 3 - FEATURES */}
+      <section id="features" className="scroll-mt-20 px-6" style={{ padding: '96px 0' }}>
+        <div className="max-w-6xl mx-auto px-6">
+          <h2
+            className="text-center"
+            style={{ fontSize: sectionHeadingClamp, fontWeight: 500, marginBottom: '56px' }}
+          >
+            {t('homepage.features_title')}
+          </h2>
 
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...spring, delay: 0.65 }}
-          className="flex flex-col sm:flex-row gap-4 mt-10"
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '1px',
+              background: 'var(--border)',
+            }}
+          >
+            {FEATURES.map((feature, index) => {
+              const Icon = feature.icon
+              return (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.1 }}
+                  className="relative"
+                  style={{ background: 'var(--bg-card)', padding: '28px' }}
+                >
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: 'var(--radius-sm)',
+                      background: 'var(--primary-tint)',
+                      marginBottom: '16px',
+                    }}
+                  >
+                    <Icon style={{ color: 'var(--primary)', width: '18px', height: '18px' }} />
+                  </div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-100)', marginBottom: '8px' }}>
+                    {feature.title}
+                  </h3>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--text-60)', lineHeight: 1.6 }}>
+                    {feature.desc}
+                  </p>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4 - HOW IT WORKS */}
+      <section id="how-it-works" className="scroll-mt-20 px-6" style={{ padding: '96px 0' }}>
+        <div className="max-w-6xl mx-auto px-6">
+          <h2
+            className="text-center"
+            style={{ fontSize: sectionHeadingClamp, fontWeight: 500, marginBottom: '56px' }}
+          >
+            {t('homepage.how_title')}
+          </h2>
+
+          <div className="flex flex-col md:flex-row items-stretch gap-10 md:gap-0">
+            {STEPS.map((step, index) => (
+              <motion.div
+                key={step.num}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.2 }}
+                className="flex-1 border-t-2 md:border-t-0 md:border-l-2 pt-6 md:pt-0 md:pl-6 md:mr-10 last:mr-0"
+                style={{ borderColor: 'var(--primary)' }}
+              >
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: 'var(--primary)',
+                    fontWeight: 600,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    marginBottom: '12px',
+                  }}
+                >
+                  {step.num}
+                </div>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 500, color: 'var(--text-100)', marginBottom: '8px' }}>
+                  {step.title}
+                </h3>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-60)', lineHeight: 1.6 }}>
+                  {step.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5 - SOCIAL PROOF */}
+      <section className="px-6 text-center" style={{ padding: '80px 0' }}>
+        <p style={{ fontSize: '1.25rem', fontWeight: 400, color: 'var(--text-60)', textAlign: 'center' }}>
+          Join the first businesses putting CreoBot to work.
+        </p>
+        <Link
+          href={ctaHref}
+          className="inline-block mt-4 text-sm font-medium hover:underline"
+          style={{ color: 'var(--primary)' }}
         >
-          <motion.div whileTap={{ scale: 0.97, transition: spring }}>
+          Get started free &rarr;
+        </Link>
+      </section>
+
+      {/* SECTION 6 - PRICING PREVIEW */}
+      <section id="pricing" className="scroll-mt-20 px-6" style={{ padding: '96px 0' }}>
+        <div className="max-w-5xl mx-auto px-6">
+          <h2
+            className="text-center"
+            style={{ fontSize: sectionHeadingClamp, fontWeight: 500, marginBottom: '12px' }}
+          >
+            {t('homepage.pricing_cta_title')}
+          </h2>
+          <p
+            className="text-center"
+            style={{ color: 'var(--text-60)', fontSize: '14px', marginBottom: '48px' }}
+          >
+            No per-message fees. Cancel anytime.
+          </p>
+
+          <div className="flex flex-col md:flex-row justify-center gap-4 pt-3">
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className="flex-1 flex flex-col"
+                style={{
+                  background: 'var(--bg-card)',
+                  border: plan.popular ? '0.5px solid var(--primary)' : '0.5px solid var(--border)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '28px',
+                  position: 'relative',
+                }}
+              >
+                {plan.popular && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '-12px',
+                      right: '16px',
+                      background: 'var(--primary)',
+                      color: 'white',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      padding: '3px 10px',
+                      borderRadius: '20px',
+                    }}
+                  >
+                    {t('pricing.most_popular')}
+                  </span>
+                )}
+                <div
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: 'var(--text-60)',
+                    marginBottom: '8px',
+                  }}
+                >
+                  {plan.name}
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span style={{ fontSize: '2rem', fontWeight: 500, color: 'var(--text-100)' }}>{plan.price}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--text-40)' }}>{plan.period}</span>
+                </div>
+                <div className="flex flex-col flex-1" style={{ marginTop: '20px', gap: '10px' }}>
+                  {plan.features.map((feature) => (
+                    <div key={feature} className="flex items-start gap-2.5">
+                      <Check className="flex-shrink-0 mt-0.5" style={{ color: 'var(--primary)', width: '16px', height: '16px' }} />
+                      <span style={{ color: 'var(--text-60)', fontSize: '14px' }}>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link
+                  href={isLoggedIn ? '/pricing' : '/signup'}
+                  className="block w-full text-center text-sm font-medium transition-[background-color,border-color,transform] duration-150 active:scale-[0.98]"
+                  style={{
+                    marginTop: '24px',
+                    padding: '10px 0',
+                    borderRadius: 'var(--radius-md)',
+                    ...(plan.style === 'primary'
+                      ? { background: 'var(--primary)', color: 'white', border: '0.5px solid transparent' }
+                      : plan.style === 'ghost-primary'
+                      ? { background: 'transparent', color: 'var(--text-100)', border: '0.5px solid var(--primary)' }
+                      : { background: 'transparent', color: 'var(--text-100)', border: '0.5px solid var(--border)' }),
+                  }}
+                >
+                  {plan.cta}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 7 - FINAL CTA */}
+      <section className="relative overflow-hidden px-6" style={{ padding: '120px 0', background: 'var(--bg-page)' }}>
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 600px 300px at 50% 50%, rgba(107,63,220,0.2) 0%, transparent 70%)',
+          }}
+        />
+        <div className="relative z-[1] text-center px-6">
+          <h2
+            className="text-balance"
+            style={{
+              fontSize: headingClamp,
+              fontWeight: 500,
+              lineHeight: 1.15,
+              maxWidth: '700px',
+              margin: '0 auto',
+            }}
+          >
+            {t('homepage.cta_title')}
+          </h2>
+          <p style={{ color: 'var(--text-60)', fontSize: '16px', marginTop: '12px' }}>
+            Set up in 10 minutes. No developer needed.
+          </p>
+          <div style={{ marginTop: '32px' }}>
             <Link
-              href={isLoggedIn ? '/dashboard' : '/signup'}
-              className="inline-block w-full sm:w-auto bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white px-8 py-3.5 rounded-lg font-semibold transition-shadow duration-200 text-center"
+              href={ctaHref}
+              className="btn-pulse inline-block transition-[background-color,transform] duration-150 active:scale-[0.97]"
+              style={{
+                background: 'var(--primary)',
+                color: 'white',
+                padding: '12px 28px',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.9375rem',
+                fontWeight: 500,
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-hover)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--primary)' }}
             >
               {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('homepage.hero_cta_primary')}
             </Link>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.02, transition: spring }} whileTap={{ scale: 0.97, transition: spring }}>
-            <Link
-              href="/pricing"
-              className="inline-block w-full sm:w-auto border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-[border-color,color] duration-200 text-center"
-            >
-              {t('homepage.hero_cta_secondary')}
-            </Link>
-          </motion.div>
-        </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ ...spring, delay: 0.8 }}
-          className="text-gray-600 text-sm mt-4"
-        >
-          {t('homepage.hero_tagline')}
-        </motion.p>
-      </section>
-
-      {/* 3. SOCIAL PROOF BAR */}
-      <motion.section
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="w-full bg-gray-900/60 backdrop-blur-sm border-y border-gray-800 py-4"
-      >
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
-          <TrendingUp size={16} style={{ color: '#1a56db' }} className="flex-shrink-0" />
-          <span>
-            {(() => {
-              const text = t('homepage.social_proof')
-              const parts = text.split('58%')
-              return (
-                <>
-                  {parts[0]}
-                  <motion.span
-                    style={{ color: '#1a56db' }}
-                    className="font-bold"
-                    animate={{
-                      textShadow: [
-                        '0 0 0px rgba(26,86,219,0)',
-                        '0 0 10px rgba(59,130,246,0.5)',
-                        '0 0 0px rgba(26,86,219,0)',
-                      ],
-                    }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
-                  >
-                    58%
-                  </motion.span>
-                  {parts[1]}
-                </>
-              )
-            })()}
-          </span>
-        </div>
-      </motion.section>
-
-      {/* 4. STATS BAR */}
-      <motion.section
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="border-t border-b border-gray-800 bg-gray-900/40"
-      >
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center"
-        >
-          {stats.map((stat) => (
-            <motion.div key={stat.label} variants={fadeUp}>
-              <div className="text-3xl font-bold text-white tracking-tight">{stat.value}</div>
-              <div className="text-gray-400 text-sm mt-1 leading-relaxed">{stat.label}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.section>
-
-      {/* 5. FEATURES */}
-      <section id="features" className="scroll-mt-20 px-6 py-24 max-w-6xl mx-auto w-full">
-        <motion.h2
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
-        >
-          {t('homepage.features_title')}
-        </motion.h2>
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          transition={{ delay: 0.08 }}
-          className="text-gray-400 text-center mb-14 max-w-xl mx-auto leading-relaxed"
-        >
-          {t('homepage.features_subtitle')}
-        </motion.p>
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          {features.map((f) => (
-            <motion.div
-              key={f.title}
-              variants={fadeUp}
-              whileHover={{ scale: 1.02, y: -4, transition: spring }}
-              className="bg-gray-900 hover:bg-gray-800/80 border border-gray-800 hover:border-gray-600 rounded-2xl p-6 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out"
-            >
-              <div className="text-3xl mb-4">{f.icon}</div>
-              <h3 className="font-semibold text-white mb-2 tracking-tight">{f.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* 6. WHY CREOBOT */}
-      <section className="bg-gray-900/40 border-t border-gray-800 px-6 py-24">
-        <div className="max-w-5xl mx-auto">
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
-          >
-            {t('homepage.differentiator_title')}
-          </motion.h2>
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ delay: 0.08 }}
-            className="text-gray-400 text-center mb-14 max-w-2xl mx-auto leading-relaxed"
-          >
-            {t('homepage.differentiator_subtitle')}
-          </motion.p>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            {differentiators.map((d) => (
-              <motion.div
-                key={d.title}
-                variants={fadeUp}
-                className="flex flex-col gap-4"
-              >
-                <span className="text-2xl">{d.icon}</span>
-                <h3 className="text-white font-semibold text-lg leading-snug tracking-tight">{d.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{d.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 7. HOW IT WORKS */}
-      <section id="how-it-works" className="scroll-mt-20 px-6 py-24">
-        <div className="max-w-4xl mx-auto">
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
-          >
-            {t('homepage.how_title')}
-          </motion.h2>
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ delay: 0.08 }}
-            className="text-gray-400 text-center mb-16 leading-relaxed"
-          >
-            {t('homepage.how_subtitle')}
-          </motion.p>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-10"
-          >
-            {steps.map((s) => (
-              <motion.div
-                key={s.step}
-                variants={fadeUp}
-                className="text-center"
-              >
-                <div className="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-5">
-                  <span className="text-blue-400 font-bold text-lg">{parseInt(s.step)}</span>
-                </div>
-                <h3 className="font-semibold text-white text-lg mb-2 tracking-tight">{s.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 8. TESTIMONIALS */}
-      <section className="bg-gray-900/40 border-t border-gray-800 px-6 py-24">
-        <div className="max-w-6xl mx-auto">
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4"
-          >
-            {t('homepage.testimonials_title')}
-          </motion.h2>
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ delay: 0.08 }}
-            className="text-gray-400 text-center mb-14 leading-relaxed"
-          >
-            {t('homepage.testimonials_subtitle')}
-          </motion.p>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            {testimonials.map((testimonial) => (
-              <motion.div
-                key={testimonial.name}
-                variants={fadeUp}
-                whileHover={{ scale: 1.02, y: -4, transition: spring }}
-                className="bg-gray-900 hover:bg-gray-800/80 border border-gray-800 hover:border-gray-600 rounded-2xl p-7 flex flex-col gap-6 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] transition-[border-color,background-color,box-shadow] duration-200 ease-out"
-              >
-                <div className="flex gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className="text-yellow-400 text-sm">★</span>
-                  ))}
-                </div>
-                <p className="text-gray-300 text-sm leading-relaxed flex-1">"{testimonial.quote}"</p>
-                <div>
-                  <div className="text-white font-semibold text-sm">{testimonial.name}</div>
-                  <div className="text-gray-500 text-xs mt-0.5">{testimonial.role}</div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 9. PRICING TEASER */}
-      <section id="pricing" className="scroll-mt-20 px-6 py-24">
-        <div className="max-w-2xl mx-auto text-center">
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-4"
-          >
-            {t('homepage.pricing_cta_title')}
-          </motion.h2>
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ delay: 0.08 }}
-            className="text-gray-400 text-lg mb-8 leading-relaxed"
-          >
-            {t('homepage.pricing_cta')}
-          </motion.p>
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ delay: 0.16 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <motion.div whileTap={{ scale: 0.97, transition: spring }}>
-              <Link
-                href="/pricing"
-                className="inline-block bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white px-8 py-3.5 rounded-lg font-semibold transition-shadow duration-200"
-              >
-                {t('homepage.pricing_see_plans')}
-              </Link>
-            </motion.div>
-            {!isLoggedIn && (
-              <motion.div whileHover={{ scale: 1.02, transition: spring }} whileTap={{ scale: 0.97, transition: spring }}>
-                <Link
-                  href="/signup"
-                  className="inline-block border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white px-8 py-3.5 rounded-lg font-semibold transition-[border-color,color] duration-200"
-                >
-                  {t('homepage.pricing_start_free')}
-                </Link>
-              </motion.div>
-            )}
-          </motion.div>
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ delay: 0.24 }}
-            className="text-gray-600 text-sm mt-5"
-          >
-            {t('homepage.pricing_note')}
-          </motion.p>
-        </div>
-      </section>
-
-      {/* 10. FAQ */}
-      <section id="faq" className="scroll-mt-20 bg-gray-900/40 border-t border-gray-800 px-6 py-24">
-        <div className="max-w-3xl mx-auto w-full">
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-14"
-          >
-            {t('homepage.faq_title')}
-          </motion.h2>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="flex flex-col divide-y divide-gray-800"
-          >
-            {faqs.map((faq, i) => (
-              <motion.div key={i} variants={fadeUp}>
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between py-5 text-left group"
-                >
-                  <span className="font-medium text-white group-hover:text-blue-400 transition-colors duration-200 pr-4">
-                    {faq.q}
-                  </span>
-                  <motion.span
-                    animate={{ rotate: openFaq === i ? 180 : 0 }}
-                    transition={spring}
-                    className="text-gray-400 flex-shrink-0"
-                  >
-                    <ChevronDown className="w-5 h-5" />
-                  </motion.span>
-                </button>
-                <AnimatePresence initial={false}>
-                  {openFaq === i && (
-                    <motion.div
-                      key="content"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-                      className="overflow-hidden"
-                    >
-                      <p className="text-gray-400 text-sm leading-relaxed pb-5 pr-8">{faq.a}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 11. CTA BANNER */}
-      <motion.section
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="mx-4 md:mx-8 mb-16 rounded-2xl bg-gradient-to-br from-blue-600/20 via-gray-900 to-gray-900 border border-blue-500/20 px-8 py-20 text-center"
-      >
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 max-w-2xl mx-auto">
-          {t('homepage.cta_title')}
-        </h2>
-        <p className="text-gray-400 mb-10 max-w-xl mx-auto leading-relaxed">
-          {t('homepage.cta_subtitle')}
-        </p>
-        <motion.div
-          whileTap={{ scale: 0.97, transition: spring }}
-          className="inline-block"
-        >
-          <Link
-            href={isLoggedIn ? '/dashboard' : '/signup'}
-            className="inline-block bg-gradient-to-r from-[#1a56db] to-[#1e40af] hover:shadow-[0_0_20px_rgba(26,86,219,0.3)] text-white px-10 py-4 rounded-lg font-semibold text-base transition-shadow duration-200"
-          >
-            {isLoggedIn ? t('homepage.hero_cta_dashboard') : t('homepage.cta_button')}
-          </Link>
-        </motion.div>
-        <p className="text-gray-600 text-sm mt-4">{t('homepage.cta_note')}</p>
-      </motion.section>
-
-      {/* 12. FOOTER */}
-      <footer className="border-t border-gray-800 px-6 pt-8 pb-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col items-center sm:items-start gap-1">
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-blue-500" />
-              <span className="font-bold text-white">CreoBot</span>
-            </div>
-            <p className="text-gray-500 text-xs">{t('homepage.footer_tagline')}</p>
           </div>
-          <p className="text-xs text-gray-600">
-            Built by{' '}
-            <a
-              href="https://www.linkedin.com/in/keval-savaliya/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 font-medium hover:text-white transition-colors duration-200"
-            >
-              Keval Savaliya
-            </a>
-            <span className="text-gray-700 mx-2">·</span>
-            <span className="text-gray-600">Founder</span>
+          <p style={{ color: 'var(--text-40)', fontSize: '12px', marginTop: '12px' }}>
+            Free plan available. No credit card required.
           </p>
-          <div className="flex items-center gap-4">
-            <Link href="/trust" className="text-gray-500 text-xs hover:text-gray-300 transition-colors duration-200">
-              Trust &amp; Privacy
-            </Link>
-            <p className="text-gray-600 text-sm">{t('homepage.footer_copyright')}</p>
-          </div>
         </div>
-      </footer>
+      </section>
+
+      {/* SECTION 8 - FOOTER */}
+      <CreoBotFooter langSwitcher={<LanguageSwitcher />} />
 
     </main>
-    </div>
   )
 }

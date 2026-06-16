@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Bot, ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ArrowLeft, Eye, EyeOff, Loader2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,31 +20,6 @@ const schema = z.object({
 })
 
 type FormValues = z.infer<typeof schema>
-
-const TESTIMONIALS = [
-  {
-    quote: 'Setup took 5 minutes. Now our bot handles enquiries 24/7 while we sleep.',
-    name: 'James K.',
-    role: 'Restaurant Owner',
-  },
-  {
-    quote: 'CreoBot answered 90% of our customer questions automatically. Game changer.',
-    name: 'Sarah M.',
-    role: 'Coffee Shop Owner',
-  },
-  {
-    quote: 'The human handoff feature is brilliant. We never miss a hot lead.',
-    name: 'Priya R.',
-    role: 'Boutique Owner',
-  },
-  {
-    quote: "Our customers think we have a full support team. It's just CreoBot.",
-    name: 'David L.',
-    role: 'Fitness Studio Owner',
-  },
-]
-
-const INTERVAL = 5000
 
 const features = [
   'Zero hallucination: answers only from your docs',
@@ -66,22 +42,12 @@ export default function LoginClient() {
   const supabase = createClient()
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState('')
-  const [idx, setIdx] = useState(0)
-  const [tick, setTick] = useState(0)
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setIdx(i => (i + 1) % TESTIMONIALS.length)
-      setTick(t => t + 1)
-    }, INTERVAL)
-    return () => clearInterval(t)
-  }, [])
 
   const onSubmit = async (data: FormValues) => {
     setServerError('')
@@ -94,10 +60,13 @@ export default function LoginClient() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-950 flex">
+    <main className="min-h-screen flex" style={{ backgroundColor: 'var(--bg-page)' }}>
 
       {/* Left: Brand Panel */}
-      <div className="hidden lg:flex flex-col justify-between w-[45%] bg-gray-900 border-r border-gray-800 px-12 py-10 overflow-hidden">
+      <div
+        className="hidden lg:flex flex-col justify-between w-[45%] px-12 py-10 overflow-hidden"
+        style={{ backgroundColor: 'var(--bg-surface)', borderRight: '0.5px solid var(--border)' }}
+      >
 
         {/* Logo */}
         <motion.div
@@ -105,58 +74,26 @@ export default function LoginClient() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
-          <Link href="/" className="flex items-center gap-2 text-white">
-            <Bot className="h-6 w-6 text-blue-500" />
-            <span className="font-bold text-xl">CreoBot</span>
+          <Link href="/" className="inline-block">
+            <Image src="/logo.png" alt="CreoBot" width={120} height={32} />
           </Link>
         </motion.div>
 
-        {/* Rotating testimonial */}
+        {/* Headline */}
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
         >
-          <div className="min-h-[160px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -18 }}
-                transition={{ duration: 0.45, ease: 'easeInOut' }}
-              >
-                <blockquote className="text-2xl font-bold tracking-tight text-white leading-snug mb-6">
-                  "{TESTIMONIALS[idx].quote}"
-                </blockquote>
-                <p className="text-white font-semibold text-sm">{TESTIMONIALS[idx].name}</p>
-                <p className="text-gray-500 text-sm">{TESTIMONIALS[idx].role}</p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Progress dots */}
-          <div className="flex gap-2 mt-6">
-            {TESTIMONIALS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => { setIdx(i); setTick(t => t + 1) }}
-                className={`relative h-1.5 rounded-full overflow-hidden transition-all duration-300 ${
-                  i === idx ? 'w-8 bg-gray-700' : 'w-1.5 bg-gray-700 hover:bg-gray-500'
-                }`}
-              >
-                {i === idx && (
-                  <motion.span
-                    key={tick}
-                    className="absolute inset-y-0 left-0 bg-blue-500 rounded-full"
-                    initial={{ width: '0%' }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: INTERVAL / 1000, ease: 'linear' }}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
+          <h2
+            className="leading-snug mb-4 text-balance"
+            style={{ fontSize: '1.75rem', fontWeight: 500, color: 'var(--text-100)' }}
+          >
+            Your business, always available.
+          </h2>
+          <p className="text-sm leading-relaxed max-w-sm" style={{ color: 'var(--text-60)' }}>
+            CreoBot answers customer questions 24/7 from your docs only. You get an email when a human is needed.
+          </p>
         </motion.div>
 
         {/* Feature list */}
@@ -167,8 +104,8 @@ export default function LoginClient() {
           className="flex flex-col gap-3"
         >
           {features.map((feat) => (
-            <div key={feat} className="flex items-center gap-3 text-sm text-gray-400">
-              <span className="text-green-400 text-base leading-none flex-shrink-0">✓</span>
+            <div key={feat} className="flex items-center gap-3 text-sm" style={{ color: 'var(--text-60)' }}>
+              <Check className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--primary)' }} />
               {feat}
             </div>
           ))}
@@ -179,27 +116,40 @@ export default function LoginClient() {
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
 
         {/* Mobile logo */}
-        <Link href="/" className="flex items-center gap-2 mb-10 lg:hidden">
-          <Bot className="h-6 w-6 text-blue-500" />
-          <span className="font-bold text-xl text-white">CreoBot</span>
+        <Link href="/" className="mb-10 lg:hidden">
+          <Image src="/logo.png" alt="CreoBot" width={120} height={32} />
         </Link>
 
         <motion.div
           variants={formContainer}
           initial="hidden"
           animate="visible"
-          className="w-full max-w-sm"
+          className="w-full"
+          style={{
+            background: 'var(--bg-card)',
+            border: '0.5px solid var(--border)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '32px',
+            maxWidth: '420px',
+            margin: '0 auto',
+          }}
         >
           <motion.div variants={formItem} className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Welcome back</h1>
-            <p className="text-gray-400 text-sm">Sign in to your CreoBot account.</p>
+            <h1 className="mb-2" style={{ fontSize: '1.75rem', fontWeight: 500, color: 'var(--text-100)' }}>Welcome back</h1>
+            <p className="text-sm" style={{ color: 'var(--text-60)' }}>Sign in to your CreoBot account.</p>
           </motion.div>
 
           {serverError && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm"
+              className="px-4 py-3 mb-6 text-sm"
+              style={{
+                background: 'rgba(248, 113, 113, 0.1)',
+                border: '0.5px solid rgba(248, 113, 113, 0.2)',
+                borderRadius: 'var(--radius-md)',
+                color: '#f87171',
+              }}
             >
               {serverError}
             </motion.div>
@@ -218,7 +168,7 @@ export default function LoginClient() {
                   aria-invalid={!!errors.email}
                 />
                 {errors.email && (
-                  <p className="text-xs text-red-400">{errors.email.message}</p>
+                  <p className="text-xs" style={{ color: '#f87171' }}>{errors.email.message}</p>
                 )}
               </motion.div>
 
@@ -236,14 +186,14 @@ export default function LoginClient() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors duration-150"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-xs text-red-400">{errors.password.message}</p>
+                  <p className="text-xs" style={{ color: '#f87171' }}>{errors.password.message}</p>
                 )}
               </motion.div>
 
@@ -251,7 +201,7 @@ export default function LoginClient() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors duration-200 text-sm"
+                  className="w-full h-11 bg-cb-primary hover:bg-cb-primary-hover text-white font-medium rounded-[10px] transition-[background-color,transform] duration-150 active:scale-[0.98] text-sm"
                 >
                   {isSubmitting ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing in...</>
@@ -264,15 +214,15 @@ export default function LoginClient() {
             </motion.div>
           </form>
 
-          <motion.p variants={formItem} className="text-gray-500 text-sm text-center mt-8">
+          <motion.p variants={formItem} className="text-sm text-center mt-8" style={{ color: 'var(--text-40)' }}>
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">
+            <Link href="/signup" className="transition-colors duration-150 hover:underline" style={{ color: 'var(--primary-hover)' }}>
               Start free trial
             </Link>
           </motion.p>
 
           <motion.div variants={formItem} className="mt-6 text-center">
-            <Link href="/" className="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-400 text-xs transition-colors duration-200">
+            <Link href="/" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/60 text-xs transition-colors duration-150">
               <ArrowLeft className="w-3 h-3" /> Back to home
             </Link>
           </motion.div>
